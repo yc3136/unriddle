@@ -1,0 +1,35 @@
+{
+  "manifest_version": 3,
+  "name": "unriddle",
+  "version": "1.0.0",
+  "description": "Explain, simplify, or translate selected text using LLMs.",
+  "permissions": [
+    "contextMenus",
+    "scripting",
+    "activeTab"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"]
+    }
+  ],
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "128": "icons/unriddle-128.png"
+    }
+  },
+  "icons": {
+    "128": "icons/unriddle-128.png"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["llmApi.js"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+} 
