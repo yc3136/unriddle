@@ -28,6 +28,7 @@ function showUnriddlePopup(text, loading = true, result = "", isHtml = false) {
   popup.style.display = "flex";
   popup.style.alignItems = "center";
   popup.style.gap = "12px";
+  popup.style.flexDirection = "column";
 
   const coords = getSelectionCoords();
   if (coords) {
@@ -54,12 +55,81 @@ function showUnriddlePopup(text, loading = true, result = "", isHtml = false) {
     popup.appendChild(loadingText);
   } else {
     const resultSpan = document.createElement("span");
+    let resultText = result;
     if (isHtml) {
-      resultSpan.innerHTML = simpleMarkdownToHtml(result);
+      resultSpan.innerHTML = simpleMarkdownToHtml(resultText.replace(/\n?⏱️ Time used: [\d.]+s/, ""));
     } else {
-      resultSpan.textContent = result;
+      resultSpan.textContent = resultText.replace(/\n?⏱️ Time used: [\d.]+s/, "");
     }
+    // LLM response text left-aligned
+    resultSpan.style.textAlign = "left";
+    resultSpan.style.width = "100%";
+    resultSpan.style.display = "block";
     popup.appendChild(resultSpan);
+
+    // --- Inline time spent and feedback button ---
+    const metaRow = document.createElement("div");
+    metaRow.style.display = "flex";
+    metaRow.style.alignItems = "center";
+    metaRow.style.justifyContent = "space-between";
+    metaRow.style.gap = "8px";
+    metaRow.style.marginTop = "10px";
+    metaRow.style.width = "100%";
+
+    // Time spent sentence (left-aligned)
+    let timeText = "";
+    if (typeof result === 'string') {
+      const timeMatch = result.match(/⏱️ Time used: [\d.]+s/);
+      if (timeMatch) {
+        timeText = timeMatch[0];
+      }
+    }
+    const timeSpan = document.createElement("span");
+    timeSpan.textContent = timeText;
+    timeSpan.style.fontSize = "0.95em";
+    timeSpan.style.color = "#888";
+    timeSpan.style.flex = "1 1 auto";
+    metaRow.appendChild(timeSpan);
+
+    // Feedback icon button (right-aligned, no border, icon color #888)
+    const feedbackBtn = document.createElement("button");
+    feedbackBtn.setAttribute("aria-label", "Send Feedback");
+    feedbackBtn.title = "Send Feedback";
+    feedbackBtn.style.width = "32px";
+    feedbackBtn.style.height = "32px";
+    feedbackBtn.style.display = "flex";
+    feedbackBtn.style.alignItems = "center";
+    feedbackBtn.style.justifyContent = "center";
+    feedbackBtn.style.background = "transparent";
+    feedbackBtn.style.border = "none";
+    feedbackBtn.style.borderRadius = "50%";
+    feedbackBtn.style.cursor = "pointer";
+    feedbackBtn.style.boxShadow = "none";
+    feedbackBtn.style.transition = "background 0.2s";
+    feedbackBtn.onmouseover = () => feedbackBtn.style.background = "#e0e0e0";
+    feedbackBtn.onmouseout = () => feedbackBtn.style.background = "transparent";
+    feedbackBtn.innerHTML = `
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M4 22V5a2 2 0 0 1 2-2h13l-1.34 5.36a2 2 0 0 0 0 1.28L19 17H6a2 2 0 0 1-2-2z"/>
+        <line x1="4" y1="22" x2="4" y2="22"/>
+      </svg>
+    `; // flag icon, color #888
+    feedbackBtn.onclick = function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      const baseUrl = "https://docs.google.com/forms/d/e/1FAIpQLSdJUcgB0AbgSI59oE_O7DFBSKOivFWLNpCXXH4WMBsKrnHanw/viewform";
+      const params = new URLSearchParams({
+        "entry.378537756": "", // Feedback message (user will fill)
+        "entry.784312090": window.location.href, // Page URL
+        "entry.1050436188": text, // Selected Text
+        "entry.572050706": typeof result === 'string' ? result : "" // LLM Output
+      });
+      window.open(`${baseUrl}?${params.toString()}`, "_blank");
+    };
+    metaRow.appendChild(feedbackBtn);
+
+    // Insert metaRow after the result
+    popup.appendChild(metaRow);
   }
 
   document.body.appendChild(popup);
