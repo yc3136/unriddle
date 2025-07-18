@@ -107,15 +107,56 @@ function simpleMarkdownToHtml(md) {
 
 chrome.runtime.onMessage.addListener(async (msg, sender, sendResponse) => {
   if (msg.action === "UNRIDDLE_SELECTED_TEXT") {
-    showUnriddlePopup(msg.text, true);
+    // --- Context Expansion Logic ---
+    // 1. Get the current selection (if available)
+    let selection = window.getSelection();
+    let selectedText = msg.text;
+    let contextSnippet = selectedText;
+    let sectionHeading = "";
+    let pageTitle = document.title;
+
+    if (selection && selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      // Expand to containing paragraph or block
+      let node = range.commonAncestorContainer;
+      while (node && node.nodeType !== Node.ELEMENT_NODE) node = node.parentNode;
+      let block = node && (node.closest('p,li,blockquote,td,th,div,section,article') || node);
+      if (block && block.innerText) {
+        // Limit context to 500 characters for cost/privacy
+        contextSnippet = block.innerText.trim().slice(0, 500);
+      }
+      // Find nearest heading
+      let headingNode = node;
+      while (headingNode && !/^H[1-6]$/.test(headingNode.tagName)) headingNode = headingNode.previousElementSibling;
+      if (headingNode && headingNode.innerText) {
+        sectionHeading = headingNode.innerText.trim();
+      }
+    }
+
+    // Fallback: try to find a heading above the selection
+    if (!sectionHeading) {
+      let headings = Array.from(document.querySelectorAll('h1, h2, h3, h4, h5, h6'));
+      let bestHeading = headings.reverse().find(h => h.compareDocumentPosition(selection.anchorNode) & Node.DOCUMENT_POSITION_PRECEDING);
+      if (bestHeading) sectionHeading = bestHeading.innerText.trim();
+    }
+
+    // Compose context object
+    const context = {
+      page_title: pageTitle,
+      section_heading: sectionHeading,
+      context_snippet: contextSnippet,
+      user_selection: selectedText
+    };
+
+    showUnriddlePopup(selectedText, true);
     const startTime = Date.now();
     try {
-      const result = await unriddleText(msg.text);
+      const result = await unriddleText(context);
       const elapsed = ((Date.now() - startTime) / 1000).toFixed(2);
-      showUnriddlePopup(msg.text, false, `${result}\n\n⏱️ Time used: ${elapsed}s`, true);
+      showUnriddlePopup(selectedText, false, `${result}\n\n⏱️ Time used: ${elapsed}s`, true);
     } catch (err) {
       const elapsed = ((Date.now() - startTime) / 1000).toFixed(2);
-      showUnriddlePopup(msg.text, false, `Error: ${err.message || err}\n\n⏱️ Time used: ${elapsed}s`, true);
+      showUnriddlePopup(selectedText, false, `Error: ${err.message || err}\n\n⏱️ Time used: ${elapsed}s`, true);
     }
   }
 });
