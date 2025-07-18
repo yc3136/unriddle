@@ -1,7 +1,7 @@
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
     id: "unriddle-context-menu",
-    title: "unriddle: Explain/Simplify/Translate",
+    title: "In other words",
     contexts: ["selection"]
   });
 });
