@@ -22,15 +22,17 @@ function showUnriddlePopup(text, loading = true, result = "", isHtml = false) {
   popup.style.boxShadow = "0 0 0 2px #a0c4ff"; // Subtle blue shadow for accessibility
   popup.style.position = "absolute";
   popup.style.zIndex = 99999;
-  popup.style.background = "#fff";
-  popup.style.border = "1px solid #ccc";
-  popup.style.borderRadius = "8px";
-  popup.style.boxShadow = "0 2px 8px rgba(0,0,0,0.15)";
+  // Detect dark mode
+  const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  // Set popup styles
+  popup.style.background = isDark ? '#23272f' : '#fff';
+  popup.style.border = isDark ? '1px solid #444' : '1px solid #ccc';
+  popup.style.color = isDark ? '#f3f6fa' : '#222';
+  popup.style.boxShadow = isDark ? '0 2px 12px rgba(0,0,0,0.60)' : '0 2px 8px rgba(0,0,0,0.15)';
   popup.style.padding = "16px";
   popup.style.fontSize = "16px";
   popup.style.maxWidth = "320px";
   popup.style.minWidth = "200px";
-  popup.style.color = "#222";
   popup.style.display = "flex";
   popup.style.alignItems = "center";
   popup.style.gap = "12px";
