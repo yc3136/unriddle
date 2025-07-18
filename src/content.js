@@ -12,31 +12,64 @@ function showUnriddlePopup(text, loading = true, result = "", isHtml = false) {
   let popup = document.getElementById("unriddle-popup");
   if (popup) popup.remove();
 
+  // Use a simple, neutral background for the popup
+  const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const background = isDark ? '#23272f' : '#fff';
+
   popup = document.createElement("div");
   popup.id = "unriddle-popup";
   popup.setAttribute("role", "dialog");
   popup.setAttribute("aria-modal", "true");
+  // aria-labelledby will be set after LLM response span is created
   popup.setAttribute("tabindex", "-1"); // Make focusable
   // Custom focus style to avoid default blue border
   popup.style.outline = "none";
   popup.style.boxShadow = "0 0 0 2px #a0c4ff"; // Subtle blue shadow for accessibility
   popup.style.position = "absolute";
   popup.style.zIndex = 99999;
-  // Detect dark mode
-  const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-  // Set popup styles
-  popup.style.background = isDark ? '#23272f' : '#fff';
-  popup.style.border = isDark ? '1px solid #444' : '1px solid #ccc';
-  popup.style.color = isDark ? '#f3f6fa' : '#222';
-  popup.style.boxShadow = isDark ? '0 2px 12px rgba(0,0,0,0.60)' : '0 2px 8px rgba(0,0,0,0.15)';
-  popup.style.padding = "16px";
-  popup.style.fontSize = "16px";
-  popup.style.maxWidth = "320px";
-  popup.style.minWidth = "200px";
-  popup.style.display = "flex";
-  popup.style.alignItems = "center";
-  popup.style.gap = "12px";
-  popup.style.flexDirection = "column";
+  popup.style.background = background;
+  popup.style.border = isDark ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(0,0,0,0.08)';
+  popup.style.color = isDark ? '#f3f6fa' : '#1a2340';
+  popup.style.boxShadow = isDark ? '0 8px 32px 0 rgba(0,0,0,0.60)' : '0 8px 32px 0 rgba(31,38,135,0.18)';
+  popup.style.padding = '18px 16px 16px 16px';
+  popup.style.fontSize = '0.98em';
+  popup.style.fontFamily = "'Inter', 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif";
+  popup.style.maxWidth = '320px';
+  popup.style.minWidth = '180px';
+  popup.style.minHeight = 'unset';
+  popup.style.display = 'flex';
+  popup.style.alignItems = 'center';
+  // No gap or margin between items
+  popup.style.flexDirection = 'column';
+  popup.style.borderRadius = '14px';
+  popup.style.backdropFilter = 'blur(12px) saturate(160%)';
+  popup.style.webkitBackdropFilter = 'blur(12px) saturate(160%)';
+  popup.style.transition = 'box-shadow 0.2s';
+  // Remove any code that sets margin between children
+
+  // Detect font of selected text
+  let fontFamily = "'Inter', 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif";
+  let fontSize = '0.98em';
+  let fontWeight = '400';
+  let fontStyle = 'normal';
+  const selection = window.getSelection();
+  if (selection && selection.rangeCount > 0) {
+    let node = selection.anchorNode;
+    if (node && node.nodeType === Node.TEXT_NODE) node = node.parentNode;
+    if (node && node.nodeType === Node.ELEMENT_NODE) {
+      const computed = window.getComputedStyle(node);
+      fontFamily = computed.fontFamily || fontFamily;
+      fontSize = computed.fontSize || fontSize;
+      fontWeight = computed.fontWeight || fontWeight;
+      fontStyle = computed.fontStyle || fontStyle;
+    }
+  }
+
+  // Set popup font to default modern stack for all children
+  popup.style.fontFamily = "'Inter', 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif";
+  popup.style.fontSize = '0.98em';
+  popup.style.fontWeight = '400';
+  popup.style.fontStyle = 'normal';
 
   // Focus trap elements
   const focusTrapStart = document.createElement("div");
@@ -58,17 +91,44 @@ function showUnriddlePopup(text, loading = true, result = "", isHtml = false) {
   }
 
   if (loading) {
-    const spinner = document.createElement("span");
-    spinner.className = "unriddle-spinner";
-    spinner.setAttribute("role", "status");
-    spinner.setAttribute("aria-live", "polite");
-    spinner.style.border = "4px solid #f3f3f3";
-    spinner.style.borderTop = "4px solid #3498db";
-    spinner.style.borderRadius = "50%";
-    spinner.style.width = "24px";
-    spinner.style.height = "24px";
-    spinner.style.animation = "unriddle-spin 1s linear infinite";
-    popup.appendChild(spinner);
+    // SVG-based loader: a short segment moves left to right, starting as a loop, then straight
+    const loader = document.createElement("span");
+    loader.setAttribute("role", "status");
+    loader.setAttribute("aria-live", "polite");
+    loader.setAttribute("aria-label", "Loading");
+    loader.setAttribute("aria-busy", "true");
+    loader.style.display = "flex";
+    loader.style.alignItems = "center";
+    loader.style.justifyContent = "center";
+    loader.style.width = "96px";
+    loader.style.height = "32px";
+    loader.innerHTML = `
+      <svg width="96" height="32" viewBox="0 0 96 32" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block" aria-hidden="true" focusable="false">
+        <defs>
+          <linearGradient id="unknot-gradient" x1="0" y1="16" x2="96" y2="16" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#43e97b"/>
+            <stop offset="20%" stop-color="#38f9d7"/>
+            <stop offset="40%" stop-color="#6a82fb"/>
+            <stop offset="60%" stop-color="#fc5c7d"/>
+            <stop offset="80%" stop-color="#fcb045"/>
+            <stop offset="100%" stop-color="#ffd200"/>
+          </linearGradient>
+        </defs>
+        <path
+          d="M16 16 Q20 4, 36 12 Q52 20, 32 24 Q16 28, 24 16 Q32 4, 48 16"
+          stroke="url(#unknot-gradient)"
+          stroke-width="3"
+          stroke-linecap="round"
+          fill="none">
+          <animate attributeName="d"
+            values="M16 16 Q20 4, 36 12 Q52 20, 32 24 Q16 28, 24 16 Q32 4, 48 16;M48 16 Q56 16, 64 16 Q72 16, 80 16 Q88 16, 88 16 Q88 16, 88 16, 88 16;M16 16 Q20 4, 36 12 Q52 20, 32 24 Q16 28, 24 16 Q32 4, 48 16"
+            keyTimes="0;0.5;1"
+            dur="2.13s"
+            repeatCount="indefinite"/>
+        </path>
+      </svg>
+    `;
+    popup.appendChild(loader);
     const loadingText = document.createElement("span");
     loadingText.textContent = "Unriddling...";
     popup.appendChild(loadingText);
@@ -84,7 +144,33 @@ function showUnriddlePopup(text, loading = true, result = "", isHtml = false) {
     resultSpan.style.textAlign = "left";
     resultSpan.style.width = "100%";
     resultSpan.style.display = "block";
+    // Give the result span a unique id for aria-labelledby
+    const resultId = `unriddle-result-${Date.now()}`;
+    resultSpan.id = resultId;
+    // Detect font of selected text for LLM response only
+    let fontFamily = "'Inter', 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif";
+    let fontSize = '0.98em';
+    let fontWeight = '400';
+    let fontStyle = 'normal';
+    const selection = window.getSelection();
+    if (selection && selection.rangeCount > 0) {
+      let node = selection.anchorNode;
+      if (node && node.nodeType === Node.TEXT_NODE) node = node.parentNode;
+      if (node && node.nodeType === Node.ELEMENT_NODE) {
+        const computed = window.getComputedStyle(node);
+        fontFamily = computed.fontFamily || fontFamily;
+        fontSize = computed.fontSize || fontSize;
+        fontWeight = computed.fontWeight || fontWeight;
+        fontStyle = computed.fontStyle || fontStyle;
+      }
+    }
+    resultSpan.style.fontFamily = fontFamily;
+    resultSpan.style.fontSize = fontSize;
+    resultSpan.style.fontWeight = fontWeight;
+    resultSpan.style.fontStyle = fontStyle;
     popup.appendChild(resultSpan);
+    // Set aria-labelledby on the popup to reference the result span
+    popup.setAttribute('aria-labelledby', resultId);
 
     // --- Inline time spent and feedback button ---
     const metaRow = document.createElement("div");
@@ -209,6 +295,7 @@ function showUnriddlePopup(text, loading = true, result = "", isHtml = false) {
 function removeUnriddlePopup() {
   const popup = document.getElementById("unriddle-popup");
   if (popup) popup.remove();
+  if (window._unriddleRemoveGradient) window._unriddleRemoveGradient();
 }
 
 document.addEventListener("click", (e) => {
