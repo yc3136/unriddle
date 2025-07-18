@@ -105,22 +105,16 @@ function simpleMarkdownToHtml(md) {
 }
 // --- end markdown converter ---
 
-console.log("[unriddle] content.js loaded");
-
 chrome.runtime.onMessage.addListener(async (msg, sender, sendResponse) => {
-  console.log("[unriddle] Received message:", msg);
   if (msg.action === "UNRIDDLE_SELECTED_TEXT") {
-    console.log("[unriddle] Showing loading popup for:", msg.text);
     showUnriddlePopup(msg.text, true);
     const startTime = Date.now();
     try {
       const result = await unriddleText(msg.text);
       const elapsed = ((Date.now() - startTime) / 1000).toFixed(2);
-      console.log(`[unriddle] LLM result:`, result, `(Time: ${elapsed}s)`);
       showUnriddlePopup(msg.text, false, `${result}\n\n⏱️ Time used: ${elapsed}s`, true);
     } catch (err) {
       const elapsed = ((Date.now() - startTime) / 1000).toFixed(2);
-      console.error("[unriddle] Error in unriddleText:", err, `(Time: ${elapsed}s)`);
       showUnriddlePopup(msg.text, false, `Error: ${err.message || err}\n\n⏱️ Time used: ${elapsed}s`, true);
     }
   }
