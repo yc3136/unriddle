@@ -14,6 +14,12 @@ function showUnriddlePopup(text, loading = true, result = "", isHtml = false) {
 
   popup = document.createElement("div");
   popup.id = "unriddle-popup";
+  popup.setAttribute("role", "dialog");
+  popup.setAttribute("aria-modal", "true");
+  popup.setAttribute("tabindex", "-1"); // Make focusable
+  // Custom focus style to avoid default blue border
+  popup.style.outline = "none";
+  popup.style.boxShadow = "0 0 0 2px #a0c4ff"; // Subtle blue shadow for accessibility
   popup.style.position = "absolute";
   popup.style.zIndex = 99999;
   popup.style.background = "#fff";
@@ -30,6 +36,15 @@ function showUnriddlePopup(text, loading = true, result = "", isHtml = false) {
   popup.style.gap = "12px";
   popup.style.flexDirection = "column";
 
+  // Focus trap elements
+  const focusTrapStart = document.createElement("div");
+  focusTrapStart.tabIndex = 0;
+  focusTrapStart.setAttribute("aria-hidden", "true");
+  const focusTrapEnd = document.createElement("div");
+  focusTrapEnd.tabIndex = 0;
+  focusTrapEnd.setAttribute("aria-hidden", "true");
+  popup.appendChild(focusTrapStart);
+
   const coords = getSelectionCoords();
   if (coords) {
     popup.style.left = `${coords.x}px`;
@@ -43,6 +58,8 @@ function showUnriddlePopup(text, loading = true, result = "", isHtml = false) {
   if (loading) {
     const spinner = document.createElement("span");
     spinner.className = "unriddle-spinner";
+    spinner.setAttribute("role", "status");
+    spinner.setAttribute("aria-live", "polite");
     spinner.style.border = "4px solid #f3f3f3";
     spinner.style.borderTop = "4px solid #3498db";
     spinner.style.borderRadius = "50%";
@@ -132,7 +149,11 @@ function showUnriddlePopup(text, loading = true, result = "", isHtml = false) {
     popup.appendChild(metaRow);
   }
 
+  popup.appendChild(focusTrapEnd);
   document.body.appendChild(popup);
+
+  // Focus the popup for accessibility
+  setTimeout(() => { popup.focus(); }, 0);
 
   // Add spinner animation style
   if (!document.getElementById("unriddle-spinner-style")) {
@@ -141,6 +162,46 @@ function showUnriddlePopup(text, loading = true, result = "", isHtml = false) {
     style.textContent = `@keyframes unriddle-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`;
     document.head.appendChild(style);
   }
+
+  // Add focus-visible style for keyboard users
+  if (!document.getElementById("unriddle-popup-focus-style")) {
+    const style = document.createElement("style");
+    style.id = "unriddle-popup-focus-style";
+    style.textContent = `#unriddle-popup:focus-visible { outline: none; box-shadow: 0 0 0 2px #1976d2; }`;
+    document.head.appendChild(style);
+  }
+
+  // Focus trap logic
+  function trapFocus(e) {
+    const focusable = popup.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (e.target === focusTrapStart && e.shiftKey) {
+      last.focus();
+      e.preventDefault();
+    } else if (e.target === focusTrapEnd && !e.shiftKey) {
+      first.focus();
+      e.preventDefault();
+    }
+  }
+  focusTrapStart.addEventListener('focus', trapFocus);
+  focusTrapEnd.addEventListener('focus', trapFocus);
+
+  // Keyboard: Escape closes popup
+  function handleKeydown(e) {
+    if (e.key === "Escape") {
+      removeUnriddlePopup();
+      // Restore focus to previously focused element if needed
+      if (window._unriddlePrevFocus && typeof window._unriddlePrevFocus.focus === 'function') {
+        window._unriddlePrevFocus.focus();
+        window._unriddlePrevFocus = null;
+      }
+    }
+  }
+  popup.addEventListener('keydown', handleKeydown);
+
+  // Save previous focus
+  window._unriddlePrevFocus = document.activeElement;
 }
 
 function removeUnriddlePopup() {
