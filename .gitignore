@@ -6,3 +6,5 @@
 
 # dotenv environment variables
 .env 
+# assets (not tracked)
+/assets 
