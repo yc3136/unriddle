@@ -1,3 +1,5 @@
+import { unriddleText } from "./llmApi.js";
+
 function getSelectionCoords() {
   const selection = window.getSelection();
   if (!selection.rangeCount) return null;
@@ -83,43 +85,6 @@ document.addEventListener("click", (e) => {
 });
 
 // --- unriddleText function (updated for speed and brevity) ---
-const GEMINI_API_KEY = "ADD_YOUR_GEMINI_API_KEY";
-
-async function unriddleText(text, options = {}) {
-  // Use the fast model
-  const model = options.model || "gemini-2.5-flash";
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`;
-  // Prompt tuned for direct, plain output
-  const prompt = `Rewrite the following text in plain, simple words for a general audience. Do not use phrases like 'it means' or 'it describes'—just give the transformed meaning directly. Be concise and clear.\n\nText: "${text}"`;
-
-  const body = {
-    contents: [
-      {
-        parts: [
-          { text: prompt }
-        ]
-      }
-    ]
-  };
-
-  const res = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(body)
-  });
-
-  if (!res.ok) {
-    throw new Error(`Gemini API error: ${res.status} ${res.statusText}`);
-  }
-
-  const data = await res.json();
-  const result = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (!result) throw new Error("No response from Gemini API");
-  return result.trim();
-}
-// --- end unriddleText ---
 
 // --- Simple Markdown to HTML converter ---
 function simpleMarkdownToHtml(md) {

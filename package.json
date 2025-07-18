@@ -1,0 +1,13 @@
+{
+  "name": "unriddle-extension",
+  "version": "1.0.0",
+  "description": "A Chrome extension to explain/simplify/translate selected text using Gemini LLM.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "devDependencies": {
+    "vite": "^5.2.0",
+    "vite-plugin-static-copy": "^1.0.0"
+  }
+}

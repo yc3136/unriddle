@@ -1,19 +1,12 @@
-// llmApi.js
-// Utility for calling Gemini 2.5 Pro API
+// Utility for calling Gemini API, now using Vite env variable
+// The API key is loaded from import.meta.env.VITE_GEMINI_API_KEY
 
-const GEMINI_API_KEY = "AIzaSyAcR-0r6jvqZQYxR6oUUTyvAB8FgGSHQ2Y";
-const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=" + GEMINI_API_KEY;
-
-/**
- * unriddleText - Calls Gemini 2.5 Pro to explain/simplify/translate text
- * @param {string} text - The user-selected text to unriddle
- * @param {object} [options] - Optional: { model: string }
- * @returns {Promise<string>} - The unriddled (simplified) text
- */
 export async function unriddleText(text, options = {}) {
-  const model = options.model || "gemini-2.5-pro";
+  const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+  if (!GEMINI_API_KEY) throw new Error("Missing Gemini API key. Set VITE_GEMINI_API_KEY in your .env file.");
+  const model = options.model || "gemini-2.5-flash";
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`;
-  const prompt = `Explain the following text in plain, simple language, including any cultural references, slang, or jargon.\n\nText: "${text}"`;
+  const prompt = `Rewrite the following text in plain, simple words for a general audience. Do not use phrases like 'it means' or 'it describes'—just give the transformed meaning directly. Be concise and clear.\n\nText: "${text}"`;
 
   const body = {
     contents: [
@@ -38,7 +31,6 @@ export async function unriddleText(text, options = {}) {
   }
 
   const data = await res.json();
-  // Gemini returns the response in data.candidates[0].content.parts[0].text
   const result = data?.candidates?.[0]?.content?.parts?.[0]?.text;
   if (!result) throw new Error("No response from Gemini API");
   return result.trim();
