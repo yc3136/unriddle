@@ -1,380 +1,40 @@
+/**
+ * Main content script for the Unriddle Chrome Extension
+ * Handles communication with the background script and orchestrates popup display
+ */
+
 import { unriddleText } from "./llmApi.js";
+import { showUnriddlePopup } from "./popup/inPagePopup.js";
+import { gatherContext } from "./modules/contextGatherer.js";
+import { setupEventHandlers } from "./modules/eventHandlers.js";
 
-function getSelectionCoords() {
-  const selection = window.getSelection();
-  if (!selection.rangeCount) return null;
-  const range = selection.getRangeAt(0).cloneRange();
-  const rect = range.getBoundingClientRect();
-  return { x: rect.left + window.scrollX, y: rect.bottom + window.scrollY };
-}
+// Initialize event handlers for popup interactions
+setupEventHandlers();
 
-function showUnriddlePopup(text, loading = true, result = "", isHtml = false) {
-  let popup = document.getElementById("unriddle-popup");
-  if (popup) popup.remove();
-
-  // Use a simple, neutral background for the popup
-  const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-  const background = isDark ? '#23272f' : '#fff';
-
-  popup = document.createElement("div");
-  popup.id = "unriddle-popup";
-  popup.setAttribute("role", "dialog");
-  popup.setAttribute("aria-modal", "true");
-  // aria-labelledby will be set after LLM response span is created
-  popup.setAttribute("tabindex", "-1"); // Make focusable
-  // Custom focus style to avoid default blue border
-  popup.style.outline = "none";
-  popup.style.boxShadow = "0 0 0 2px #a0c4ff"; // Subtle blue shadow for accessibility
-  popup.style.position = "absolute";
-  popup.style.zIndex = 99999;
-  popup.style.background = background;
-  popup.style.border = isDark ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(0,0,0,0.08)';
-  popup.style.color = isDark ? '#f3f6fa' : '#1a2340';
-  popup.style.boxShadow = isDark ? '0 8px 32px 0 rgba(0,0,0,0.60)' : '0 8px 32px 0 rgba(31,38,135,0.18)';
-  popup.style.padding = '18px 16px 16px 16px';
-  popup.style.fontSize = '0.98em';
-  popup.style.fontFamily = "'Inter', 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif";
-  popup.style.maxWidth = '320px';
-  popup.style.minWidth = '180px';
-  popup.style.minHeight = 'unset';
-  popup.style.display = 'flex';
-  popup.style.alignItems = 'center';
-  // No gap or margin between items
-  popup.style.flexDirection = 'column';
-  popup.style.borderRadius = '14px';
-  popup.style.backdropFilter = 'blur(12px) saturate(160%)';
-  popup.style.webkitBackdropFilter = 'blur(12px) saturate(160%)';
-  popup.style.transition = 'box-shadow 0.2s';
-  // Remove any code that sets margin between children
-
-  // Detect font of selected text
-  let fontFamily = "'Inter', 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif";
-  let fontSize = '0.98em';
-  let fontWeight = '400';
-  let fontStyle = 'normal';
-  const selection = window.getSelection();
-  if (selection && selection.rangeCount > 0) {
-    let node = selection.anchorNode;
-    if (node && node.nodeType === Node.TEXT_NODE) node = node.parentNode;
-    if (node && node.nodeType === Node.ELEMENT_NODE) {
-      const computed = window.getComputedStyle(node);
-      fontFamily = computed.fontFamily || fontFamily;
-      fontSize = computed.fontSize || fontSize;
-      fontWeight = computed.fontWeight || fontWeight;
-      fontStyle = computed.fontStyle || fontStyle;
-    }
-  }
-
-  // Set popup font to default modern stack for all children
-  popup.style.fontFamily = "'Inter', 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif";
-  popup.style.fontSize = '0.98em';
-  popup.style.fontWeight = '400';
-  popup.style.fontStyle = 'normal';
-
-  // Focus trap elements
-  const focusTrapStart = document.createElement("div");
-  focusTrapStart.tabIndex = 0;
-  focusTrapStart.setAttribute("aria-hidden", "true");
-  const focusTrapEnd = document.createElement("div");
-  focusTrapEnd.tabIndex = 0;
-  focusTrapEnd.setAttribute("aria-hidden", "true");
-  popup.appendChild(focusTrapStart);
-
-  const coords = getSelectionCoords();
-  if (coords) {
-    popup.style.left = `${coords.x}px`;
-    popup.style.top = `${coords.y + 8}px`;
-  } else {
-    popup.style.left = `50%`;
-    popup.style.top = `50%`;
-    popup.style.transform = "translate(-50%, -50%)";
-  }
-
-  if (loading) {
-    // SVG-based loader: a short segment moves left to right, starting as a loop, then straight
-    const loader = document.createElement("span");
-    loader.setAttribute("role", "status");
-    loader.setAttribute("aria-live", "polite");
-    loader.setAttribute("aria-label", "Loading");
-    loader.setAttribute("aria-busy", "true");
-    loader.style.display = "flex";
-    loader.style.alignItems = "center";
-    loader.style.justifyContent = "center";
-    loader.style.width = "96px";
-    loader.style.height = "32px";
-    loader.innerHTML = `
-      <svg width="96" height="32" viewBox="0 0 96 32" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block" aria-hidden="true" focusable="false">
-        <defs>
-          <linearGradient id="unknot-gradient" x1="0" y1="16" x2="96" y2="16" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stop-color="#43e97b"/>
-            <stop offset="20%" stop-color="#38f9d7"/>
-            <stop offset="40%" stop-color="#6a82fb"/>
-            <stop offset="60%" stop-color="#fc5c7d"/>
-            <stop offset="80%" stop-color="#fcb045"/>
-            <stop offset="100%" stop-color="#ffd200"/>
-          </linearGradient>
-        </defs>
-        <path
-          d="M16 16 Q20 4, 36 12 Q52 20, 32 24 Q16 28, 24 16 Q32 4, 48 16"
-          stroke="url(#unknot-gradient)"
-          stroke-width="3"
-          stroke-linecap="round"
-          fill="none">
-          <animate attributeName="d"
-            values="M16 16 Q20 4, 36 12 Q52 20, 32 24 Q16 28, 24 16 Q32 4, 48 16;M48 16 Q56 16, 64 16 Q72 16, 80 16 Q88 16, 88 16 Q88 16, 88 16, 88 16;M16 16 Q20 4, 36 12 Q52 20, 32 24 Q16 28, 24 16 Q32 4, 48 16"
-            keyTimes="0;0.5;1"
-            dur="2.13s"
-            repeatCount="indefinite"/>
-        </path>
-      </svg>
-    `;
-    popup.appendChild(loader);
-    const loadingText = document.createElement("span");
-    loadingText.textContent = "Unriddling...";
-    popup.appendChild(loadingText);
-  } else {
-    const resultSpan = document.createElement("span");
-    let resultText = result;
-    if (isHtml) {
-      resultSpan.innerHTML = simpleMarkdownToHtml(resultText.replace(/\n?⏱️ Time used: [\d.]+s/, ""));
-    } else {
-      resultSpan.textContent = resultText.replace(/\n?⏱️ Time used: [\d.]+s/, "");
-    }
-    // LLM response text left-aligned
-    resultSpan.style.textAlign = "left";
-    resultSpan.style.width = "100%";
-    resultSpan.style.display = "block";
-    // Give the result span a unique id for aria-labelledby
-    const resultId = `unriddle-result-${Date.now()}`;
-    resultSpan.id = resultId;
-    // Detect font of selected text for LLM response only
-    let fontFamily = "'Inter', 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif";
-    let fontSize = '0.98em';
-    let fontWeight = '400';
-    let fontStyle = 'normal';
-    const selection = window.getSelection();
-    if (selection && selection.rangeCount > 0) {
-      let node = selection.anchorNode;
-      if (node && node.nodeType === Node.TEXT_NODE) node = node.parentNode;
-      if (node && node.nodeType === Node.ELEMENT_NODE) {
-        const computed = window.getComputedStyle(node);
-        fontFamily = computed.fontFamily || fontFamily;
-        fontSize = computed.fontSize || fontSize;
-        fontWeight = computed.fontWeight || fontWeight;
-        fontStyle = computed.fontStyle || fontStyle;
-      }
-    }
-    resultSpan.style.fontFamily = fontFamily;
-    resultSpan.style.fontSize = fontSize;
-    resultSpan.style.fontWeight = fontWeight;
-    resultSpan.style.fontStyle = fontStyle;
-    popup.appendChild(resultSpan);
-    // Set aria-labelledby on the popup to reference the result span
-    popup.setAttribute('aria-labelledby', resultId);
-
-    // --- Inline time spent and feedback button ---
-    const metaRow = document.createElement("div");
-    metaRow.style.display = "flex";
-    metaRow.style.alignItems = "center";
-    metaRow.style.justifyContent = "space-between";
-    metaRow.style.gap = "8px";
-    metaRow.style.marginTop = "10px";
-    metaRow.style.width = "100%";
-
-    // Time spent sentence (left-aligned)
-    let timeText = "";
-    if (typeof result === 'string') {
-      const timeMatch = result.match(/⏱️ Time used: [\d.]+s/);
-      if (timeMatch) {
-        timeText = timeMatch[0];
-      }
-    }
-    const timeSpan = document.createElement("span");
-    timeSpan.textContent = timeText;
-    timeSpan.style.fontSize = "0.95em";
-    timeSpan.style.color = "#888";
-    timeSpan.style.flex = "1 1 auto";
-    metaRow.appendChild(timeSpan);
-
-    // Feedback icon button (right-aligned, no border, icon color #888)
-    const feedbackBtn = document.createElement("button");
-    feedbackBtn.setAttribute("aria-label", "Send Feedback");
-    feedbackBtn.title = "Send Feedback";
-    feedbackBtn.style.width = "32px";
-    feedbackBtn.style.height = "32px";
-    feedbackBtn.style.display = "flex";
-    feedbackBtn.style.alignItems = "center";
-    feedbackBtn.style.justifyContent = "center";
-    feedbackBtn.style.background = "transparent";
-    feedbackBtn.style.border = "none";
-    feedbackBtn.style.borderRadius = "50%";
-    feedbackBtn.style.cursor = "pointer";
-    feedbackBtn.style.boxShadow = "none";
-    feedbackBtn.style.transition = "background 0.2s";
-    feedbackBtn.onmouseover = () => feedbackBtn.style.background = "#e0e0e0";
-    feedbackBtn.onmouseout = () => feedbackBtn.style.background = "transparent";
-    feedbackBtn.innerHTML = `
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M4 22V5a2 2 0 0 1 2-2h13l-1.34 5.36a2 2 0 0 0 0 1.28L19 17H6a2 2 0 0 1-2-2z"/>
-        <line x1="4" y1="22" x2="4" y2="22"/>
-      </svg>
-    `; // flag icon, color #888
-    feedbackBtn.onclick = function(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      const baseUrl = "https://docs.google.com/forms/d/e/1FAIpQLSdJUcgB0AbgSI59oE_O7DFBSKOivFWLNpCXXH4WMBsKrnHanw/viewform";
-      const params = new URLSearchParams({
-        "entry.378537756": "", // Feedback message (user will fill)
-        "entry.784312090": window.location.href, // Page URL
-        "entry.1050436188": text, // Selected Text
-        "entry.572050706": typeof result === 'string' ? result : "" // LLM Output
-      });
-      window.open(`${baseUrl}?${params.toString()}`, "_blank");
-    };
-    metaRow.appendChild(feedbackBtn);
-
-    // Insert metaRow after the result
-    popup.appendChild(metaRow);
-  }
-
-  popup.appendChild(focusTrapEnd);
-  document.body.appendChild(popup);
-
-  // Focus the popup for accessibility
-  setTimeout(() => { popup.focus(); }, 0);
-
-  // Add spinner animation style
-  if (!document.getElementById("unriddle-spinner-style")) {
-    const style = document.createElement("style");
-    style.id = "unriddle-spinner-style";
-    style.textContent = `@keyframes unriddle-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`;
-    document.head.appendChild(style);
-  }
-
-  // Add focus-visible style for keyboard users
-  if (!document.getElementById("unriddle-popup-focus-style")) {
-    const style = document.createElement("style");
-    style.id = "unriddle-popup-focus-style";
-    style.textContent = `#unriddle-popup:focus-visible { outline: none; box-shadow: 0 0 0 2px #1976d2; }`;
-    document.head.appendChild(style);
-  }
-
-  // Focus trap logic
-  function trapFocus(e) {
-    const focusable = popup.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
-    const first = focusable[0];
-    const last = focusable[focusable.length - 1];
-    if (e.target === focusTrapStart && e.shiftKey) {
-      last.focus();
-      e.preventDefault();
-    } else if (e.target === focusTrapEnd && !e.shiftKey) {
-      first.focus();
-      e.preventDefault();
-    }
-  }
-  focusTrapStart.addEventListener('focus', trapFocus);
-  focusTrapEnd.addEventListener('focus', trapFocus);
-
-  // Keyboard: Escape closes popup
-  function handleKeydown(e) {
-    if (e.key === "Escape") {
-      removeUnriddlePopup();
-      // Restore focus to previously focused element if needed
-      if (window._unriddlePrevFocus && typeof window._unriddlePrevFocus.focus === 'function') {
-        window._unriddlePrevFocus.focus();
-        window._unriddlePrevFocus = null;
-      }
-    }
-  }
-  popup.addEventListener('keydown', handleKeydown);
-
-  // Save previous focus
-  window._unriddlePrevFocus = document.activeElement;
-}
-
-function removeUnriddlePopup() {
-  const popup = document.getElementById("unriddle-popup");
-  if (popup) popup.remove();
-  if (window._unriddleRemoveGradient) window._unriddleRemoveGradient();
-}
-
-document.addEventListener("click", (e) => {
-  if (!e.target.closest("#unriddle-popup")) {
-    removeUnriddlePopup();
-  }
-});
-
-// --- unriddleText function (updated for speed and brevity) ---
-
-// --- Simple Markdown to HTML converter ---
-function simpleMarkdownToHtml(md) {
-  if (!md) return "";
-  // Bold **text** or __text__
-  let html = md.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-  html = html.replace(/__(.*?)__/g, '<strong>$1</strong>');
-  // Italic *text* or _text_
-  html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
-  html = html.replace(/_(.*?)_/g, '<em>$1</em>');
-  // Links [text](url)
-  html = html.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank">$1</a>');
-  // Inline code `code`
-  html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
-  // Line breaks
-  html = html.replace(/\n/g, '<br>');
-  return html;
-}
-// --- end markdown converter ---
-
+/**
+ * Main message listener for handling unriddle requests from the background script
+ * Processes selected text through LLM and displays results in popup
+ */
 chrome.runtime.onMessage.addListener(async (msg, sender, sendResponse) => {
   if (msg.action === "UNRIDDLE_SELECTED_TEXT") {
-    // --- Context Expansion Logic ---
-    // 1. Get the current selection (if available)
-    let selection = window.getSelection();
-    let selectedText = msg.text;
-    let contextSnippet = selectedText;
-    let sectionHeading = "";
-    let pageTitle = document.title;
+    const selectedText = msg.text;
+    
+    // Gather context around the selected text for better LLM prompts
+    const context = gatherContext(selectedText);
 
-    if (selection && selection.rangeCount > 0) {
-      const range = selection.getRangeAt(0);
-      // Expand to containing paragraph or block
-      let node = range.commonAncestorContainer;
-      while (node && node.nodeType !== Node.ELEMENT_NODE) node = node.parentNode;
-      let block = node && (node.closest('p,li,blockquote,td,th,div,section,article') || node);
-      if (block && block.innerText) {
-        // Limit context to 500 characters for cost/privacy
-        contextSnippet = block.innerText.trim().slice(0, 500);
-      }
-      // Find nearest heading
-      let headingNode = node;
-      while (headingNode && !/^H[1-6]$/.test(headingNode.tagName)) headingNode = headingNode.previousElementSibling;
-      if (headingNode && headingNode.innerText) {
-        sectionHeading = headingNode.innerText.trim();
-      }
-    }
-
-    // Fallback: try to find a heading above the selection
-    if (!sectionHeading) {
-      let headings = Array.from(document.querySelectorAll('h1, h2, h3, h4, h5, h6'));
-      let bestHeading = headings.reverse().find(h => h.compareDocumentPosition(selection.anchorNode) & Node.DOCUMENT_POSITION_PRECEDING);
-      if (bestHeading) sectionHeading = bestHeading.innerText.trim();
-    }
-
-    // Compose context object
-    const context = {
-      page_title: pageTitle,
-      section_heading: sectionHeading,
-      context_snippet: contextSnippet,
-      user_selection: selectedText
-    };
-
+    // Show loading popup while processing
     showUnriddlePopup(selectedText, true);
+    
     const startTime = Date.now();
     try {
+      // Process text through LLM API
       const result = await unriddleText(context);
       const elapsed = ((Date.now() - startTime) / 1000).toFixed(2);
+      
+      // Display successful result
       showUnriddlePopup(selectedText, false, `${result}\n\n⏱️ Time used: ${elapsed}s`, true);
     } catch (err) {
+      // Display error message
       const elapsed = ((Date.now() - startTime) / 1000).toFixed(2);
       showUnriddlePopup(selectedText, false, `Error: ${err.message || err}\n\n⏱️ Time used: ${elapsed}s`, true);
     }

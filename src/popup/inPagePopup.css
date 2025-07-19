@@ -1,0 +1,123 @@
+/**
+ * In-page popup styles for the Unriddle Chrome Extension
+ * 
+ * This file contains all styles for the in-page popup that appears
+ * when users select text and use the context menu option.
+ * 
+ * Features:
+ * - Light/dark theme support
+ * - Accessibility focus management
+ * - Responsive design
+ * - Smooth animations
+ */
+.unriddle-popup {
+  position: absolute;
+  z-index: 99999;
+  padding: 18px 16px 16px 16px;
+  font-size: 0.98em;
+  font-family: 'Inter', 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+  max-width: 320px;
+  min-width: 180px;
+  min-height: unset;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  border-radius: 14px;
+  backdrop-filter: blur(12px) saturate(160%);
+  -webkit-backdrop-filter: blur(12px) saturate(160%);
+  transition: box-shadow 0.2s;
+  outline: none;
+  box-shadow: 0 0 0 2px #a0c4ff;
+}
+
+/* Light theme styles */
+.unriddle-popup {
+  background: #fff;
+  border: 1px solid rgba(0,0,0,0.08);
+  color: #1a2340;
+  box-shadow: 0 8px 32px 0 rgba(31,38,135,0.18);
+}
+
+/* Dark theme styles */
+@media (prefers-color-scheme: dark) {
+  .unriddle-popup {
+    background: #23272f;
+    border: 1px solid rgba(255,255,255,0.12);
+    color: #f3f6fa;
+    box-shadow: 0 8px 32px 0 rgba(0,0,0,0.60);
+  }
+}
+
+/* Focus styles for accessibility */
+.unriddle-popup:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+/* Loader styles */
+.unriddle-loader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 96px;
+  height: 32px;
+}
+
+/* Loading text */
+.unriddle-loading-text {
+  margin-top: 8px;
+}
+
+/* Result container */
+.unriddle-result {
+  text-align: left;
+  width: 100%;
+  display: block;
+}
+
+/* Meta row (time and feedback) */
+.unriddle-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 10px;
+  width: 100%;
+}
+
+/* Time spent text */
+.unriddle-time-text {
+  font-size: 0.95em;
+  color: #888;
+  flex: 1 1 auto;
+}
+
+/* Feedback button */
+.unriddle-feedback-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: none;
+  transition: background 0.2s;
+}
+
+.unriddle-feedback-btn:hover {
+  background: #e0e0e0;
+}
+
+/* Focus trap elements */
+.unriddle-focus-trap {
+  /* These elements are hidden but focusable for accessibility */
+}
+
+/* Animation keyframes */
+@keyframes unriddle-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+} 

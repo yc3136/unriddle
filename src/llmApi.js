@@ -1,20 +1,38 @@
-// Utility for calling Gemini API, now using Vite env variable
-// The API key is loaded from import.meta.env.VITE_GEMINI_API_KEY
+/**
+ * LLM API integration module for the Unriddle Chrome Extension
+ * Handles communication with Google's Gemini API for text processing
+ */
 
+/**
+ * Processes text through the Gemini API to simplify/explain content
+ * @param {string|Object} context - Text to process or context object with page info
+ * @param {Object} options - Configuration options
+ * @param {string} options.model - Gemini model to use (default: "gemini-2.5-flash")
+ * @returns {Promise<string>} Processed text response
+ * @throws {Error} If API key is missing or API request fails
+ */
 export async function unriddleText(context, options = {}) {
+  // Validate API key
   const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
-  if (!GEMINI_API_KEY) throw new Error("Missing Gemini API key. Set VITE_GEMINI_API_KEY in your .env file.");
+  if (!GEMINI_API_KEY) {
+    throw new Error("Missing Gemini API key. Set VITE_GEMINI_API_KEY in your .env file.");
+  }
+  
+  // Configure API request
   const model = options.model || "gemini-2.5-flash";
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`;
 
-  // Support both old (string) and new (object) API
+  // Build prompt based on context type (string or object)
   let prompt = "";
   if (typeof context === "string") {
-    prompt = `Rewrite the following text in plain, simple words for a general audience. Do not use phrases like 'it means' or 'it describes'—just give the transformed meaning directly. Be concise and clear.\n\nText: \"${context}\"`;
+    // Simple text processing
+    prompt = `Rewrite the following text in plain, simple words for a general audience. Do not use phrases like 'it means' or 'it describes'—just give the transformed meaning directly. Be concise and clear.\n\nText: "${context}"`;
   } else {
-    prompt = `Rewrite the following text in plain, simple words for a general audience. Do not use phrases like 'it means' or 'it describes'—just give the transformed meaning directly. Be concise and clear.\n\nPage Title: ${context.page_title || ""}\nSection Heading: ${context.section_heading || ""}\nContext Snippet: ${context.context_snippet || ""}\nUser Selection: \"${context.user_selection || ""}\"`;
+    // Rich context processing with page information
+    prompt = `Rewrite the following text in plain, simple words for a general audience. Do not use phrases like 'it means' or 'it describes'—just give the transformed meaning directly. Be concise and clear.\n\nPage Title: ${context.page_title || ""}\nSection Heading: ${context.section_heading || ""}\nContext Snippet: ${context.context_snippet || ""}\nUser Selection: "${context.user_selection || ""}"`;
   }
 
+  // Prepare request payload
   const body = {
     contents: [
       {
@@ -25,6 +43,7 @@ export async function unriddleText(context, options = {}) {
     ]
   };
 
+  // Make API request
   const res = await fetch(url, {
     method: "POST",
     headers: {
@@ -33,13 +52,18 @@ export async function unriddleText(context, options = {}) {
     body: JSON.stringify(body)
   });
 
+  // Handle API errors
   if (!res.ok) {
     throw new Error(`Gemini API error: ${res.status} ${res.statusText}`);
   }
 
+  // Parse and validate response
   const data = await res.json();
   const result = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (!result) throw new Error("No response from Gemini API");
+  if (!result) {
+    throw new Error("No response from Gemini API");
+  }
+  
   return result.trim();
 }
 
