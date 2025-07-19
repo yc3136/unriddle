@@ -1,4 +1,4 @@
-/**
+conf/**
  * Extension popup script for the Unriddle Chrome Extension
  * 
  * This is a simple informational popup that appears when users click
@@ -7,4 +7,13 @@
 
 // Popup is currently informational only
 // Future versions may include settings, history, or other features
-console.log('Unriddle extension popup loaded'); 
+
+// Add settings button functionality
+document.addEventListener('DOMContentLoaded', () => {
+  const settingsButton = document.getElementById('open-settings');
+  if (settingsButton) {
+    settingsButton.addEventListener('click', () => {
+      chrome.runtime.openOptionsPage();
+    });
+  }
+}); 

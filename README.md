@@ -5,6 +5,8 @@
 ## Features
 - Right-click any selected text to "unriddle" it
 - LLM-powered explanations using Google's Gemini API
+- **Multi-language support** - Get explanations in 80+ languages
+- **Settings page** - Customize your language preference
 - Clean, accessible popup UI near your selection
 - Smart context gathering for better explanations
 - Loading indicator with animated feedback
@@ -47,6 +49,27 @@
    - Enable "Developer mode" (top right)
    - Click "Load unpacked" and select the `dist` folder
 
+## Settings & Configuration
+
+### Language Support
+Unriddle supports **80+ languages** including:
+- **Major Languages**: English, Spanish, French, German, Chinese, Japanese, Korean, Arabic, Hindi, Portuguese, Russian
+- **Regional Languages**: Dutch, Italian, Swedish, Norwegian, Danish, Finnish, Polish, Czech, Hungarian, Romanian
+- **Asian Languages**: Thai, Vietnamese, Indonesian, Malay, Tagalog, Burmese, Khmer, Lao
+- **African Languages**: Swahili, Hausa, Yoruba, Zulu, Xhosa, Igbo
+- **And many more...**
+
+### Accessing Settings
+1. **From Extension Popup**: Click the extension icon, then click "Settings"
+2. **From In-Page Popup**: After getting an explanation, click the gear icon (⚙️) in the popup
+3. **Direct Access**: Right-click the extension icon and select "Options"
+
+### Changing Language
+1. Open the settings page
+2. Select your preferred language from the dropdown
+3. Click "Save" or press Ctrl+S
+4. Your preference is automatically saved and will be used for future explanations
+
 ## Development
 
 ### Available Scripts
@@ -69,6 +92,8 @@ npm run clean        # Clean build output directory
 ```
 unriddle/
 ├── src/
+│   ├── config/               # Configuration files
+│   │   └── languages.js      # Supported languages list
 │   ├── modules/              # Shared utilities
 │   │   ├── contextGatherer.js    # Context expansion logic
 │   │   ├── markdownProcessor.js  # Markdown to HTML conversion
@@ -79,6 +104,10 @@ unriddle/
 │   │   ├── popup.js          # Extension popup script
 │   │   ├── popup.html        # Extension popup HTML
 │   │   └── popup.css         # Extension popup styles
+│   ├── settings/             # Settings page
+│   │   ├── settings.js       # Settings page logic
+│   │   ├── settings.html     # Settings page HTML
+│   │   └── settings.css      # Settings page styles
 │   ├── content.js            # Main content script
 │   ├── background.js         # Background script
 │   └── llmApi.js            # LLM API integration
@@ -100,6 +129,13 @@ The extension follows a modular architecture with clear separation of concerns:
 - **`background.js`**: Service worker for extension lifecycle management
 - **`llmApi.js`**: LLM API integration and communication
 
+### **Configuration** (`src/config/`)
+- **`languages.js`**: Comprehensive list of supported languages with native names
+
+### **Settings System** (`src/settings/`)
+- **`settings.js`**: Settings page logic with Chrome storage integration
+- **`settings.html/css`**: Settings page interface with toast notifications
+
 ### **Utility Modules** (`src/modules/`)
 - **`contextGatherer.js`**: Expands selection context for better LLM prompts
 - **`markdownProcessor.js`**: Converts markdown to HTML for rich text display
@@ -112,12 +148,26 @@ The extension follows a modular architecture with clear separation of concerns:
 
 ## Usage
 - Select any text on a web page
-- Right-click and choose "unriddle: Explain/Simplify/Translate"
+- Right-click and choose "In other words"
 - See the explanation popup near your selection
 - Use keyboard navigation (Escape to close)
 - Click outside to dismiss
+- **Quick access to settings**: Click the gear icon (⚙️) in the popup
 
 ## Features
+
+### **Multi-Language Support**
+- **80+ languages** supported by Gemini API
+- **Native language names** in settings dropdown
+- **Automatic language detection** in prompts
+- **Persistent language preference** saved to Chrome storage
+
+### **Settings & Customization**
+- **Dedicated settings page** accessible from multiple entry points
+- **Toast notifications** for save confirmation
+- **Keyboard shortcuts** (Ctrl+S to save)
+- **Auto-save** on language change
+- **Settings persistence** across browser sessions
 
 ### **Smart Context Gathering**
 - Automatically expands selection to include surrounding context
@@ -136,11 +186,20 @@ The extension follows a modular architecture with clear separation of concerns:
 - Efficient DOM manipulation
 - Minimal bundle size
 
+## Permissions
+
+The extension requires the following permissions:
+- **`contextMenus`**: To create the right-click context menu
+- **`scripting`**: To inject content scripts
+- **`activeTab`**: To access the current tab for text selection
+- **`storage`**: To save user language preferences
+
 ## Security Notes
 - Never commit your `.env` file (it's already in `.gitignore`)
 - The API key is injected at build time and bundled into the extension
 - Keep your API key secure and rotate it if needed
-- No data is stored locally beyond temporary processing
+- No data is stored locally beyond temporary processing and user preferences
+- Language preferences are stored securely in Chrome's sync storage
 
 ## Contributing
 Pull requests welcome! Please open issues for suggestions or bugs.

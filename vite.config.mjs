@@ -9,56 +9,68 @@
  */
 
 import { defineConfig } from 'vite';
+import { resolve } from 'path';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
-import path from 'path';
 
 export default defineConfig({
   build: {
-    outDir: 'dist',
-    emptyOutDir: true,
-    sourcemap: true, // Add source maps for better debugging
-    minify: 'terser', // Use terser for better minification
-    terserOptions: {
-      compress: {
-        drop_console: false, // Keep console logs for debugging
-        drop_debugger: true,
-      },
-    },
     rollupOptions: {
       input: {
-        background: path.resolve(__dirname, 'src/background.js'),
-        content: path.resolve(__dirname, 'src/content.js'),
-        popup: path.resolve(__dirname, 'src/popup/popup.js'),
+        background: resolve(__dirname, 'src/background.js'),
+        content: resolve(__dirname, 'src/content.js'),
+        popup: resolve(__dirname, 'src/popup/popup.js'),
+        settings: resolve(__dirname, 'src/settings/settings.js')
       },
       output: {
-        entryFileNames: '[name].js',
+        entryFileNames: (chunkInfo) => {
+          // Put settings.js in the settings directory
+          if (chunkInfo.name === 'settings') {
+            return 'settings/[name].js';
+          }
+          // Put popup.js in the popup directory
+          if (chunkInfo.name === 'popup') {
+            return 'popup/[name].js';
+          }
+          return '[name].js';
+        },
         assetFileNames: '[name][extname]',
         // Better chunk naming for modules
-        chunkFileNames: 'modules/[name]-[hash].js',
-        // For Chrome extensions, we want to bundle everything into single files
-        // No manual chunks to avoid import issues in content scripts
-      },
-    },
+        chunkFileNames: 'modules/[name]-[hash].js'
+      }
+    }
   },
   plugins: [
     viteStaticCopy({
       targets: [
-        { src: 'manifest.json', dest: '.' },
-        { src: 'icons', dest: '.' },
-        { src: 'src/popup/popup.css', dest: 'popup' },
-        { src: 'src/popup/popup.html', dest: 'popup' },
-        { src: 'src/popup/inPagePopup.css', dest: 'popup' }, // Add the new CSS file
-        { src: 'src/modules', dest: 'modules' }, // Copy modules directory
-      ],
-    }),
-  ],
-  // Optimize dependencies
-  optimizeDeps: {
-    include: [], // Add any external dependencies here if needed
-  },
-  // Development server configuration
-  server: {
-    port: 3000,
-    open: false,
-  },
+        {
+          src: 'manifest.json',
+          dest: '.'
+        },
+        {
+          src: 'src/popup/popup.html',
+          dest: 'popup'
+        },
+        {
+          src: 'src/popup/popup.css',
+          dest: 'popup'
+        },
+        {
+          src: 'src/popup/inPagePopup.css',
+          dest: 'popup'
+        },
+        {
+          src: 'src/settings/settings.html',
+          dest: 'settings'
+        },
+        {
+          src: 'src/settings/settings.css',
+          dest: 'settings'
+        },
+        {
+          src: 'icons',
+          dest: '.'
+        }
+      ]
+    })
+  ]
 }); 

@@ -20,4 +20,11 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
       text: info.selectionText
     });
   }
+});
+
+// Handle messages from content scripts
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === "OPEN_OPTIONS_PAGE") {
+    chrome.runtime.openOptionsPage();
+  }
 }); 

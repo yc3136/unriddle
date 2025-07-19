@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unriddle Settings</title>
+  <link rel="stylesheet" href="settings.css">
+</head>
+<body>
+  <div class="settings-container">
+    <header class="settings-header">
+      <img src="../../icons/unriddle-128.png" alt="unriddle logo" class="logo" />
+      <h1>Unriddle Settings</h1>
+    </header>
+    
+    <main class="settings-content">
+      <section class="setting-section">
+        <h2>Language</h2>
+        <p class="setting-description">Choose the language for unriddled translations</p>
+        <div class="language-info">
+          <p class="language-explanation">
+            <strong>How it works:</strong> When you select text and use "In other words", 
+            the AI will explain the content in the language you choose here. 
+            This affects all future unriddle requests until you change this setting.
+          </p>
+        </div>
+        <div class="language-selector">
+          <select id="language-select" class="language-dropdown">
+            <!-- Language options will be populated dynamically by JavaScript -->
+          </select>
+        </div>
+      </section>
+
+      <section class="setting-section">
+        <h2>About</h2>
+        <p class="setting-description">
+          Unriddle helps you understand complex text by explaining it in simple terms. 
+          Right-click any selected text and choose "In other words" to get started.
+        </p>
+        <div class="version-info">
+          <span>Version 1.2.0</span>
+        </div>
+      </section>
+    </main>
+
+    <footer class="settings-footer">
+      <button id="save-settings" class="save-button">Save Settings</button>
+      <div id="save-status" class="save-status"></div>
+    </footer>
+  </div>
+  
+  <script type="module" src="settings.js"></script>
+</body>
+</html> 

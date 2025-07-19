@@ -111,6 +111,33 @@
   background: #e0e0e0;
 }
 
+/* Settings button */
+.unriddle-settings-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: none;
+  transition: background 0.2s;
+}
+
+.unriddle-settings-btn:hover {
+  background: #e0e0e0;
+}
+
+/* Dark theme hover states */
+@media (prefers-color-scheme: dark) {
+  .unriddle-feedback-btn:hover,
+  .unriddle-settings-btn:hover {
+    background: #404040;
+  }
+}
+
 /* Focus trap elements */
 .unriddle-focus-trap {
   /* These elements are hidden but focusable for accessibility */
