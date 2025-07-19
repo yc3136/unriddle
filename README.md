@@ -3,6 +3,7 @@
 **unriddle** helps you understand selected text by explaining, simplifying, or translating it using LLMs. Great for cultural references, slang, jargon, and more.
 
 ## Features
+- **Keyboard shortcut** - Press `Ctrl+Shift+U` (Windows/Linux) or `Cmd+Shift+U` (Mac) to quickly unriddle selected text
 - Right-click any selected text to "unriddle" it
 - LLM-powered explanations using Google's Gemini API
 - **Multi-language support** - Get explanations in 80+ languages
@@ -147,9 +148,18 @@ The extension follows a modular architecture with clear separation of concerns:
 - **`popup.js/html/css`**: Extension popup interface
 
 ## Usage
-- Select any text on a web page
-- Right-click and choose "In other words"
-- See the explanation popup near your selection
+
+### Method 1: Keyboard Shortcut (Recommended)
+1. Select any text on a web page
+2. Press `Ctrl+Shift+U` (Windows/Linux) or `Cmd+Shift+U` (Mac)
+3. The explanation popup will appear near your selection
+
+### Method 2: Context Menu
+1. Select any text on a web page
+2. Right-click and choose "In other words"
+3. See the explanation popup near your selection
+
+### General Usage
 - Use keyboard navigation (Escape to close)
 - Click outside to dismiss
 - **Quick access to settings**: Click the gear icon (⚙️) in the popup
