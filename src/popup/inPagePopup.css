@@ -75,6 +75,10 @@
   display: block;
 }
 
+.unriddle-result[dir="rtl"] {
+  text-align: right;
+}
+
 /* Meta row (time and feedback) */
 .unriddle-meta-row {
   display: flex;

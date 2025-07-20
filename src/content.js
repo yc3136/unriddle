@@ -49,7 +49,7 @@ chrome.runtime.onMessage.addListener(async (msg, sender, sendResponse) => {
     const context = gatherContext(selectedText, contextWindowSize);
 
     // Show loading popup while processing
-    showUnriddlePopup(selectedText, true);
+    showUnriddlePopup(selectedText, true, undefined, undefined, undefined, settings.language);
     
     const startTime = Date.now();
     try {
@@ -60,7 +60,7 @@ chrome.runtime.onMessage.addListener(async (msg, sender, sendResponse) => {
       const elapsed = ((Date.now() - startTime) / 1000).toFixed(2);
       
       // Display successful result
-      showUnriddlePopup(selectedText, false, `${result}\n\n⏱️ Time used: ${elapsed}s`, true, prompt);
+      showUnriddlePopup(selectedText, false, `${result}\n\n⏱️ Time used: ${elapsed}s`, true, prompt, settings.language);
     } catch (err) {
       console.error('Content: Error in unriddleText:', err);
       
@@ -72,12 +72,12 @@ chrome.runtime.onMessage.addListener(async (msg, sender, sendResponse) => {
                  errorMessage.includes('quota') || 
                  errorMessage.includes('rate limit') ||
                  errorMessage.includes('RESOURCE_EXHAUSTED')) {
-        errorMessage = `API quota limit reached. The shared API key has been used up. Please set your own Gemini API key in <a href="#" class="error-link">Settings</a> to avoid exceeding API quota.`;
+        errorMessage = `API quota limit reached. The shared API key has been used up. Please set your own Gemini API key in <a href=\"#\" class=\"error-link\">Settings</a> to avoid exceeding API quota.`;
       }
       
       // Display error message
       const elapsed = ((Date.now() - startTime) / 1000).toFixed(2);
-      showUnriddlePopup(selectedText, false, `Error: ${errorMessage}\n\n⏱️ Time used: ${elapsed}s`, true);
+      showUnriddlePopup(selectedText, false, `Error: ${errorMessage}\n\n⏱️ Time used: ${elapsed}s`, true, undefined, settings.language);
     }
   }
 });

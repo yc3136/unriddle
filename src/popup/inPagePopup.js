@@ -8,6 +8,14 @@
 
 import { simpleMarkdownToHtml } from '../modules/markdownProcessor.js';
 
+// List of supported right-to-left (RTL) languages (inlined to avoid shared chunk issues)
+const RTL_LANGUAGES = [
+  'Arabic',
+  'Hebrew',
+  'Persian',
+  'Urdu'
+];
+
 /**
  * Gets the coordinates of the current text selection
  * @returns {Object|null} Coordinates {x, y} or null if no selection
@@ -299,10 +307,12 @@ function setupKeyboardHandlers(popup) {
  * Shows the unriddle popup with loading state or results
  * @param {string} text - The selected text
  * @param {boolean} loading - Whether to show loading state
- * @param {string} result - The result text to display
+ * @param {string} result - The result to display
  * @param {boolean} isHtml - Whether the result contains HTML
+ * @param {string} prompt - The prompt used (optional)
+ * @param {string} language - The language to use for direction (optional)
  */
-export async function showUnriddlePopup(text, loading = true, result = "", isHtml = false, prompt = undefined) {
+export async function showUnriddlePopup(text, loading = true, result = "", isHtml = false, prompt = undefined, language = undefined) {
   let popup = document.getElementById("unriddle-popup");
   if (popup) popup.remove();
 
@@ -313,6 +323,14 @@ export async function showUnriddlePopup(text, loading = true, result = "", isHtm
   popup = document.createElement("div");
   popup.id = "unriddle-popup";
   popup.className = "unriddle-popup";
+
+  // Remove: Set text direction based on language for the whole popup
+  // let dir = 'ltr';
+  // if (language && RTL_LANGUAGES.includes(language)) {
+  //   dir = 'rtl';
+  // }
+  // popup.setAttribute('dir', dir);
+
   popup.setAttribute("role", "dialog");
   popup.setAttribute("aria-modal", "true");
   popup.setAttribute("tabindex", "-1");
@@ -363,6 +381,13 @@ export async function showUnriddlePopup(text, loading = true, result = "", isHtm
     }
     
     resultSpan.className = "unriddle-result";
+
+    // Set text direction for LLM response only
+    let dir = 'ltr';
+    if (language && RTL_LANGUAGES.includes(language)) {
+      dir = 'rtl';
+    }
+    resultSpan.setAttribute('dir', dir);
     
     const resultId = `unriddle-result-${Date.now()}`;
     resultSpan.id = resultId;

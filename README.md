@@ -7,6 +7,7 @@
 - Right-click any selected text to "unriddle" it
 - LLM-powered explanations using Google's Gemini API
 - **Multi-language support** - Get explanations in 80+ languages
+- **Right-to-left (RTL) language support** - For languages like Arabic, Hebrew, Persian, and Urdu, the LLM response in the popup is automatically displayed right-to-left and right-aligned, while the rest of the popup remains in English and left-to-right.
 - **Settings page** - Customize your language, font, and more
 - Clean, accessible popup UI near your selection
 - - **Modern meta row icons** - Uses Material Icons (Outlined) for feedback, settings, and copy prompt actions in the in-page popup
@@ -67,6 +68,9 @@ Unriddle supports **80+ languages** including:
 - **Asian Languages**: Thai, Vietnamese, Indonesian, Malay, Tagalog, Burmese, Khmer, Lao
 - **African Languages**: Swahili, Hausa, Yoruba, Zulu, Xhosa, Igbo
 - **And many more...**
+
+**RTL Languages:**
+For Arabic, Hebrew, Persian, and Urdu, the LLM response is shown right-to-left and right-aligned for proper readability. All other popup content remains in English and left-to-right.
 
 ### Accessing Settings
 1. **From Extension Popup**: Click the extension icon, then click "Settings"

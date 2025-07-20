@@ -180,6 +180,14 @@ export const LANGUAGE_DISPLAY_NAMES = {
   'Zulu': 'Zulu (isiZulu)'
 };
 
+// List of supported right-to-left (RTL) languages
+export const RTL_LANGUAGES = [
+  'Arabic',
+  'Hebrew',
+  'Persian',
+  'Urdu'
+];
+
 /**
  * Validates if a language is supported
  * @param {string} language - The language to validate

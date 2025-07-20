@@ -34,8 +34,8 @@ export default defineConfig({
           return '[name].js';
         },
         assetFileNames: '[name][extname]',
-        // Better chunk naming for modules
-        chunkFileNames: 'modules/[name]-[hash].js'
+        // Disable code splitting for all entry points
+        manualChunks: undefined
       }
     }
   },
