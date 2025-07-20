@@ -3,6 +3,57 @@
  * Handles communication with Google's Gemini API for text processing
  */
 
+// Cache for settings to avoid reading Chrome storage on every LLM call
+let cachedSettings = null;
+
+/**
+ * Loads and caches settings from Chrome storage
+ * @returns {Promise<Object>} Cached settings object
+ */
+async function loadAndCacheSettings() {
+  try {
+    if (typeof chrome !== 'undefined' && chrome.storage) {
+      const result = await chrome.storage.sync.get({
+        geminiApiKey: "",
+        additionalLLMInstructions: ""
+      });
+      cachedSettings = result;
+      return result;
+    }
+  } catch (error) {
+    console.warn('Could not load settings from storage:', error);
+    cachedSettings = {
+      geminiApiKey: "",
+      additionalLLMInstructions: ""
+    };
+  }
+  return cachedSettings;
+}
+
+/**
+ * Updates the cached settings (called when settings are saved)
+ * @param {Object} newSettings - New settings to cache
+ */
+function updateCachedSettings(newSettings) {
+  cachedSettings = { ...cachedSettings, ...newSettings };
+}
+
+// Expose cache update function globally for settings page
+if (typeof window !== 'undefined') {
+  window.updateUnriddleCache = updateCachedSettings;
+}
+
+/**
+ * Gets cached settings, loading them if not already cached
+ * @returns {Promise<Object>} Cached settings
+ */
+async function getCachedSettings() {
+  if (cachedSettings === null) {
+    await loadAndCacheSettings();
+  }
+  return cachedSettings;
+}
+
 /**
  * Processes text through the Gemini API to simplify/explain content
  * @param {string|Object} context - Text to process or context object with page info
@@ -12,23 +63,22 @@
  * @throws {Error} If API key is missing or API request fails
  */
 export async function unriddleText(context, options = {}) {
+  // Get cached settings instead of reading Chrome storage every time
+  const cacheStartTime = performance.now();
+  const settings = await getCachedSettings();
+  const cacheTime = performance.now() - cacheStartTime;
+  
+  // Log cache performance (only in development)
+  if (import.meta.env.DEV) {
+    console.log(`🔧 Settings cache time: ${cacheTime.toFixed(2)}ms`);
+  }
+  
   // Get API key - try user's key first, then fall back to environment variable
   let GEMINI_API_KEY = null;
   
-  try {
-    // Check for user-provided API key in Chrome storage
-    if (typeof chrome !== 'undefined' && chrome.storage) {
-      const result = await chrome.storage.sync.get({ geminiApiKey: "" });
-      if (result.geminiApiKey && result.geminiApiKey.trim() !== '') {
-        GEMINI_API_KEY = result.geminiApiKey.trim();
-      }
-    }
-  } catch (error) {
-    console.warn('Could not retrieve user API key from storage:', error);
-  }
-  
-  // Fall back to environment variable if no user key
-  if (!GEMINI_API_KEY) {
+  if (settings.geminiApiKey && settings.geminiApiKey.trim() !== '') {
+    GEMINI_API_KEY = settings.geminiApiKey.trim();
+  } else {
     GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
   }
   
@@ -41,18 +91,8 @@ export async function unriddleText(context, options = {}) {
   const language = options.language || "English";
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`;
 
-  // Get additional LLM instructions from settings
-  let additionalLLMInstructions = "";
-  try {
-    if (typeof chrome !== 'undefined' && chrome.storage) {
-      const result = await chrome.storage.sync.get({ additionalLLMInstructions: "" });
-      if (result.additionalLLMInstructions && result.additionalLLMInstructions.trim() !== '') {
-        additionalLLMInstructions = result.additionalLLMInstructions.trim();
-      }
-    }
-  } catch (error) {
-    // ignore
-  }
+  // Get additional LLM instructions from cached settings
+  const additionalLLMInstructions = settings.additionalLLMInstructions || "";
 
   // Build prompt based on context type (string or object)
   let prompt = "";

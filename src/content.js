@@ -11,6 +11,9 @@ import { setupEventHandlers } from "./modules/eventHandlers.js";
 // Initialize event handlers for popup interactions
 setupEventHandlers();
 
+// Note: Settings cache will be initialized on first LLM call
+// This avoids circular import issues and still provides the performance benefit
+
 // Default settings - hardcode the default language to avoid import issues
 const DEFAULT_SETTINGS = {
   language: "English",

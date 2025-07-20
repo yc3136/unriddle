@@ -316,6 +316,16 @@ class SettingsManager {
       }
 
       await chrome.storage.sync.set(settings);
+      
+      // Update the LLM API cache with the new settings
+      // We'll use a global function to avoid circular imports
+      if (window.updateUnriddleCache) {
+        window.updateUnriddleCache({
+          geminiApiKey: settings.geminiApiKey,
+          additionalLLMInstructions: settings.additionalLLMInstructions
+        });
+      }
+      
       this.showToast('Settings saved successfully!', 'success');
     } catch (error) {
       console.error('SettingsManager: Error saving settings:', error);

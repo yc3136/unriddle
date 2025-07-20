@@ -20,7 +20,9 @@ export function gatherContext(selectedText, contextWindowSize = 40) {
   if (contextWindowSize === "") {
     const bodyText = document.body.innerText || document.body.textContent || '';
     const cleanedText = bodyText.replace(/\s+/g, ' ').trim();
-    contextSnippet = cleanedText;
+    // Cap full page content to 1000 words to avoid sending too much data
+    const words = cleanedText.split(/\s+/);
+    contextSnippet = words.slice(0, 1000).join(' ');
   } else if (contextWindowSize === 0) {
     contextSnippet = selectedText;
   } else if (selection && selection.rangeCount > 0) {

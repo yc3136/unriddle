@@ -91,6 +91,9 @@ unriddle lets you configure your Gemini API key, how much context is sent to the
 - **API Key**: Currently, unriddle only works with Gemini. More API provider integration coming soon.
 - **Context Window Size**: Set the number of words of surrounding context to include with your selection (default: 40 words). Leave empty for full page, or enter 0 for only your selection. Higher values may improve explanations but use more API quota.
 - **Additional LLM Instructions**: Add extra instructions that will be included with every LLM request. For example, you can ask the LLM to "explain as if to a 5 year old", "use a friendly tone", or any other style or audience preference. This is useful for customizing the output to your needs.
+- **Language Selection**: Choosing a language other than English may increase response time, as the LLM may take longer to process translations.
+
+**Note:** Using a different language or adding additional LLM instructions can increase the time it takes to receive a response, as these options require more processing by the LLM.
 
 #### How to Configure
 1. Open the settings page
@@ -284,6 +287,7 @@ The extension follows a modular architecture with clear separation of concerns:
 - Optimized CSS with proper separation of concerns
 - Efficient DOM manipulation
 - Minimal bundle size
+- **Note:** Using a different language or additional LLM instructions may increase response time, as the LLM may take longer to process translations or more complex instructions.
 
 ### **Error Handling & User Guidance**
 - **Smart error detection** for API key validation and quota issues
