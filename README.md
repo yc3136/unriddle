@@ -83,19 +83,21 @@ For Arabic, Hebrew, Persian, and Urdu, the LLM response is shown right-to-left a
 3. Click "Save" or press Ctrl+S
 4. Your preference is automatically saved and will be used for future explanations
 
-### LLM Configuration (API Key & Context Window)
+### LLM Configuration (API Key, Context Window & Additional LLM Instructions)
 
-Unriddle lets you configure your Gemini API key and how much context is sent to the LLM:
+Unriddle lets you configure your Gemini API key, how much context is sent to the LLM, and provide additional instructions for the LLM output:
 
 - **API Key**: Currently, Unriddle only works with Gemini. More API provider integration coming soon.
 - **Context Window Size**: Set the number of words of surrounding context to include with your selection (default: 40 words). Leave empty for full page, or enter 0 for only your selection. Higher values may improve explanations but use more API quota.
+- **Additional LLM Instructions**: Add extra instructions that will be included with every LLM request. For example, you can ask the LLM to "explain as if to a 5 year old", "use a friendly tone", or any other style or audience preference. This is useful for customizing the output to your needs.
 
 #### How to Configure
 1. Open the settings page
 2. Scroll to the "LLM Configuration" section
 3. Enter your Gemini API key (see instructions above)
 4. Set your preferred context window size (in words)
-5. Changes are saved automatically
+5. Add any additional LLM instructions in the provided field (optional)
+6. Changes are saved automatically
 
 ### Font Configuration (Popup Font Customization)
 Unriddle lets you control the font used for LLM responses in the in-page popup:
@@ -259,6 +261,7 @@ The extension follows a modular architecture with clear separation of concerns:
 - **Bring your own API key** with secure local storage and auto-save
 - **Smart key management** with priority system (user key → environment variable)
 - **Context window size**: Choose how many words of surrounding context to include (default: 40 words; empty = full page; 0 = only selection)
+- **Additional LLM instructions**: Add extra instructions to customize the style, tone, or audience for every LLM response
 - **Toast notifications** for save confirmation
 - **Keyboard shortcuts** (Ctrl+S to save)
 - **Auto-save** on language and API key/context changes

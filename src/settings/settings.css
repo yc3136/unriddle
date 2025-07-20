@@ -887,3 +887,162 @@ body {
     border: 1px solid #444;
   }
 } 
+
+.custom-prompt-info {
+  margin-top: 16px;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  border-left: 4px solid #6a82fb;
+}
+.custom-prompt-info label {
+  display: block;
+  font-size: 1em;
+  margin-bottom: 8px;
+  color: #1a2340;
+}
+.custom-prompt-field {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  background: #fff;
+  margin-bottom: 8px;
+  transition: border-color 0.2s;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 48px;
+}
+.custom-prompt-field:focus {
+  outline: none;
+  border-color: #6a82fb;
+  box-shadow: 0 0 0 2px rgba(106, 130, 251, 0.18);
+}
+.custom-prompt-description {
+  font-size: 0.92em;
+  color: #555;
+  margin-top: 4px;
+}
+@media (prefers-color-scheme: dark) {
+  .custom-prompt-info {
+    background: #2d3748;
+    border-left-color: #6a82fb;
+  }
+  .custom-prompt-info label {
+    color: #f3f6fa;
+  }
+  .custom-prompt-field {
+    background: #23272f;
+    color: #f3f6fa;
+    border-color: #444;
+  }
+  .custom-prompt-field:focus {
+    border-color: #6a82fb;
+    box-shadow: 0 0 0 2px rgba(106, 130, 251, 0.18);
+  }
+  .custom-prompt-description {
+    color: #a0aec0;
+  }
+} 
+
+.additional-llm-instructions-info {
+  margin-top: 16px;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  border-left: 4px solid #6a82fb;
+}
+.additional-llm-instructions-info label {
+  display: block;
+  font-size: 1em;
+  margin-bottom: 8px;
+  color: #1a2340;
+}
+.additional-llm-instructions-field {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  background: #fff;
+  margin-bottom: 8px;
+  transition: border-color 0.2s;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 48px;
+}
+.additional-llm-instructions-field:focus {
+  outline: none;
+  border-color: #6a82fb;
+  box-shadow: 0 0 0 2px rgba(106, 130, 251, 0.18);
+}
+.additional-llm-instructions-description {
+  font-size: 0.92em;
+  color: #444;
+  margin-top: 4px;
+}
+@media (prefers-color-scheme: dark) {
+  .additional-llm-instructions-info {
+    background: #2d3748;
+    border-left-color: #6a82fb;
+  }
+  .additional-llm-instructions-info label {
+    color: #f3f6fa;
+  }
+  .additional-llm-instructions-field {
+    background: #23272f;
+    color: #f3f6fa;
+    border-color: #444;
+  }
+  .additional-llm-instructions-field:focus {
+    border-color: #6a82fb;
+    box-shadow: 0 0 0 2px rgba(106, 130, 251, 0.18);
+  }
+  .additional-llm-instructions-description {
+    color: #a0aec0;
+  }
+} 
+
+/* Unified label and description styles for better contrast */
+.setting-section label,
+.context-window-info label,
+.custom-prompt-info label,
+.font-config-info label,
+.config-subheading {
+  color: #1a2340;
+  font-weight: 600;
+  font-size: 1em;
+}
+.setting-description,
+.language-explanation,
+.api-key-explanation,
+.api-key-instructions,
+.api-key-note,
+.context-window-description,
+.font-dynamic-explanation,
+.custom-prompt-description,
+.version-info {
+  color: #444;
+  font-size: 0.96em;
+}
+@media (prefers-color-scheme: dark) {
+  .setting-section label,
+  .context-window-info label,
+  .custom-prompt-info label,
+  .font-config-info label,
+  .config-subheading {
+    color: #f3f6fa;
+  }
+  .setting-description,
+  .language-explanation,
+  .api-key-explanation,
+  .api-key-instructions,
+  .api-key-note,
+  .context-window-description,
+  .font-dynamic-explanation,
+  .custom-prompt-description,
+  .version-info {
+    color: #e2e8f0;
+  }
+} 

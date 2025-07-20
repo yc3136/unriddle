@@ -41,16 +41,31 @@ export async function unriddleText(context, options = {}) {
   const language = options.language || "English";
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`;
 
+  // Get additional LLM instructions from settings
+  let additionalLLMInstructions = "";
+  try {
+    if (typeof chrome !== 'undefined' && chrome.storage) {
+      const result = await chrome.storage.sync.get({ additionalLLMInstructions: "" });
+      if (result.additionalLLMInstructions && result.additionalLLMInstructions.trim() !== '') {
+        additionalLLMInstructions = result.additionalLLMInstructions.trim();
+      }
+    }
+  } catch (error) {
+    // ignore
+  }
+
   // Build prompt based on context type (string or object)
   let prompt = "";
+  let basePrompt = "Rewrite the following text in plain, simple words for a general audience. Do not use phrases like 'it means' or 'it describes'—just give the transformed meaning directly. Be concise and clear. Respond in "+language+".";
+  if (additionalLLMInstructions) {
+    basePrompt += "\n" + additionalLLMInstructions;
+  }
   if (typeof context === "string") {
     // Simple text processing
-    prompt = `Rewrite the following text in plain, simple words for a general audience. Do not use phrases like 'it means' or 'it describes'—just give the transformed meaning directly. Be concise and clear. Respond in ${language}.
-\nText: "${context}"`;
+    prompt = `${basePrompt}\nText: "${context}"`;
   } else {
     // Rich context processing with page information
-    prompt = `Rewrite the following text in plain, simple words for a general audience. Do not use phrases like 'it means' or 'it describes'—just give the transformed meaning directly. Be concise and clear. Respond in ${language}.
-\nPage Title: ${context.page_title || ""}\nSection Heading: ${context.section_heading || ""}\nContext Snippet: ${context.context_snippet || ""}\nUser Selection: "${context.user_selection || ""}"`;
+    prompt = `${basePrompt}\nPage Title: ${context.page_title || ""}\nSection Heading: ${context.section_heading || ""}\nContext Snippet: ${context.context_snippet || ""}\nUser Selection: "${context.user_selection || ""}"`;
   }
 
   // Prepare request payload

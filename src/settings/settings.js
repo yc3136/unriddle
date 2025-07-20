@@ -12,7 +12,8 @@ const DEFAULT_SETTINGS = {
   contextWindowSize: 40, // default to 40 words
   useDynamicFont: true,
   customFontFamily: "Arial",
-  customFontSize: 16
+  customFontSize: 16,
+  additionalLLMInstructions: ""
 };
 
 class SettingsManager {
@@ -30,6 +31,7 @@ class SettingsManager {
     this.fontCustomControls = document.getElementById('font-custom-controls');
     this.fontModeDynamic = document.getElementById('font-mode-dynamic');
     this.fontModeCustom = document.getElementById('font-mode-custom');
+    this.additionalLLMInstructionsInput = document.getElementById('custom-prompt-input');
     
     if (this.languageSelect && this.saveButton) {
       this.populateLanguageDropdown();
@@ -113,6 +115,11 @@ class SettingsManager {
       });
       this.fontModeCustom.addEventListener('change', () => {
         this.updateFontCustomControls();
+        this.saveSettings();
+      });
+    }
+    if (this.additionalLLMInstructionsInput) {
+      this.additionalLLMInstructionsInput.addEventListener('input', () => {
         this.saveSettings();
       });
     }
@@ -201,6 +208,7 @@ class SettingsManager {
           this.fontModeCustom.checked = true;
         }
       }
+      if (this.additionalLLMInstructionsInput) this.additionalLLMInstructionsInput.value = settings.additionalLLMInstructions || '';
       this.updateFontCustomControls();
       this.updateFontExample();
     } catch (error) {
@@ -295,7 +303,8 @@ class SettingsManager {
         geminiApiKey: this.apiKeyInput ? this.apiKeyInput.value : "",
         useDynamicFont: this.fontModeDynamic ? this.fontModeDynamic.checked : true,
         customFontFamily: this.fontFamilySelect ? this.fontFamilySelect.value : 'Arial',
-        customFontSize: this.fontSizeInput ? parseInt(this.fontSizeInput.value, 10) || 16 : 16
+        customFontSize: this.fontSizeInput ? parseInt(this.fontSizeInput.value, 10) || 16 : 16,
+        additionalLLMInstructions: this.additionalLLMInstructionsInput ? this.additionalLLMInstructionsInput.value : ""
       };
 
       if (!SUPPORTED_LANGUAGES.includes(settings.language)) {

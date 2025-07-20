@@ -92,6 +92,22 @@
               </ul>
             </div>
           </div>
+
+          <div class="additional-llm-instructions-info">
+            <h3 class="config-subheading">Additional LLM Instructions</h3>
+            <label for="custom-prompt-input"><strong>Additional instructions for the LLM</strong> (optional):</label>
+            <div class="additional-llm-instructions-description" style="font-size: 0.92em; margin-top: 4px;">
+              This text will be added to the LLM's instructions, together with the default prompt. Use it to customize the style, audience, or other preferences for the output.
+            </div>
+            <textarea 
+              id="custom-prompt-input" 
+              class="additional-llm-instructions-field" 
+              rows="3" 
+              placeholder="E.g. Explain as if to a 5 year old, use a friendly tone, etc."
+              autocomplete="off"
+              style="width: 100%; margin-top: 6px; resize: vertical; min-height: 48px;"
+            ></textarea>
+          </div>
         </div>
       </section>
 
