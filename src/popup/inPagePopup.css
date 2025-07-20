@@ -229,3 +229,27 @@
     color: #90cdf4;
   }
 } 
+
+.unriddle-copy-prompt-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: none;
+  transition: background 0.2s;
+}
+
+.unriddle-copy-prompt-btn:hover {
+  background: #e0e0e0;
+}
+
+@media (prefers-color-scheme: dark) {
+  .unriddle-copy-prompt-btn:hover {
+    background: #404040;
+  }
+} 

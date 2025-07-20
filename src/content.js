@@ -54,11 +54,13 @@ chrome.runtime.onMessage.addListener(async (msg, sender, sendResponse) => {
     const startTime = Date.now();
     try {
       // Process text through LLM API with user's language preference
-      const result = await unriddleText(context, { language: settings.language });
+      const unriddleResult = await unriddleText(context, { language: settings.language, returnPrompt: true });
+      const result = unriddleResult.result;
+      const prompt = unriddleResult.prompt;
       const elapsed = ((Date.now() - startTime) / 1000).toFixed(2);
       
       // Display successful result
-      showUnriddlePopup(selectedText, false, `${result}\n\n⏱️ Time used: ${elapsed}s`, true);
+      showUnriddlePopup(selectedText, false, `${result}\n\n⏱️ Time used: ${elapsed}s`, true, prompt);
     } catch (err) {
       console.error('Content: Error in unriddleText:', err);
       

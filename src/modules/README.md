@@ -10,10 +10,12 @@ Handles all in-page popup functionality including:
 - Focus management and accessibility features
 - Loading states and result display
 - Feedback button creation
+- Settings button creation
+- **Copy LLM context button**: Allows users to copy the full prompt/context sent to the LLM (with page URL and extension attribution) for use in other chatbots. The button uses a robot icon, shows a tooltip ("Copy LLM context for follow up"), and displays a visible success message when clicked.
 - Popup positioning and removal
 
 **Exports:**
-- `showUnriddlePopup(text, loading, result, isHtml)` - Main function to display popups
+- `showUnriddlePopup(text, loading, result, isHtml, prompt)` - Main function to display popups
 - `removeUnriddlePopup()` - Function to remove the popup
 
 **Related files:**

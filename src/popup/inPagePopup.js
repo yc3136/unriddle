@@ -160,7 +160,58 @@ function createSharedKeyWarning() {
   return warningDiv;
 }
 
-function createMetaRow(text, result) {
+function createCopyPromptButton(prompt) {
+  const copyBtn = document.createElement("button");
+  copyBtn.setAttribute("aria-label", "Copy LLM context for follow up");
+  copyBtn.title = "Copy LLM context for follow up";
+  copyBtn.className = "unriddle-copy-prompt-btn";
+  copyBtn.innerHTML = `
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <!-- Head -->
+      <rect x="4" y="7" width="16" height="10" rx="5"/>
+      <!-- Eyes -->
+      <circle cx="8.5" cy="12" r="2"/>
+      <circle cx="15.5" cy="12" r="2"/>
+      <!-- Mouth -->
+      <line x1="9" y1="16" x2="15" y2="16"/>
+      <!-- Antenna -->
+      <line x1="12" y1="3" x2="12" y2="7"/>
+      <circle cx="12" cy="3" r="1"/>
+    </svg>
+  `;
+  copyBtn.onclick = function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!prompt) return;
+    const url = window.location.href;
+    const textToCopy = `${prompt}\n\n[Source: ${url}]\n- from unriddle Chrome Extension`;
+    navigator.clipboard.writeText(textToCopy).then(() => {
+      showCopySuccessMessage(copyBtn, "Prompt copied to clipboard");
+    });
+  };
+  return copyBtn;
+}
+
+function showCopySuccessMessage(btn, message) {
+  // Remove any existing message
+  let existing = document.getElementById("unriddle-copy-success-msg");
+  if (existing) existing.remove();
+  // Find the meta row
+  let metaRow = btn.closest('.unriddle-meta-row');
+  if (!metaRow) metaRow = btn.parentElement;
+  const msg = document.createElement('div');
+  msg.id = "unriddle-copy-success-msg";
+  msg.textContent = message;
+  msg.style.fontSize = '0.97em';
+  msg.style.color = '#219150';
+  msg.style.marginTop = '6px';
+  msg.style.textAlign = 'center';
+  msg.style.width = '100%';
+  metaRow.parentElement.insertBefore(msg, metaRow.nextSibling);
+  setTimeout(() => { msg.remove(); }, 1200);
+}
+
+function createMetaRow(text, result, prompt) {
   const metaRow = document.createElement("div");
   metaRow.className = "unriddle-meta-row";
 
@@ -176,6 +227,12 @@ function createMetaRow(text, result) {
   timeSpan.textContent = timeText;
   timeSpan.className = "unriddle-time-text";
   metaRow.appendChild(timeSpan);
+
+  // Copy prompt button (leftmost)
+  if (prompt) {
+    const copyBtn = createCopyPromptButton(prompt);
+    metaRow.appendChild(copyBtn);
+  }
 
   // Settings button
   const settingsBtn = createSettingsButton();
@@ -246,7 +303,7 @@ function setupKeyboardHandlers(popup) {
  * @param {string} result - The result text to display
  * @param {boolean} isHtml - Whether the result contains HTML
  */
-export async function showUnriddlePopup(text, loading = true, result = "", isHtml = false) {
+export async function showUnriddlePopup(text, loading = true, result = "", isHtml = false, prompt = undefined) {
   let popup = document.getElementById("unriddle-popup");
   if (popup) popup.remove();
 
@@ -332,7 +389,7 @@ export async function showUnriddlePopup(text, loading = true, result = "", isHtm
     popup.appendChild(resultSpan);
     popup.setAttribute('aria-labelledby', resultId);
 
-    const metaRow = createMetaRow(text, result);
+    const metaRow = createMetaRow(text, result, prompt);
     popup.appendChild(metaRow);
     
     // Check if user has set their own API key and show warning if not

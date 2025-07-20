@@ -96,7 +96,9 @@ export async function unriddleText(context, options = {}) {
   if (!result) {
     throw new Error("No response from Gemini API");
   }
-  
+  if (options.returnPrompt) {
+    return { result: result.trim(), prompt };
+  }
   return result.trim();
 }
 
