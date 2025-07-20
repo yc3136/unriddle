@@ -12,10 +12,28 @@
  * @throws {Error} If API key is missing or API request fails
  */
 export async function unriddleText(context, options = {}) {
-  // Validate API key
-  const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+  // Get API key - try user's key first, then fall back to environment variable
+  let GEMINI_API_KEY = null;
+  
+  try {
+    // Check for user-provided API key in Chrome storage
+    if (typeof chrome !== 'undefined' && chrome.storage) {
+      const result = await chrome.storage.sync.get({ geminiApiKey: "" });
+      if (result.geminiApiKey && result.geminiApiKey.trim() !== '') {
+        GEMINI_API_KEY = result.geminiApiKey.trim();
+      }
+    }
+  } catch (error) {
+    console.warn('Could not retrieve user API key from storage:', error);
+  }
+  
+  // Fall back to environment variable if no user key
   if (!GEMINI_API_KEY) {
-    throw new Error("Missing Gemini API key. Set VITE_GEMINI_API_KEY in your .env file.");
+    GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+  }
+  
+  if (!GEMINI_API_KEY) {
+    throw new Error("Missing Gemini API key. Please set your own API key in Settings or ensure VITE_GEMINI_API_KEY is set in your .env file.");
   }
   
   // Configure API request
@@ -57,7 +75,19 @@ export async function unriddleText(context, options = {}) {
 
   // Handle API errors
   if (!res.ok) {
-    throw new Error(`Gemini API error: ${res.status} ${res.statusText}`);
+    let errorDetails = `${res.status} ${res.statusText}`;
+    
+    try {
+      const errorData = await res.json();
+      if (errorData.error && errorData.error.message) {
+        errorDetails = `${res.status} ${res.statusText}: ${errorData.error.message}`;
+      }
+    } catch (parseError) {
+      // If we can't parse the error response, use the status text
+      console.warn('Could not parse error response:', parseError);
+    }
+    
+    throw new Error(`Gemini API error: ${errorDetails}`);
   }
 
   // Parse and validate response

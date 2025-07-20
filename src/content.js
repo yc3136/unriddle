@@ -58,9 +58,21 @@ chrome.runtime.onMessage.addListener(async (msg, sender, sendResponse) => {
       showUnriddlePopup(selectedText, false, `${result}\n\n⏱️ Time used: ${elapsed}s`, true);
     } catch (err) {
       console.error('Content: Error in unriddleText:', err);
+      
+      // Check if it's an API key validation error
+      let errorMessage = err.message || err;
+      if (errorMessage.includes('Gemini API error: 400')) {
+        errorMessage = `Invalid API key. Please check your Gemini API key in <a href="#" class="error-link">Settings</a> and try again.`;
+      } else if (errorMessage.includes('Gemini API error: 429') || 
+                 errorMessage.includes('quota') || 
+                 errorMessage.includes('rate limit') ||
+                 errorMessage.includes('RESOURCE_EXHAUSTED')) {
+        errorMessage = `API quota limit reached. The shared API key has been used up. Please set your own Gemini API key in <a href="#" class="error-link">Settings</a> to avoid exceeding API quota.`;
+      }
+      
       // Display error message
       const elapsed = ((Date.now() - startTime) / 1000).toFixed(2);
-      showUnriddlePopup(selectedText, false, `Error: ${err.message || err}\n\n⏱️ Time used: ${elapsed}s`, true);
+      showUnriddlePopup(selectedText, false, `Error: ${errorMessage}\n\n⏱️ Time used: ${elapsed}s`, true);
     }
   }
 });

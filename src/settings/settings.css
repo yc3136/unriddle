@@ -131,6 +131,140 @@ body {
   border-color: #a0c4ff;
 }
 
+/* API Key section styles */
+.api-key-info {
+  margin-bottom: 20px;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  border-left: 4px solid #ffd700;
+}
+
+.api-key-explanation {
+  margin: 0 0 16px 0;
+  font-size: 0.9em;
+  line-height: 1.5;
+  color: #555;
+}
+
+.api-key-explanation strong {
+  color: #1a2340;
+}
+
+.api-key-instructions {
+  background: #fff;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.api-key-instructions h4 {
+  margin: 0 0 8px 0;
+  font-size: 0.95em;
+  color: #1a2340;
+}
+
+.api-key-instructions ol {
+  margin: 0 0 12px 0;
+  padding-left: 20px;
+  font-size: 0.85em;
+  line-height: 1.6;
+  color: #555;
+}
+
+.api-key-instructions li {
+  margin-bottom: 4px;
+}
+
+.api-key-instructions a {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.api-key-instructions a:hover {
+  text-decoration: underline;
+}
+
+.api-key-note {
+  margin: 0;
+  font-size: 0.8em;
+  color: #6c757d;
+  font-style: italic;
+}
+
+.api-key-input {
+  position: relative;
+  margin-top: 16px;
+}
+
+.api-key-field {
+  width: 100%;
+  padding: 10px 40px 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  background: #fff;
+  transition: border-color 0.2s;
+  font-family: 'Courier New', monospace;
+}
+
+.api-key-field:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.api-key-field:hover {
+  border-color: #a0c4ff;
+}
+
+.toggle-api-key-btn {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  font-size: 16px;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.toggle-api-key-btn:hover {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.api-key-status {
+  margin-top: 12px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.85em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.api-key-status.no-key {
+  background: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeaa7;
+}
+
+.api-key-status.has-key {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.api-key-status .status-icon {
+  font-size: 14px;
+}
+
 .version-info {
   text-align: center;
   padding: 12px;
@@ -314,9 +448,74 @@ body {
     color: #e2e8f0;
   }
   
-  .language-dropdown:focus {
+  /* Dark theme support for API key section */
+  .api-key-info {
+    background: #2d3748;
+    border-left-color: #ffd700;
+  }
+  
+  .api-key-explanation {
+    color: #a0aec0;
+  }
+  
+  .api-key-explanation strong {
+    color: #f3f6fa;
+  }
+  
+  .api-key-instructions {
+    background: #4a5568;
+    border-color: #718096;
+  }
+  
+  .api-key-instructions h4 {
+    color: #f3f6fa;
+  }
+  
+  .api-key-instructions ol {
+    color: #a0aec0;
+  }
+  
+  .api-key-instructions a {
+    color: #63b3ed;
+  }
+  
+  .api-key-instructions a:hover {
+    color: #90cdf4;
+  }
+  
+  .api-key-note {
+    color: #718096;
+  }
+  
+  .api-key-field {
+    background: #2d3748;
+    color: #f3f6fa;
+    border-color: #4a5568;
+  }
+  
+  .api-key-field:focus {
     border-color: #63b3ed;
     box-shadow: 0 0 0 2px rgba(99, 179, 237, 0.25);
+  }
+  
+  .api-key-field:hover {
+    border-color: #63b3ed;
+  }
+  
+  .toggle-api-key-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+  
+  .api-key-status.no-key {
+    background: rgba(255, 193, 7, 0.15);
+    color: #ffd700;
+    border-color: rgba(255, 193, 7, 0.3);
+  }
+  
+  .api-key-status.has-key {
+    background: rgba(40, 167, 69, 0.15);
+    color: #68d391;
+    border-color: rgba(40, 167, 69, 0.3);
   }
 }
 

@@ -147,4 +147,85 @@
 @keyframes unriddle-spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+/* Shared key warning styles */
+.unriddle-shared-key-warning {
+  margin-top: 12px;
+  padding: 10px;
+  background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+  border: 1px solid #ffd700;
+  border-radius: 8px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 0.85em;
+  line-height: 1.4;
+}
+
+.unriddle-shared-key-warning .warning-icon {
+  font-size: 14px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.unriddle-shared-key-warning .warning-text {
+  flex: 1;
+  color: #856404;
+}
+
+.unriddle-shared-key-warning .warning-text strong {
+  font-weight: 600;
+}
+
+.unriddle-shared-key-warning .warning-link {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.unriddle-shared-key-warning .warning-link:hover {
+  text-decoration: underline;
+}
+
+/* Dark theme for shared key warning */
+@media (prefers-color-scheme: dark) {
+  .unriddle-shared-key-warning {
+    background: linear-gradient(135deg, rgba(255, 193, 7, 0.15) 0%, rgba(255, 143, 0, 0.1) 100%);
+    border: 1px solid rgba(255, 193, 7, 0.3);
+  }
+  
+  .unriddle-shared-key-warning .warning-text {
+    color: #ffd700;
+  }
+  
+  .unriddle-shared-key-warning .warning-link {
+    color: #63b3ed;
+  }
+  
+  .unriddle-shared-key-warning .warning-link:hover {
+    color: #90cdf4;
+  }
+}
+
+/* Error link styles */
+.unriddle-result .error-link {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.unriddle-result .error-link:hover {
+  text-decoration: underline;
+}
+
+/* Dark theme for error links */
+@media (prefers-color-scheme: dark) {
+  .unriddle-result .error-link {
+    color: #63b3ed;
+  }
+  
+  .unriddle-result .error-link:hover {
+    color: #90cdf4;
+  }
 } 

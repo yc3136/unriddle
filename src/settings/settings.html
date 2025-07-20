@@ -32,6 +32,45 @@
       </section>
 
       <section class="setting-section">
+        <h2>Gemini API Key</h2>
+        <p class="setting-description">Use your own Gemini API key for unlimited usage</p>
+        <div class="api-key-info">
+          <p class="api-key-explanation">
+            <strong>Why use your own API key?</strong> This is a free, open-source extension. 
+            The included API key has limited quota and may run out. Using your own key ensures 
+            unlimited usage and better reliability. <strong>Gemini API keys are free</strong> and easy to get.
+          </p>
+          <div class="api-key-instructions">
+            <h4>How to get your API key:</h4>
+            <ol>
+              <li>Go to <a href="https://makersuite.google.com/app/apikey" target="_blank" rel="noopener">Google AI Studio</a></li>
+              <li>Sign in with your Google account</li>
+              <li>Click "Create API Key"</li>
+              <li>Copy the generated key and paste it below</li>
+            </ol>
+            <p class="api-key-note">
+              <strong>Note:</strong> Your API key is stored locally in your browser and is never sent to our servers.
+            </p>
+          </div>
+        </div>
+        <div class="api-key-input">
+          <input 
+            type="password" 
+            id="api-key-input" 
+            class="api-key-field" 
+            placeholder="Enter your Gemini API key (optional)"
+            autocomplete="off"
+          />
+          <button id="toggle-api-key" class="toggle-api-key-btn" type="button" aria-label="Show/hide API key">
+            👁
+          </button>
+        </div>
+        <div class="api-key-status" id="api-key-status">
+          <span class="status-text">No API key set - using extension's shared key</span>
+        </div>
+      </section>
+
+      <section class="setting-section">
         <h2>About</h2>
         <p class="setting-description">
           Unriddle helps you understand complex text by explaining it in simple terms. 

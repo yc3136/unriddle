@@ -138,6 +138,28 @@ function createSettingsButton() {
   return settingsBtn;
 }
 
+function createSharedKeyWarning() {
+  const warningDiv = document.createElement("div");
+  warningDiv.className = "unriddle-shared-key-warning";
+  warningDiv.innerHTML = `
+    <div class="warning-icon">⚠️</div>
+    <div class="warning-text">
+      <strong>Using shared API key</strong> - This has limited quota. 
+      <a href="#" class="warning-link">Set your own key</a> to avoid exceeding API quota.
+    </div>
+  `;
+  
+  // Add click handler for the link
+  const link = warningDiv.querySelector('.warning-link');
+  link.onclick = function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    chrome.runtime.sendMessage({ action: "OPEN_OPTIONS_PAGE" });
+  };
+  
+  return warningDiv;
+}
+
 function createMetaRow(text, result) {
   const metaRow = document.createElement("div");
   metaRow.className = "unriddle-meta-row";
@@ -224,7 +246,7 @@ function setupKeyboardHandlers(popup) {
  * @param {string} result - The result text to display
  * @param {boolean} isHtml - Whether the result contains HTML
  */
-export function showUnriddlePopup(text, loading = true, result = "", isHtml = false) {
+export async function showUnriddlePopup(text, loading = true, result = "", isHtml = false) {
   let popup = document.getElementById("unriddle-popup");
   if (popup) popup.remove();
 
@@ -278,11 +300,34 @@ export function showUnriddlePopup(text, loading = true, result = "", isHtml = fa
     const fontStyles = getSelectionFontStyles();
     Object.assign(resultSpan.style, fontStyles);
     
+    // Add click handlers for error links
+    const errorLinks = resultSpan.querySelectorAll('.error-link');
+    errorLinks.forEach(link => {
+      link.onclick = function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        chrome.runtime.sendMessage({ action: "OPEN_OPTIONS_PAGE" });
+      };
+    });
+    
     popup.appendChild(resultSpan);
     popup.setAttribute('aria-labelledby', resultId);
 
     const metaRow = createMetaRow(text, result);
     popup.appendChild(metaRow);
+    
+    // Check if user has set their own API key and show warning if not
+    try {
+      const result = await chrome.storage.sync.get({ geminiApiKey: "" });
+      const hasUserApiKey = result.geminiApiKey && result.geminiApiKey.trim() !== '';
+      
+      if (!hasUserApiKey) {
+        const sharedKeyWarning = createSharedKeyWarning();
+        popup.appendChild(sharedKeyWarning);
+      }
+    } catch (error) {
+      console.error('Error checking API key status:', error);
+    }
   }
 
   popup.appendChild(focusTrapEnd);

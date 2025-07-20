@@ -39,6 +39,10 @@
    ```
    VITE_GEMINI_API_KEY=your-actual-api-key-here
    ```
+   
+   **Important**: If you forked this repository, you must set up your own API key in the `.env` file since the original shared key is not included in the repository for security reasons.
+   
+   **Note**: You can also set your API key directly in the extension settings after installation for easier management.
 
 4. **Build the extension**
    ```bash
@@ -70,6 +74,47 @@ Unriddle supports **80+ languages** including:
 2. Select your preferred language from the dropdown
 3. Click "Save" or press Ctrl+S
 4. Your preference is automatically saved and will be used for future explanations
+
+### API Key Management (Bring Your Own Key)
+
+Unriddle supports two ways to provide your Gemini API key:
+
+#### Option 1: Settings Page (Recommended)
+1. Open the settings page
+2. Scroll to the "Gemini API Key" section
+3. Click the link to [Google AI Studio](https://makersuite.google.com/app/apikey) to get your API key
+4. Copy your API key and paste it in the input field
+5. The key is automatically saved as you type
+6. Your API key is stored securely in Chrome's sync storage
+
+#### Option 2: Environment Variable (Development)
+1. Copy `.env.example` to `.env`
+2. Add your API key: `VITE_GEMINI_API_KEY=your_api_key_here`
+3. Rebuild the extension
+
+#### How It Works
+- **Priority System**: The extension first checks for a user-provided key in settings, then falls back to the environment variable
+- **Secure Storage**: User keys are stored locally in Chrome's sync storage, never sent to our servers
+- **Auto-Save**: API key changes are automatically saved, no need to click a save button
+- **Visual Feedback**: Settings page shows whether you're using your own key or the shared key
+
+#### Why Use Your Own API Key?
+- **Free**: Gemini API keys are completely free
+- **Unlimited Usage**: No quota restrictions with your own key
+- **Reliability**: Avoid shared key quota limits
+- **Privacy**: Your API calls go directly to Google, not through our servers
+- **Control**: You can monitor and manage your own API usage
+
+#### Getting a Gemini API Key
+1. Visit [Google AI Studio](https://makersuite.google.com/app/apikey)
+2. Sign in with your Google account
+3. Click "Create API Key"
+4. Copy the generated key
+5. Paste it in the extension settings
+
+**Note**: The shared API key included with the extension has limited quota and may run out. Using your own key ensures uninterrupted service.
+
+**For Repository Forks**: If you forked this repository, you'll need to set up your own API key in the `.env` file as the original shared key is not included in the repository for security reasons.
 
 ## Development
 
@@ -174,9 +219,11 @@ The extension follows a modular architecture with clear separation of concerns:
 
 ### **Settings & Customization**
 - **Dedicated settings page** accessible from multiple entry points
+- **Bring your own API key** with secure local storage and auto-save
+- **Smart key management** with priority system (user key → environment variable)
 - **Toast notifications** for save confirmation
 - **Keyboard shortcuts** (Ctrl+S to save)
-- **Auto-save** on language change
+- **Auto-save** on language and API key changes
 - **Settings persistence** across browser sessions
 
 ### **Smart Context Gathering**
@@ -196,6 +243,13 @@ The extension follows a modular architecture with clear separation of concerns:
 - Efficient DOM manipulation
 - Minimal bundle size
 
+### **Error Handling & User Guidance**
+- **Smart error detection** for API key validation and quota issues
+- **Helpful error messages** with direct links to settings
+- **Proactive warnings** when using shared API key
+- **Automatic warning dismissal** when user sets their own key
+- **Clear instructions** for getting and setting up API keys
+
 ## Permissions
 
 The extension requires the following permissions:
@@ -206,7 +260,8 @@ The extension requires the following permissions:
 
 ## Security Notes
 - Never commit your `.env` file (it's already in `.gitignore`)
-- The API key is injected at build time and bundled into the extension
+- API keys can be set either in `.env` (build time) or in extension settings (runtime)
+- User-provided API keys are stored securely in Chrome's sync storage
 - Keep your API key secure and rotate it if needed
 - No data is stored locally beyond temporary processing and user preferences
 - Language preferences are stored securely in Chrome's sync storage

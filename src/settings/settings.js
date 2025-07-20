@@ -7,13 +7,17 @@
 import { SUPPORTED_LANGUAGES, DEFAULT_LANGUAGE, LANGUAGE_DISPLAY_NAMES } from "../config/languages.js";
 
 const DEFAULT_SETTINGS = {
-  language: DEFAULT_LANGUAGE
+  language: DEFAULT_LANGUAGE,
+  geminiApiKey: ""
 };
 
 class SettingsManager {
   constructor() {
     this.languageSelect = document.getElementById('language-select');
     this.saveButton = document.getElementById('save-settings');
+    this.apiKeyInput = document.getElementById('api-key-input');
+    this.toggleApiKeyBtn = document.getElementById('toggle-api-key');
+    this.apiKeyStatus = document.getElementById('api-key-status');
     
     if (this.languageSelect && this.saveButton) {
       this.populateLanguageDropdown();
@@ -49,6 +53,21 @@ class SettingsManager {
       this.saveSettings();
     });
 
+    // API key toggle button
+    if (this.toggleApiKeyBtn) {
+      this.toggleApiKeyBtn.addEventListener('click', () => {
+        this.toggleApiKeyVisibility();
+      });
+    }
+
+    // API key input change
+    if (this.apiKeyInput) {
+      this.apiKeyInput.addEventListener('input', () => {
+        this.updateApiKeyStatus();
+        this.saveSettings(); // Auto-save when API key changes
+      });
+    }
+
     // Add keyboard shortcut for saving (Ctrl+S)
     document.addEventListener('keydown', (e) => {
       if (e.ctrlKey && e.key === 's') {
@@ -56,6 +75,39 @@ class SettingsManager {
         this.saveSettings();
       }
     });
+  }
+
+  toggleApiKeyVisibility() {
+    if (this.apiKeyInput.type === 'password') {
+      this.apiKeyInput.type = 'text';
+      this.toggleApiKeyBtn.textContent = '🙈';
+      this.toggleApiKeyBtn.setAttribute('aria-label', 'Hide API key');
+    } else {
+      this.apiKeyInput.type = 'password';
+      this.toggleApiKeyBtn.textContent = '👁';
+      this.toggleApiKeyBtn.setAttribute('aria-label', 'Show API key');
+    }
+  }
+
+  updateApiKeyStatus() {
+    if (!this.apiKeyStatus) return;
+    
+    const apiKey = this.apiKeyInput.value.trim();
+    const statusText = this.apiKeyStatus.querySelector('.status-text');
+    
+    if (apiKey) {
+      this.apiKeyStatus.className = 'api-key-status has-key';
+      this.apiKeyStatus.innerHTML = `
+        <span class="status-icon">✅</span>
+        <span class="status-text">Using your API key</span>
+      `;
+    } else {
+      this.apiKeyStatus.className = 'api-key-status no-key';
+      this.apiKeyStatus.innerHTML = `
+        <span class="status-icon">⚠️</span>
+        <span class="status-text">No API key set - using extension's shared key</span>
+      `;
+    }
   }
 
   async loadSettings() {
@@ -68,6 +120,11 @@ class SettingsManager {
       const settings = { ...DEFAULT_SETTINGS, ...result };
       
       this.languageSelect.value = settings.language;
+      
+      if (this.apiKeyInput) {
+        this.apiKeyInput.value = settings.geminiApiKey || '';
+        this.updateApiKeyStatus();
+      }
     } catch (error) {
       console.error('SettingsManager: Error loading settings:', error);
       this.showStatus(`Error loading settings: ${error.message}`, 'error');
@@ -145,7 +202,8 @@ class SettingsManager {
   async saveSettings() {
     try {
       const settings = {
-        language: this.languageSelect.value
+        language: this.languageSelect.value,
+        geminiApiKey: this.apiKeyInput ? this.apiKeyInput.value : ""
       };
 
       if (!SUPPORTED_LANGUAGES.includes(settings.language)) {
