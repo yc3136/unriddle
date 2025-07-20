@@ -36,13 +36,10 @@
         <p class="setting-description">Configure your Gemini API key and context window size for explanations</p>
         <div class="llm-info">
           <div class="api-key-info">
+            <div class="api-key-status" id="api-key-status">
+              <span class="status-text">No API key set - using extension's shared key</span>
+            </div>
             <h3 class="config-subheading">API Key</h3>
-            <p class="api-key-explanation">
-              <strong>Note:</strong> Currently, unriddle only works with <strong>Gemini</strong>. More API provider integration coming soon.<br>
-              <strong>Why use your own API key?</strong> This is a free, open-source extension. 
-              The included API key has limited quota and may run out. Using your own key ensures 
-              unlimited usage and better reliability. <strong>Gemini API keys are free</strong> and easy to get.
-            </p>
             <div class="api-key-instructions">
               <h4>How to get your API key:</h4>
               <ol>
@@ -55,26 +52,30 @@
                 <strong>Note:</strong> Your API key is stored locally in your browser and is never sent to our servers.
               </p>
             </div>
-          </div>
-          <div class="api-key-input">
-            <input 
-              type="password" 
-              id="api-key-input" 
-              class="api-key-field" 
-              placeholder="Enter your Gemini API key (optional)"
-              autocomplete="off"
-            />
-            <button id="toggle-api-key" class="toggle-api-key-btn" type="button" aria-label="Show/hide API key">
-              👁
-            </button>
-          </div>
-          <div class="api-key-status" id="api-key-status">
-            <span class="status-text">No API key set - using extension's shared key</span>
+            <div class="api-key-input">
+              <input 
+                type="password" 
+                id="api-key-input" 
+                class="api-key-field" 
+                placeholder="Enter your Gemini API key (optional)"
+                autocomplete="off"
+              />
+              <button id="toggle-api-key" class="toggle-api-key-btn" type="button" aria-label="Show/hide API key">
+                👁
+              </button>
+            </div>
           </div>
 
           <div class="context-window-info">
-            <h3 class="config-subheading">Context Window</h3>
-            <label for="context-window-input"><strong>Context window size</strong> (number of words):</label>
+            <h3 class="config-subheading">Context Window Size (number of words)</h3>
+            <div class="context-window-instructions settings-description-unified" style="margin-bottom: 12px;">
+              <ul style="margin: 0; padding-left: 20px;">
+                <li>Leave empty for <strong>full page</strong> context.</li>
+                <li>Enter <strong>0</strong> for no extra context (just your selection).</li>
+                <li>Higher values provide more background but may be slower and use more API quota.</li>
+                <li>Default is <strong>40</strong> words.</li>
+              </ul>
+            </div>
             <input 
               type="number" 
               id="context-window-input" 
@@ -83,19 +84,10 @@
               placeholder="40 (default)" 
               autocomplete="off"
             />
-            <div class="context-window-description">
-              <ul>
-                <li>Leave empty for <strong>full page</strong> context.</li>
-                <li>Enter <strong>0</strong> for no extra context (just your selection).</li>
-                <li>Higher values provide more background but may be slower and use more API quota.</li>
-                <li>Default is <strong>40</strong> words.</li>
-              </ul>
-            </div>
           </div>
 
           <div class="additional-llm-instructions-info">
             <h3 class="config-subheading">Additional LLM Instructions</h3>
-            <label for="custom-prompt-input"><strong>Additional instructions for the LLM</strong> (optional):</label>
             <div class="additional-llm-instructions-description" style="font-size: 0.92em; margin-top: 4px;">
               This text will be added to the LLM's instructions, together with the default prompt. Use it to customize the style, audience, or other preferences for the output.
             </div>
@@ -119,7 +111,7 @@
             <input type="radio" name="font-mode" id="font-mode-dynamic" checked />
             <span><strong>Use dynamic font</strong> (match the font of your selected text)</span>
           </label>
-          <div class="font-dynamic-explanation" style="margin: 8px 0 0 28px; font-size: 0.93em; color: #666;">
+          <div class="font-dynamic-explanation additional-llm-instructions-description" style="margin: 8px 0 0 28px;">
             The popup will use the same font family and size as the text you selected. This is the default and works best for most sites.
           </div>
           <label style="display: flex; align-items: center; gap: 8px; margin-top: 16px;">
