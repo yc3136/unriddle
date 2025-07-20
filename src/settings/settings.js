@@ -1,5 +1,5 @@
 /**
- * Settings page script for the Unriddle Chrome Extension
+ * Settings page script for the unriddle Chrome Extension
  * 
  * Handles loading and saving user preferences using Chrome storage API
  */

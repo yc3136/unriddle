@@ -1,5 +1,5 @@
 /**
- * Extension popup script for the Unriddle Chrome Extension
+ * Extension popup script for the unriddle Chrome Extension
  * 
  * This is a simple informational popup that appears when users click
  * the extension icon in the browser toolbar.

@@ -63,7 +63,7 @@
 ## Settings & Configuration
 
 ### Language Support
-Unriddle supports **80+ languages** including:
+unriddle supports **80+ languages** including:
 - **Major Languages**: English, Spanish, French, German, Chinese, Japanese, Korean, Arabic, Hindi, Portuguese, Russian
 - **Regional Languages**: Dutch, Italian, Swedish, Norwegian, Danish, Finnish, Polish, Czech, Hungarian, Romanian
 - **Asian Languages**: Thai, Vietnamese, Indonesian, Malay, Tagalog, Burmese, Khmer, Lao
@@ -86,9 +86,9 @@ For Arabic, Hebrew, Persian, and Urdu, the LLM response is shown right-to-left a
 
 ### LLM Configuration (API Key, Context Window & Additional LLM Instructions)
 
-Unriddle lets you configure your Gemini API key, how much context is sent to the LLM, and provide additional instructions for the LLM output:
+unriddle lets you configure your Gemini API key, how much context is sent to the LLM, and provide additional instructions for the LLM output:
 
-- **API Key**: Currently, Unriddle only works with Gemini. More API provider integration coming soon.
+- **API Key**: Currently, unriddle only works with Gemini. More API provider integration coming soon.
 - **Context Window Size**: Set the number of words of surrounding context to include with your selection (default: 40 words). Leave empty for full page, or enter 0 for only your selection. Higher values may improve explanations but use more API quota.
 - **Additional LLM Instructions**: Add extra instructions that will be included with every LLM request. For example, you can ask the LLM to "explain as if to a 5 year old", "use a friendly tone", or any other style or audience preference. This is useful for customizing the output to your needs.
 
@@ -101,7 +101,7 @@ Unriddle lets you configure your Gemini API key, how much context is sent to the
 6. Changes are saved automatically
 
 ### Font Configuration (Popup Font Customization)
-Unriddle lets you control the font used for LLM responses in the in-page popup:
+unriddle lets you control the font used for LLM responses in the in-page popup:
 
 - **Dynamic Font (default):** The popup matches the font family and size of your selected text for seamless integration with any website.
 - **Custom Font:** Choose from a wide selection of browser-supported fonts (Arial, Times New Roman, Roboto, etc.) and set your preferred font size. A live preview is shown as you adjust the settings.
@@ -117,7 +117,7 @@ Your font preference will be used for all future LLM responses in the popup.
 
 ### API Key Management (Bring Your Own Key)
 
-Unriddle supports two ways to provide your Gemini API key:
+unriddle supports two ways to provide your Gemini API key:
 
 #### Option 1: Settings Page (Recommended)
 1. Open the settings page
@@ -241,7 +241,7 @@ The extension follows a modular architecture with clear separation of concerns:
 
 ### Method 2: Context Menu
 1. Select any text on a web page
-2. Right-click and choose "In other words"
+2. Right-click and choose "unriddle"
 3. See the explanation popup near your selection
 
 ### General Usage

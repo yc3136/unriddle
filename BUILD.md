@@ -1,6 +1,6 @@
 # Build Configuration
 
-This document describes the build process and configuration for the Unriddle Chrome Extension.
+This document describes the build process and configuration for the unriddle Chrome Extension.
 
 ## Build System
 

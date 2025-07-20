@@ -1,5 +1,5 @@
 /**
- * Context gathering module for the Unriddle Chrome Extension
+ * Context gathering module for the unriddle Chrome Extension
  * Expands selected text with surrounding context for better LLM prompts
  */
 

@@ -1,5 +1,5 @@
 /**
- * Main content script for the Unriddle Chrome Extension
+ * Main content script for the unriddle Chrome Extension
  * Handles communication with the background script and orchestrates popup display
  */
 

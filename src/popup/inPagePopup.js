@@ -1,5 +1,5 @@
 /**
- * In-page popup management module for the Unriddle Chrome Extension
+ * In-page popup management module for the unriddle Chrome Extension
  * Handles creation, styling, and interaction of in-page popups
  *
  * NOTE: Requires Material Icons stylesheet in your HTML:

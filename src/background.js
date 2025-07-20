@@ -1,5 +1,5 @@
 /**
- * Background script for the Unriddle Chrome Extension
+ * Background script for the unriddle Chrome Extension
  * Handles context menu creation and message routing to content scripts
  */
 
@@ -7,7 +7,7 @@
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
     id: "unriddle-context-menu",
-    title: "In other words",
+    title: "unriddle",
     contexts: ["selection"]
   });
 });

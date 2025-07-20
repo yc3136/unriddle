@@ -1,5 +1,5 @@
 /**
- * Markdown processing module for the Unriddle Chrome Extension
+ * Markdown processing module for the unriddle Chrome Extension
  * Converts basic markdown syntax to HTML for rich text display
  */
 

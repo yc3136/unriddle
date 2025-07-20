@@ -1,4 +1,4 @@
-# Unriddle Extension Modules
+# unriddle Extension Modules
 
 This directory contains modular components that were extracted from the main `content.js` file to improve maintainability and organization.
 

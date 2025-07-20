@@ -1,5 +1,5 @@
 /**
- * Language configuration for the Unriddle Chrome Extension
+ * Language configuration for the unriddle Chrome Extension
  * 
  * This file contains all language-related constants and configurations
  * to ensure consistency across the extension.

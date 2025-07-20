@@ -1,5 +1,5 @@
 /**
- * Event handling module for the Unriddle Chrome Extension
+ * Event handling module for the unriddle Chrome Extension
  * Manages user interactions and popup behavior
  */
 

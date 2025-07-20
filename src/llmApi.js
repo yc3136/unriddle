@@ -1,5 +1,5 @@
 /**
- * LLM API integration module for the Unriddle Chrome Extension
+ * LLM API integration module for the unriddle Chrome Extension
  * Handles communication with Google's Gemini API for text processing
  */
 
