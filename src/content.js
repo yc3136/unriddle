@@ -13,7 +13,8 @@ setupEventHandlers();
 
 // Default settings - hardcode the default language to avoid import issues
 const DEFAULT_SETTINGS = {
-  language: "English"
+  language: "English",
+  contextWindowSize: 40
 };
 
 /**
@@ -39,11 +40,13 @@ chrome.runtime.onMessage.addListener(async (msg, sender, sendResponse) => {
   if (msg.action === "UNRIDDLE_SELECTED_TEXT") {
     const selectedText = msg.text;
     
-    // Gather context around the selected text for better LLM prompts
-    const context = gatherContext(selectedText);
-
     // Load user settings
     const settings = await loadSettings();
+    let contextWindowSize = settings.contextWindowSize;
+    if (contextWindowSize === undefined || contextWindowSize === null) contextWindowSize = 40;
+
+    // Gather context around the selected text for better LLM prompts
+    const context = gatherContext(selectedText, contextWindowSize);
 
     // Show loading popup while processing
     showUnriddlePopup(selectedText, true);

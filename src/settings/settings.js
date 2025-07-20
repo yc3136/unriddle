@@ -8,12 +8,14 @@ import { SUPPORTED_LANGUAGES, DEFAULT_LANGUAGE, LANGUAGE_DISPLAY_NAMES } from ".
 
 const DEFAULT_SETTINGS = {
   language: DEFAULT_LANGUAGE,
-  geminiApiKey: ""
+  geminiApiKey: "",
+  contextWindowSize: 40 // default to 40 words
 };
 
 class SettingsManager {
   constructor() {
     this.languageSelect = document.getElementById('language-select');
+    this.contextWindowInput = document.getElementById('context-window-input');
     this.saveButton = document.getElementById('save-settings');
     this.apiKeyInput = document.getElementById('api-key-input');
     this.toggleApiKeyBtn = document.getElementById('toggle-api-key');
@@ -52,6 +54,13 @@ class SettingsManager {
     this.languageSelect.addEventListener('change', () => {
       this.saveSettings();
     });
+
+    // Context window input
+    if (this.contextWindowInput) {
+      this.contextWindowInput.addEventListener('input', () => {
+        this.saveSettings();
+      });
+    }
 
     // API key toggle button
     if (this.toggleApiKeyBtn) {
@@ -118,9 +127,12 @@ class SettingsManager {
 
       const result = await chrome.storage.sync.get(DEFAULT_SETTINGS);
       const settings = { ...DEFAULT_SETTINGS, ...result };
-      
       this.languageSelect.value = settings.language;
-      
+
+      if (this.contextWindowInput) {
+        this.contextWindowInput.value = (settings.contextWindowSize === undefined || settings.contextWindowSize === null || settings.contextWindowSize === "") ? "" : settings.contextWindowSize;
+      }
+
       if (this.apiKeyInput) {
         this.apiKeyInput.value = settings.geminiApiKey || '';
         this.updateApiKeyStatus();
@@ -201,8 +213,19 @@ class SettingsManager {
 
   async saveSettings() {
     try {
+      let contextWindowValue = this.contextWindowInput ? this.contextWindowInput.value : "";
+      let contextWindowSize;
+      if (contextWindowValue === "") {
+        contextWindowSize = ""; // full page
+      } else {
+        contextWindowSize = parseInt(contextWindowValue, 10);
+        if (isNaN(contextWindowSize) || contextWindowSize < 0) {
+          contextWindowSize = 40; // fallback to default (words)
+        }
+      }
       const settings = {
         language: this.languageSelect.value,
+        contextWindowSize,
         geminiApiKey: this.apiKeyInput ? this.apiKeyInput.value : ""
       };
 

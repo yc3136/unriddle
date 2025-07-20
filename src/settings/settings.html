@@ -32,41 +32,66 @@
       </section>
 
       <section class="setting-section">
-        <h2>Gemini API Key</h2>
-        <p class="setting-description">Use your own Gemini API key for unlimited usage</p>
-        <div class="api-key-info">
-          <p class="api-key-explanation">
-            <strong>Why use your own API key?</strong> This is a free, open-source extension. 
-            The included API key has limited quota and may run out. Using your own key ensures 
-            unlimited usage and better reliability. <strong>Gemini API keys are free</strong> and easy to get.
-          </p>
-          <div class="api-key-instructions">
-            <h4>How to get your API key:</h4>
-            <ol>
-              <li>Go to <a href="https://makersuite.google.com/app/apikey" target="_blank" rel="noopener">Google AI Studio</a></li>
-              <li>Sign in with your Google account</li>
-              <li>Click "Create API Key"</li>
-              <li>Copy the generated key and paste it below</li>
-            </ol>
-            <p class="api-key-note">
-              <strong>Note:</strong> Your API key is stored locally in your browser and is never sent to our servers.
+        <h2>LLM Configuration</h2>
+        <p class="setting-description">Configure your Gemini API key and context window size for explanations</p>
+        <div class="llm-info">
+          <div class="api-key-info">
+            <h3 class="config-subheading">API Key</h3>
+            <p class="api-key-explanation">
+              <strong>Note:</strong> Currently, Unriddle only works with <strong>Gemini</strong>. More API provider integration coming soon.<br>
+              <strong>Why use your own API key?</strong> This is a free, open-source extension. 
+              The included API key has limited quota and may run out. Using your own key ensures 
+              unlimited usage and better reliability. <strong>Gemini API keys are free</strong> and easy to get.
             </p>
+            <div class="api-key-instructions">
+              <h4>How to get your API key:</h4>
+              <ol>
+                <li>Go to <a href="https://makersuite.google.com/app/apikey" target="_blank" rel="noopener">Google AI Studio</a></li>
+                <li>Sign in with your Google account</li>
+                <li>Click "Create API Key"</li>
+                <li>Copy the generated key and paste it below</li>
+              </ol>
+              <p class="api-key-note">
+                <strong>Note:</strong> Your API key is stored locally in your browser and is never sent to our servers.
+              </p>
+            </div>
           </div>
-        </div>
-        <div class="api-key-input">
-          <input 
-            type="password" 
-            id="api-key-input" 
-            class="api-key-field" 
-            placeholder="Enter your Gemini API key (optional)"
-            autocomplete="off"
-          />
-          <button id="toggle-api-key" class="toggle-api-key-btn" type="button" aria-label="Show/hide API key">
-            👁
-          </button>
-        </div>
-        <div class="api-key-status" id="api-key-status">
-          <span class="status-text">No API key set - using extension's shared key</span>
+          <div class="api-key-input">
+            <input 
+              type="password" 
+              id="api-key-input" 
+              class="api-key-field" 
+              placeholder="Enter your Gemini API key (optional)"
+              autocomplete="off"
+            />
+            <button id="toggle-api-key" class="toggle-api-key-btn" type="button" aria-label="Show/hide API key">
+              👁
+            </button>
+          </div>
+          <div class="api-key-status" id="api-key-status">
+            <span class="status-text">No API key set - using extension's shared key</span>
+          </div>
+
+          <div class="context-window-info">
+            <h3 class="config-subheading">Context Window</h3>
+            <label for="context-window-input"><strong>Context window size</strong> (number of words):</label>
+            <input 
+              type="number" 
+              id="context-window-input" 
+              class="context-window-field" 
+              min="0" 
+              placeholder="40 (default)" 
+              autocomplete="off"
+            />
+            <div class="context-window-description">
+              <ul>
+                <li>Leave empty for <strong>full page</strong> context.</li>
+                <li>Enter <strong>0</strong> for no extra context (just your selection).</li>
+                <li>Higher values provide more background but may be slower and use more API quota.</li>
+                <li>Default is <strong>40</strong> words.</li>
+              </ul>
+            </div>
+          </div>
         </div>
       </section>
 

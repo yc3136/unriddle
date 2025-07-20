@@ -75,6 +75,20 @@ Unriddle supports **80+ languages** including:
 3. Click "Save" or press Ctrl+S
 4. Your preference is automatically saved and will be used for future explanations
 
+### LLM Configuration (API Key & Context Window)
+
+Unriddle lets you configure your Gemini API key and how much context is sent to the LLM:
+
+- **API Key**: Currently, Unriddle only works with Gemini. More API provider integration coming soon.
+- **Context Window Size**: Set the number of words of surrounding context to include with your selection (default: 40 words). Leave empty for full page, or enter 0 for only your selection. Higher values may improve explanations but use more API quota.
+
+#### How to Configure
+1. Open the settings page
+2. Scroll to the "LLM Configuration" section
+3. Enter your Gemini API key (see instructions above)
+4. Set your preferred context window size (in words)
+5. Changes are saved automatically
+
 ### API Key Management (Bring Your Own Key)
 
 Unriddle supports two ways to provide your Gemini API key:
@@ -221,15 +235,16 @@ The extension follows a modular architecture with clear separation of concerns:
 - **Dedicated settings page** accessible from multiple entry points
 - **Bring your own API key** with secure local storage and auto-save
 - **Smart key management** with priority system (user key → environment variable)
+- **Context window size**: Choose how many words of surrounding context to include (default: 40 words; empty = full page; 0 = only selection)
 - **Toast notifications** for save confirmation
 - **Keyboard shortcuts** (Ctrl+S to save)
-- **Auto-save** on language and API key changes
+- **Auto-save** on language and API key/context changes
 - **Settings persistence** across browser sessions
 
 ### **Smart Context Gathering**
 - Automatically expands selection to include surrounding context
 - Finds relevant section headings for better context
-- Limits context to 500 characters for cost efficiency
+- **Limits context by number of words** (default: 40 words; empty = full page; 0 = only selection)
 
 ### **Accessibility**
 - Full keyboard navigation support
