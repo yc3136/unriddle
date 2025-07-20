@@ -283,6 +283,20 @@ export async function showUnriddlePopup(text, loading = true, result = "", isHtm
     loadingText.className = "unriddle-loading-text";
     popup.appendChild(loadingText);
   } else {
+    // Load font settings before rendering result
+    const DEFAULT_FONT_SETTINGS = {
+      useDynamicFont: true,
+      customFontFamily: 'Arial',
+      customFontSize: 16
+    };
+    let fontSettings = DEFAULT_FONT_SETTINGS;
+    try {
+      const result = await chrome.storage.sync.get(DEFAULT_FONT_SETTINGS);
+      fontSettings = { ...DEFAULT_FONT_SETTINGS, ...result };
+    } catch (e) {
+      // fallback to default
+    }
+
     const resultSpan = document.createElement("span");
     let resultText = result;
     if (isHtml) {
@@ -296,9 +310,14 @@ export async function showUnriddlePopup(text, loading = true, result = "", isHtm
     const resultId = `unriddle-result-${Date.now()}`;
     resultSpan.id = resultId;
     
-    // Apply dynamic font styles based on selection (these stay in JS)
-    const fontStyles = getSelectionFontStyles();
-    Object.assign(resultSpan.style, fontStyles);
+    // Apply font styles based on settings
+    if (fontSettings.useDynamicFont) {
+      const fontStyles = getSelectionFontStyles();
+      Object.assign(resultSpan.style, fontStyles);
+    } else {
+      resultSpan.style.fontFamily = fontSettings.customFontFamily;
+      resultSpan.style.fontSize = fontSettings.customFontSize + 'px';
+    }
     
     // Add click handlers for error links
     const errorLinks = resultSpan.querySelectorAll('.error-link');

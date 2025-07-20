@@ -7,7 +7,7 @@
 - Right-click any selected text to "unriddle" it
 - LLM-powered explanations using Google's Gemini API
 - **Multi-language support** - Get explanations in 80+ languages
-- **Settings page** - Customize your language preference
+- **Settings page** - Customize your language, font, and more
 - Clean, accessible popup UI near your selection
 - Smart context gathering for better explanations
 - Loading indicator with animated feedback
@@ -88,6 +88,21 @@ Unriddle lets you configure your Gemini API key and how much context is sent to 
 3. Enter your Gemini API key (see instructions above)
 4. Set your preferred context window size (in words)
 5. Changes are saved automatically
+
+### Font Configuration (Popup Font Customization)
+Unriddle lets you control the font used for LLM responses in the in-page popup:
+
+- **Dynamic Font (default):** The popup matches the font family and size of your selected text for seamless integration with any website.
+- **Custom Font:** Choose from a wide selection of browser-supported fonts (Arial, Times New Roman, Roboto, etc.) and set your preferred font size. A live preview is shown as you adjust the settings.
+
+To configure:
+1. Open the settings page
+2. Scroll to the "Font Configuration" section
+3. Select either "Use dynamic font" or "Use custom font"
+4. If using custom font, pick your font family and size, and see the live example
+5. Save your settings
+
+Your font preference will be used for all future LLM responses in the popup.
 
 ### API Key Management (Bring Your Own Key)
 

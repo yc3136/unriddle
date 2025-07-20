@@ -96,6 +96,58 @@
       </section>
 
       <section class="setting-section">
+        <h2>Font Configuration</h2>
+        <p class="setting-description">Configure the font used for LLM responses in the in-page popup.</p>
+        <div class="font-config-info">
+          <label style="display: flex; align-items: center; gap: 8px;">
+            <input type="radio" name="font-mode" id="font-mode-dynamic" checked />
+            <span><strong>Use dynamic font</strong> (match the font of your selected text)</span>
+          </label>
+          <div class="font-dynamic-explanation" style="margin: 8px 0 0 28px; font-size: 0.93em; color: #666;">
+            The popup will use the same font family and size as the text you selected. This is the default and works best for most sites.
+          </div>
+          <label style="display: flex; align-items: center; gap: 8px; margin-top: 16px;">
+            <input type="radio" name="font-mode" id="font-mode-custom" />
+            <span><strong>Use custom font</strong></span>
+          </label>
+        </div>
+        <div id="font-custom-controls" style="margin-top: 18px; display: none;">
+          <label for="font-family-select" class="config-subheading" style="margin-bottom: 4px;">Font Family</label>
+          <select id="font-family-select" class="font-family-dropdown">
+            <option value="Arial">Arial</option>
+            <option value="Helvetica">Helvetica</option>
+            <option value="Times New Roman">Times New Roman</option>
+            <option value="Georgia">Georgia</option>
+            <option value="Verdana">Verdana</option>
+            <option value="Tahoma">Tahoma</option>
+            <option value="Trebuchet MS">Trebuchet MS</option>
+            <option value="Courier New">Courier New</option>
+            <option value="Lucida Console">Lucida Console</option>
+            <option value="Segoe UI">Segoe UI</option>
+            <option value="Roboto">Roboto</option>
+            <option value="Inter">Inter</option>
+            <option value="Comic Sans MS">Comic Sans MS</option>
+            <option value="Palatino Linotype">Palatino Linotype</option>
+            <option value="Garamond">Garamond</option>
+            <option value="Impact">Impact</option>
+            <option value="Consolas">Consolas</option>
+            <option value="Monaco">Monaco</option>
+            <option value="Calibri">Calibri</option>
+            <option value="Cambria">Cambria</option>
+            <option value="Franklin Gothic Medium">Franklin Gothic Medium</option>
+            <option value="Gill Sans">Gill Sans</option>
+            <option value="Optima">Optima</option>
+          </select>
+          <label for="font-size-input" style="display: block; margin-top: 12px;">Font Size (px)</label>
+          <input type="number" id="font-size-input" class="font-size-field" min="10" max="48" step="1" value="16" style="width: 80px; margin-top: 2px;" />
+          <div style="margin-top: 16px;">
+            <span class="font-example-label" style="font-size: 0.95em; color: #888;">Example:</span>
+            <div id="font-example-text" style="margin-top: 6px; padding: 10px 16px; border-radius: 8px; background: #f8f9fa; border: 1px solid #eee; display: inline-block; min-width: 120px;">The quick brown fox jumps over the lazy dog.</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="setting-section">
         <h2>About</h2>
         <p class="setting-description">
           Unriddle helps you understand complex text by explaining it in simple terms. 

@@ -743,3 +743,147 @@ body {
     transform: translateY(0);
   }
 } 
+
+/* Font Configuration section styles */
+.font-config-info {
+  margin-bottom: 12px;
+  padding: 14px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  border-left: 4px solid #6a82fb;
+}
+.font-dynamic-explanation {
+  color: #666;
+  font-size: 0.93em;
+}
+.font-family-dropdown {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  background: #fff;
+  margin-top: 2px;
+  margin-bottom: 2px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+.font-family-dropdown:focus {
+  outline: none;
+  border-color: #6a82fb;
+  box-shadow: 0 0 0 2px rgba(106, 130, 251, 0.18);
+}
+.font-family-dropdown option {
+  padding: 8px;
+  font-size: 14px;
+}
+.font-size-field {
+  padding: 8px 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  background: #fff;
+  margin-left: 0;
+  margin-right: 8px;
+  transition: border-color 0.2s;
+}
+.font-size-field:focus {
+  outline: none;
+  border-color: #6a82fb;
+  box-shadow: 0 0 0 2px rgba(106, 130, 251, 0.18);
+}
+#font-example-text {
+  background: #f8f9fa;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 10px 16px;
+  min-width: 120px;
+  display: inline-block;
+  margin-top: 4px;
+  color: #1a2340;
+  transition: background 0.2s, border 0.2s, color 0.2s;
+}
+#font-custom-controls {
+  transition: opacity 0.25s, max-height 0.25s;
+  overflow: hidden;
+}
+
+/* Context window input and description improvements */
+.context-window-info {
+  margin-top: 16px;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  border-left: 4px solid #28a745;
+  transition: background 0.2s, border 0.2s;
+}
+.context-window-field {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  background: #fff;
+  margin-bottom: 8px;
+  transition: border-color 0.2s, background 0.2s, color 0.2s;
+}
+.context-window-description {
+  font-size: 0.92em;
+  color: #555;
+  margin-top: 4px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 8px 12px;
+  border: 1px solid #eee;
+  transition: background 0.2s, border 0.2s, color 0.2s;
+}
+
+@media (prefers-color-scheme: dark) {
+  #font-example-text {
+    background: #23273a !important;
+    border: 1px solid #3a4157 !important;
+    color: #f3f6fa !important;
+  }
+  .font-example-label {
+    color: #a0aec0 !important;
+  }
+  .font-config-info {
+    background: #2d3748;
+    border-left-color: #6a82fb;
+  }
+  .font-dynamic-explanation {
+    color: #a0aec0;
+  }
+  .font-family-dropdown {
+    background: #2d3748;
+    color: #f3f6fa;
+    border-color: #4a5568;
+  }
+  .font-family-dropdown:focus {
+    border-color: #6a82fb;
+    box-shadow: 0 0 0 2px rgba(106, 130, 251, 0.18);
+  }
+  .font-size-field {
+    background: #2d3748;
+    color: #f3f6fa;
+    border-color: #4a5568;
+  }
+  .font-size-field:focus {
+    border-color: #6a82fb;
+    box-shadow: 0 0 0 2px rgba(106, 130, 251, 0.18);
+  }
+  .context-window-info {
+    background: #2d3748;
+    border-left-color: #48bb78;
+  }
+  .context-window-field {
+    background: #23272f;
+    color: #f3f6fa;
+    border-color: #444;
+  }
+  .context-window-description {
+    background: #23272f;
+    color: #a0aec0;
+    border: 1px solid #444;
+  }
+} 

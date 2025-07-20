@@ -9,7 +9,10 @@ import { SUPPORTED_LANGUAGES, DEFAULT_LANGUAGE, LANGUAGE_DISPLAY_NAMES } from ".
 const DEFAULT_SETTINGS = {
   language: DEFAULT_LANGUAGE,
   geminiApiKey: "",
-  contextWindowSize: 40 // default to 40 words
+  contextWindowSize: 40, // default to 40 words
+  useDynamicFont: true,
+  customFontFamily: "Arial",
+  customFontSize: 16
 };
 
 class SettingsManager {
@@ -20,6 +23,13 @@ class SettingsManager {
     this.apiKeyInput = document.getElementById('api-key-input');
     this.toggleApiKeyBtn = document.getElementById('toggle-api-key');
     this.apiKeyStatus = document.getElementById('api-key-status');
+    this.fontDynamicCheckbox = document.getElementById('font-dynamic-checkbox');
+    this.fontFamilySelect = document.getElementById('font-family-select');
+    this.fontSizeInput = document.getElementById('font-size-input');
+    this.fontExampleText = document.getElementById('font-example-text');
+    this.fontCustomControls = document.getElementById('font-custom-controls');
+    this.fontModeDynamic = document.getElementById('font-mode-dynamic');
+    this.fontModeCustom = document.getElementById('font-mode-custom');
     
     if (this.languageSelect && this.saveButton) {
       this.populateLanguageDropdown();
@@ -77,6 +87,36 @@ class SettingsManager {
       });
     }
 
+    // Font dynamic checkbox
+    if (this.fontDynamicCheckbox) {
+      this.fontDynamicCheckbox.addEventListener('change', () => {
+        this.updateFontCustomControls();
+        this.saveSettings();
+      });
+    }
+    if (this.fontFamilySelect) {
+      this.fontFamilySelect.addEventListener('change', () => {
+        this.updateFontExample();
+        this.saveSettings();
+      });
+    }
+    if (this.fontSizeInput) {
+      this.fontSizeInput.addEventListener('input', () => {
+        this.updateFontExample();
+        this.saveSettings();
+      });
+    }
+    if (this.fontModeDynamic && this.fontModeCustom) {
+      this.fontModeDynamic.addEventListener('change', () => {
+        this.updateFontCustomControls();
+        this.saveSettings();
+      });
+      this.fontModeCustom.addEventListener('change', () => {
+        this.updateFontCustomControls();
+        this.saveSettings();
+      });
+    }
+
     // Add keyboard shortcut for saving (Ctrl+S)
     document.addEventListener('keydown', (e) => {
       if (e.ctrlKey && e.key === 's') {
@@ -119,12 +159,24 @@ class SettingsManager {
     }
   }
 
+  updateFontCustomControls() {
+    if (!this.fontCustomControls || !this.fontModeDynamic || !this.fontModeCustom) return;
+    const isDynamic = this.fontModeDynamic.checked;
+    this.fontCustomControls.style.display = isDynamic ? 'none' : '';
+    this.updateFontExample();
+  }
+
+  updateFontExample() {
+    if (!this.fontExampleText || !this.fontFamilySelect || !this.fontSizeInput) return;
+    this.fontExampleText.style.fontFamily = this.fontFamilySelect.value;
+    this.fontExampleText.style.fontSize = this.fontSizeInput.value + 'px';
+  }
+
   async loadSettings() {
     try {
       if (typeof chrome === 'undefined' || !chrome.storage) {
         throw new Error('Chrome storage API not available');
       }
-
       const result = await chrome.storage.sync.get(DEFAULT_SETTINGS);
       const settings = { ...DEFAULT_SETTINGS, ...result };
       this.languageSelect.value = settings.language;
@@ -137,6 +189,20 @@ class SettingsManager {
         this.apiKeyInput.value = settings.geminiApiKey || '';
         this.updateApiKeyStatus();
       }
+      if (this.fontDynamicCheckbox) this.fontDynamicCheckbox.checked = settings.useDynamicFont !== false;
+      if (this.fontFamilySelect) this.fontFamilySelect.value = settings.customFontFamily || 'Arial';
+      if (this.fontSizeInput) this.fontSizeInput.value = settings.customFontSize || 16;
+      if (this.fontModeDynamic && this.fontModeCustom) {
+        if (settings.useDynamicFont !== false) {
+          this.fontModeDynamic.checked = true;
+          this.fontModeCustom.checked = false;
+        } else {
+          this.fontModeDynamic.checked = false;
+          this.fontModeCustom.checked = true;
+        }
+      }
+      this.updateFontCustomControls();
+      this.updateFontExample();
     } catch (error) {
       console.error('SettingsManager: Error loading settings:', error);
       this.showStatus(`Error loading settings: ${error.message}`, 'error');
@@ -226,7 +292,10 @@ class SettingsManager {
       const settings = {
         language: this.languageSelect.value,
         contextWindowSize,
-        geminiApiKey: this.apiKeyInput ? this.apiKeyInput.value : ""
+        geminiApiKey: this.apiKeyInput ? this.apiKeyInput.value : "",
+        useDynamicFont: this.fontModeDynamic ? this.fontModeDynamic.checked : true,
+        customFontFamily: this.fontFamilySelect ? this.fontFamilySelect.value : 'Arial',
+        customFontSize: this.fontSizeInput ? parseInt(this.fontSizeInput.value, 10) || 16 : 16
       };
 
       if (!SUPPORTED_LANGUAGES.includes(settings.language)) {
@@ -260,6 +329,14 @@ class SettingsManager {
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
   new SettingsManager();
+  // Style font family dropdown options
+  const fontFamilySelect = document.getElementById('font-family-select');
+  if (fontFamilySelect) {
+    for (let i = 0; i < fontFamilySelect.options.length; i++) {
+      const opt = fontFamilySelect.options[i];
+      opt.style.fontFamily = opt.value;
+    }
+  }
 });
 
 // Reload settings when page becomes visible (in case settings were changed elsewhere)
