@@ -11,22 +11,29 @@
 export function simpleMarkdownToHtml(md) {
   if (!md) return "";
   
+  // Unescape any escaped newlines (\\n or \\n\\n) to real newlines
+  md = md.replace(/\\n/g, '\n');
+
   // Convert bold text: **text** or __text__
   let html = md.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
   html = html.replace(/__(.*?)__/g, '<strong>$1</strong>');
-  
+
   // Convert italic text: *text* or _text_
   html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
   html = html.replace(/_(.*?)_/g, '<em>$1</em>');
-  
+
   // Convert links: [text](url)
-  html = html.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank">$1</a>');
-  
+  html = html.replace(/\[(.*?)\]\((.*?)\)/g, '<a href=\"$2\" target=\"_blank\">$1</a>');
+
   // Convert inline code: `code`
   html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
-  
-  // Convert line breaks
-  html = html.replace(/\n/g, '<br>');
-  
-  return html;
+
+  // Split into paragraphs on double newlines
+  const paragraphs = html.split(/\n{2,}/).map(paragraph => {
+    // Replace single newlines with <br> within each paragraph
+    const withLineBreaks = paragraph.replace(/\n/g, '<br>');
+    return `<p>${withLineBreaks}</p>`;
+  });
+
+  return paragraphs.join('');
 } 

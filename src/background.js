@@ -30,7 +30,6 @@ chrome.commands.onCommand.addListener(async (command) => {
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
       
       if (!tab) {
-        console.error('No active tab found');
         return;
       }
 
@@ -50,11 +49,9 @@ chrome.commands.onCommand.addListener(async (command) => {
           action: "UNRIDDLE_SELECTED_TEXT",
           text: selectedText
         });
-      } else {
-        console.log('No text selected');
       }
     } catch (error) {
-      console.error('Error handling keyboard shortcut:', error);
+      //
     }
   }
 });

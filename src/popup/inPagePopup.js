@@ -466,7 +466,7 @@ export async function showUnriddlePopup(text, loading = true, result = "", isHtm
         popup.appendChild(sharedKeyWarning);
       }
     } catch (error) {
-      console.error('Error checking API key status:', error);
+      // console.error('Error checking API key status:', error);
     }
   }
 

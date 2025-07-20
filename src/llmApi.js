@@ -21,7 +21,6 @@ async function loadAndCacheSettings() {
       return result;
     }
   } catch (error) {
-    console.warn('Could not load settings from storage:', error);
     cachedSettings = {
       geminiApiKey: "",
       additionalLLMInstructions: ""
@@ -139,7 +138,6 @@ export async function unriddleText(context, options = {}) {
       }
     } catch (parseError) {
       // If we can't parse the error response, use the status text
-      console.warn('Could not parse error response:', parseError);
     }
     
     throw new Error(`Gemini API error: ${errorDetails}`);
@@ -155,6 +153,95 @@ export async function unriddleText(context, options = {}) {
     return { result: result.trim(), prompt };
   }
   return result.trim();
+}
+
+/**
+ * Streams text through the Gemini API using streamGenerateContent for real-time output
+ * @param {string|Object} context - Text to process or context object with page info
+ * @param {Object} options - Configuration options
+ * @param {string} options.model - Gemini model to use (default: "gemini-2.5-flash")
+ * @returns {AsyncGenerator<string>} Yields text chunks as they arrive
+ * @throws {Error} If API key is missing or API request fails
+ */
+export async function* unriddleTextStream(context, options = {}) {
+  const settings = await getCachedSettings();
+  let GEMINI_API_KEY = null;
+  if (settings.geminiApiKey && settings.geminiApiKey.trim() !== '') {
+    GEMINI_API_KEY = settings.geminiApiKey.trim();
+  } else {
+    GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+  }
+  if (!GEMINI_API_KEY) {
+    throw new Error("Missing Gemini API key. Please set your own API key in Settings or ensure VITE_GEMINI_API_KEY is set in your .env file.");
+  }
+  const model = options.model || "gemini-2.5-flash";
+  const language = options.language || "English";
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?key=${GEMINI_API_KEY}`;
+  const additionalLLMInstructions = settings.additionalLLMInstructions || "";
+  let prompt = "";
+  let basePrompt = "Rewrite the following text in plain, simple words for a general audience. Do not use phrases like 'it means' or 'it describes'—just give the transformed meaning directly. Be concise and clear. Respond in "+language+".";
+  if (additionalLLMInstructions) {
+    basePrompt += "\n" + additionalLLMInstructions;
+  }
+  if (typeof context === "string") {
+    prompt = `${basePrompt}\nText: \"${context}\"`;
+  } else {
+    prompt = `${basePrompt}\nPage Title: ${context.page_title || ""}\nSection Heading: ${context.section_heading || ""}\nContext Snippet: ${context.context_snippet || ""}\nUser Selection: \"${context.user_selection || ""}\"`;
+  }
+  const body = {
+    contents: [
+      {
+        parts: [
+          { text: prompt }
+        ]
+      }
+    ]
+  };
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) {
+    let errorDetails = `${res.status} ${res.statusText}`;
+    try {
+      const errorData = await res.json();
+      if (errorData.error && errorData.error.message) {
+        errorDetails = `${res.status} ${res.statusText}: ${errorData.error.message}`;
+      }
+    } catch (parseError) {}
+    throw new Error(`Gemini API error: ${errorDetails}`);
+  }
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+  let lastYielded = '';
+  let accumulatedText = '';
+  while (true) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    // Use a regex to extract all "text": "..." fields in the buffer
+    let match;
+    const textRegex = /"text":\s*"((?:[^"\\]|\\.)*)"/g;
+    while ((match = textRegex.exec(buffer)) !== null) {
+      const text = match[1];
+      // Only yield new text (avoid duplicates)
+      if (text && text !== lastYielded) {
+        lastYielded = text;
+        // If this is a complete text (not a partial), yield it
+        if (text.length > accumulatedText.length) {
+          const newText = text.slice(accumulatedText.length);
+          accumulatedText = text;
+          yield newText;
+        }
+      }
+    }
+    // Optionally, clear buffer if it gets too large
+    if (buffer.length > 10000) buffer = '';
+  }
 }
 
 // In the future, add more providers/models here and route based on options.provider 

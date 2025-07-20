@@ -34,8 +34,9 @@ Manages context expansion around selected text:
 ### `markdownProcessor.js`
 Handles markdown to HTML conversion:
 - Converts basic markdown syntax (bold, italic, links, code)
-- Processes line breaks
+- Processes line breaks and paragraphs for all languages
 - Used for formatting LLM responses
+- **Now unescapes escaped newlines (\\n) from LLM output, ensuring correct paragraph and line break rendering for Chinese and other languages**
 
 **Exports:**
 - `simpleMarkdownToHtml(md)` - Converts markdown string to HTML
@@ -47,6 +48,15 @@ Manages event handling for the extension:
 
 **Exports:**
 - `setupEventHandlers()` - Initializes all event handlers
+
+## Streaming LLM Responses
+
+The extension now supports streaming LLM responses for real-time output. As the LLM returns text chunks, the popup updates live, providing a faster and more interactive user experience. This is handled by the `unriddleTextStream` function in `llmApi.js` and orchestrated in `content.js`.
+
+- **Streaming benefits:**
+  - Users see partial results immediately, improving perceived speed.
+  - The popup switches from loading to result view as soon as the first chunk arrives.
+  - All markdown and paragraph handling is applied live as new text arrives.
 
 ## Benefits of Modular Structure
 
