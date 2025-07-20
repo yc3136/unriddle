@@ -253,3 +253,25 @@
     background: #404040;
   }
 } 
+
+.unriddle-icon {
+  color: #666;
+  transition: color 0.2s, transform 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.unriddle-feedback-btn:hover .unriddle-icon,
+.unriddle-settings-btn:hover .unriddle-icon,
+.unriddle-copy-prompt-btn:hover .unriddle-icon {
+  transform: scale(1.22);
+  color: #1976d2;
+}
+@media (prefers-color-scheme: dark) {
+  .unriddle-icon {
+    color: #888;
+  }
+  .unriddle-feedback-btn:hover .unriddle-icon,
+  .unriddle-settings-btn:hover .unriddle-icon,
+  .unriddle-copy-prompt-btn:hover .unriddle-icon {
+    color: #90cdf4;
+  }
+} 

@@ -1,6 +1,9 @@
 /**
  * In-page popup management module for the Unriddle Chrome Extension
  * Handles creation, styling, and interaction of in-page popups
+ *
+ * NOTE: Requires Material Icons stylesheet in your HTML:
+ * <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
  */
 
 import { simpleMarkdownToHtml } from '../modules/markdownProcessor.js';
@@ -56,6 +59,19 @@ function injectPopupStyles() {
   }
 }
 
+/**
+ * Injects the Material Icons stylesheet into the page if not already loaded
+ */
+function injectMaterialIconsStylesheet() {
+  if (!document.getElementById("unriddle-material-icons-styles")) {
+    const link = document.createElement("link");
+    link.id = "unriddle-material-icons-styles";
+    link.rel = "stylesheet";
+    link.href = "https://fonts.googleapis.com/icon?family=Material+Icons+Outlined";
+    document.head.appendChild(link);
+  }
+}
+
 function createLoader() {
   const loader = document.createElement("span");
   loader.setAttribute("role", "status");
@@ -98,10 +114,7 @@ function createFeedbackButton(text, result) {
   feedbackBtn.title = "Send Feedback";
   feedbackBtn.className = "unriddle-feedback-btn";
   feedbackBtn.innerHTML = `
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M4 22V5a2 2 0 0 1 2-2h13l-1.34 5.36a2 2 0 0 0 0 1.28L19 17H6a2 2 0 0 1-2-2z"/>
-      <line x1="4" y1="22" x2="4" y2="22"/>
-    </svg>
+    <span class="material-icons-outlined unriddle-icon">feedback</span>
   `;
   feedbackBtn.onclick = function(e) {
     e.preventDefault();
@@ -124,10 +137,7 @@ function createSettingsButton() {
   settingsBtn.title = "Open Settings";
   settingsBtn.className = "unriddle-settings-btn";
   settingsBtn.innerHTML = `
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <circle cx="12" cy="12" r="3"/>
-      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1 1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-    </svg>
+    <span class="material-icons-outlined unriddle-icon">settings</span>
   `;
   settingsBtn.onclick = function(e) {
     e.preventDefault();
@@ -166,18 +176,7 @@ function createCopyPromptButton(prompt) {
   copyBtn.title = "Copy LLM context for follow up";
   copyBtn.className = "unriddle-copy-prompt-btn";
   copyBtn.innerHTML = `
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <!-- Head -->
-      <rect x="4" y="7" width="16" height="10" rx="5"/>
-      <!-- Eyes -->
-      <circle cx="8.5" cy="12" r="2"/>
-      <circle cx="15.5" cy="12" r="2"/>
-      <!-- Mouth -->
-      <line x1="9" y1="16" x2="15" y2="16"/>
-      <!-- Antenna -->
-      <line x1="12" y1="3" x2="12" y2="7"/>
-      <circle cx="12" cy="3" r="1"/>
-    </svg>
+    <span class="material-icons-outlined unriddle-icon">smart_toy</span>
   `;
   copyBtn.onclick = function(e) {
     e.preventDefault();
@@ -309,6 +308,7 @@ export async function showUnriddlePopup(text, loading = true, result = "", isHtm
 
   // Inject CSS styles if not already done
   injectPopupStyles();
+  injectMaterialIconsStylesheet(); // Ensure Material Icons are available
 
   popup = document.createElement("div");
   popup.id = "unriddle-popup";

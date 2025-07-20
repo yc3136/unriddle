@@ -9,6 +9,10 @@
 - **Multi-language support** - Get explanations in 80+ languages
 - **Settings page** - Customize your language, font, and more
 - Clean, accessible popup UI near your selection
+- - **Modern meta row icons** - Uses Material Icons (Outlined) for feedback, settings, and copy prompt actions in the in-page popup
+- - **Animated & vibrant icons** - Meta row icons feature a playful scale-up animation and color transition on hover, with vibrant blue in light mode and light blue in dark mode for clear contrast
+- - **Dark mode support** - All icons and UI elements adapt for both light and dark themes, ensuring readability and a polished look
+- - **Accessible** - Icons and buttons are fully keyboard and screen reader accessible
 - Smart context gathering for better explanations
 - Loading indicator with animated feedback
 - Dark/light theme support
