@@ -116,7 +116,7 @@ function createLoader() {
   return loader;
 }
 
-function createFeedbackButton(text, result) {
+function createFeedbackButton(text, result, prompt, language = undefined, additionalLlmInstructions = "") {
   const feedbackBtn = document.createElement("button");
   feedbackBtn.setAttribute("aria-label", "Send Feedback");
   feedbackBtn.title = "Send Feedback";
@@ -124,15 +124,54 @@ function createFeedbackButton(text, result) {
   feedbackBtn.innerHTML = `
     <span class="material-icons-outlined unriddle-icon">feedback</span>
   `;
-  feedbackBtn.onclick = function(e) {
+  feedbackBtn.onclick = async function(e) {
     e.preventDefault();
     e.stopPropagation();
+    // Gather settings from chrome.storage.sync
+    const DEFAULT_FONT_SETTINGS = {
+      useDynamicFont: true,
+      customFontFamily: 'Arial',
+      customFontSize: 16
+    };
+    const DEFAULT_LLM_CONFIG = {
+      // Add any other LLM config defaults here (except API key)
+      model: '',
+      temperature: '',
+      maxTokens: ''
+    };
+    let fontSettings = DEFAULT_FONT_SETTINGS;
+    let llmConfig = DEFAULT_LLM_CONFIG;
+    let lang = language || '';
+    try {
+      const fontResult = await chrome.storage.sync.get(DEFAULT_FONT_SETTINGS);
+      fontSettings = { ...DEFAULT_FONT_SETTINGS, ...fontResult };
+    } catch (e) {}
+    try {
+      const llmResult = await chrome.storage.sync.get(DEFAULT_LLM_CONFIG);
+      llmConfig = { ...DEFAULT_LLM_CONFIG, ...llmResult };
+      // Remove API key if present
+      if (llmConfig.geminiApiKey) delete llmConfig.geminiApiKey;
+    } catch (e) {}
+    // Use language from argument if provided
+    if (!lang && typeof window !== 'undefined' && window.unriddleLanguage) {
+      lang = window.unriddleLanguage;
+    }
+    // Stringify settings
+    const fontString = JSON.stringify(fontSettings);
+    let llmConfigString = JSON.stringify(llmConfig);
+    if (additionalLlmInstructions) {
+      llmConfigString += `\nAdditional LLM Instructions: ${additionalLlmInstructions}`;
+    }
+    // Google Form entry IDs
     const baseUrl = "https://docs.google.com/forms/d/e/1FAIpQLSdJUcgB0AbgSI59oE_O7DFBSKOivFWLNpCXXH4WMBsKrnHanw/viewform";
     const params = new URLSearchParams({
       "entry.378537756": "", // Feedback message (user will fill)
       "entry.784312090": window.location.href, // Page URL
       "entry.1050436188": text, // Selected Text
-      "entry.572050706": typeof result === 'string' ? result : "" // LLM Output
+      "entry.572050706": typeof result === 'string' ? result : "", // LLM Output
+      "entry.1330249385": fontString, // Setting: Font
+      "entry.2020962734": llmConfigString, // Setting: LLM configuration (no API key)
+      "entry.342051201": lang // Setting: Language
     });
     window.open(`${baseUrl}?${params.toString()}`, "_blank");
   };
@@ -218,7 +257,7 @@ function showCopySuccessMessage(btn, message) {
   setTimeout(() => { msg.remove(); }, 1200);
 }
 
-function createMetaRow(text, result, prompt) {
+function createMetaRow(text, result, prompt, language = undefined, additionalLlmInstructions = "") {
   const metaRow = document.createElement("div");
   metaRow.className = "unriddle-meta-row";
 
@@ -245,8 +284,8 @@ function createMetaRow(text, result, prompt) {
   const settingsBtn = createSettingsButton();
   metaRow.appendChild(settingsBtn);
 
-  // Feedback button
-  const feedbackBtn = createFeedbackButton(text, result);
+  // Feedback button (pass language and additionalLlmInstructions)
+  const feedbackBtn = createFeedbackButton(text, result, prompt, language, "");
   metaRow.appendChild(feedbackBtn);
 
   return metaRow;
@@ -414,7 +453,7 @@ export async function showUnriddlePopup(text, loading = true, result = "", isHtm
     popup.appendChild(resultSpan);
     popup.setAttribute('aria-labelledby', resultId);
 
-    const metaRow = createMetaRow(text, result, prompt);
+    const metaRow = createMetaRow(text, result, prompt, language, "");
     popup.appendChild(metaRow);
     
     // Check if user has set their own API key and show warning if not

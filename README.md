@@ -14,6 +14,7 @@
 - - **Animated & vibrant icons** - Meta row icons feature a playful scale-up animation and color transition on hover, with vibrant blue in light mode and light blue in dark mode for clear contrast
 - - **Dark mode support** - All icons and UI elements adapt for both light and dark themes, ensuring readability and a polished look
 - - **Accessible** - Icons and buttons are fully keyboard and screen reader accessible
+- - **Streamlined feedback form** - When you click the feedback button in the popup, a Google Form opens with all relevant extension settings (font, LLM configuration except API key, language, and any additional LLM instructions) automatically included. This helps us provide better support and debugging.
 - Smart context gathering for better explanations
 - Loading indicator with animated feedback
 - Dark/light theme support
@@ -332,6 +333,22 @@ The project uses Vite for fast development and optimized production builds:
 - **Modular**: Automatic chunk splitting for better caching
 
 See [BUILD.md](./BUILD.md) for detailed build documentation.
+
+## Feedback & Bug Reporting
+
+If you encounter issues, have suggestions, or want to provide feedback:
+
+- **In-Page Feedback Button:** After using the extension, click the feedback (💬) button in the popup. This opens a Google Form with the following fields prefilled:
+  - The page URL
+  - The text you selected
+  - The LLM output you received
+  - Your font settings (as a JSON string)
+  - Your LLM configuration (as a JSON string, excluding your API key)
+  - The language used for the popup
+  - Any additional LLM instructions you have set
+- **Manual Feedback:** You can also [open the feedback form directly](https://docs.google.com/forms/d/e/1FAIpQLSdJUcgB0AbgSI59oE_O7DFBSKOivFWLNpCXXH4WMBsKrnHanw/viewform) and fill it out yourself.
+
+**Note:** Your API key is never included in feedback. All settings are stringified for clarity and support purposes.
 
 ---
 
