@@ -24,6 +24,15 @@ interface UnriddleMessage {
   text: string;
 }
 
+/**
+ * Helper function to unescape quotes in LLM output
+ * @param text - Text that may contain escaped quotes
+ * @returns Text with escaped quotes converted to regular quotes
+ */
+function unescapeQuotes(text: string): string {
+  return text.replace(/\\"/g, '"').replace(/\\'/g, "'");
+}
+
 // Initialize event handlers for popup interactions
 setupEventHandlers();
 
@@ -72,73 +81,94 @@ chrome.runtime.onMessage.addListener(async (msg: UnriddleMessage, _sender, _send
     
     const startTime = Date.now();
     try {
-      // Streaming LLM response
+      console.log("Starting unriddle process...");
+      
+      // Try streaming first, with fallback to non-streaming
       let resultText = "";
       let resultSpan: HTMLElement | null = null;
-      // Keep loading popup until first chunk arrives
-      // Stream chunks
       let firstChunk = true;
       let gotChunk = false;
-      for await (const chunk of unriddleTextStream(context, { language: settings.language, model: settings.selectedModel })) {
-        if (firstChunk) {
-          // Switch from loading to result popup on first chunk
-          // Create the prompt for the meta row (robot button)
-          const basePrompt = `Rewrite the following text in plain, simple words for a general audience. Do not use phrases like 'it means' or 'it describes'—just give the transformed meaning directly. Be concise and clear. Respond in ${settings.language || 'English'}.`;
-          const fullPrompt = `${basePrompt}\nPage Title: ${context.page_title || ""}\nSection Heading: ${context.section_heading || ""}\nContext Snippet: ${context.context_snippet || ""}\nUser Selection: "${context.user_selection || ""}"`;
-          await showUnriddlePopup(selectedText, false, "", true, fullPrompt, settings.language);
-          const popup = document.getElementById("unriddle-popup");
-          if (!popup) {
-            return;
+      
+      try {
+        console.log("Attempting streaming...");
+        // Attempt streaming
+        for await (const chunk of unriddleTextStream(context, { language: settings.language, model: settings.selectedModel })) {
+          console.log("Received chunk:", chunk);
+          if (firstChunk) {
+            console.log("First chunk received, switching to result popup...");
+            // Switch from loading to result popup on first chunk
+            const basePrompt = `Rewrite the following text in plain, simple words for a general audience. Do not use phrases like 'it means' or 'it describes'—just give the transformed meaning directly. Be concise and clear. Respond in ${settings.language || 'English'}.`;
+            const fullPrompt = `${basePrompt}\nPage Title: ${context.page_title || ""}\nSection Heading: ${context.section_heading || ""}\nContext Snippet: ${context.context_snippet || ""}\nUser Selection: "${context.user_selection || ""}"`;
+            await showUnriddlePopup(selectedText, false, "", true, fullPrompt, settings.language);
+            const popup = document.getElementById("unriddle-popup");
+            if (!popup) {
+              console.log("Popup not found after first chunk");
+              return;
+            }
+            resultSpan = popup.querySelector(".unriddle-result") as HTMLElement;
+            if (!resultSpan) {
+              resultSpan = document.createElement("span");
+              resultSpan.className = "unriddle-result";
+              popup.appendChild(resultSpan);
+            }
+            firstChunk = false;
           }
-          resultSpan = popup.querySelector(".unriddle-result") as HTMLElement;
-          if (!resultSpan) {
-            resultSpan = document.createElement("span");
-            resultSpan.className = "unriddle-result";
-            popup.appendChild(resultSpan);
+          resultText += chunk;
+          gotChunk = true;
+          // During streaming, just show raw text to avoid DOM manipulation errors
+          if (resultSpan) {
+            resultSpan.textContent = resultText;
           }
-          firstChunk = false;
         }
-        resultText += chunk;
-        gotChunk = true;
-        // Process the full accumulated text with markdown to handle newlines properly
-        resultSpan!.innerHTML = simpleMarkdownToHtml(resultText);
+        console.log("Streaming completed successfully");
+      } catch (streamError) {
+        console.log("Streaming failed, falling back to non-streaming:", streamError);
+        gotChunk = false;
       }
+      
       if (!gotChunk) {
-        // Fallback: use non-streaming method if no chunks received
+        // Fallback: use non-streaming method
+        console.log("Using non-streaming fallback...");
         const unriddleResult = await unriddleText(context, { language: settings.language, model: settings.selectedModel, returnPrompt: true });
+        console.log("Got unriddle result:", unriddleResult);
+        
         if (typeof unriddleResult === 'object' && 'result' in unriddleResult) {
           resultText = unriddleResult.result;
-          // prompt = unriddleResult.prompt; // Not used in this context
         } else {
           resultText = unriddleResult as string;
         }
-        resultSpan!.innerHTML = simpleMarkdownToHtml(resultText);
-        // Update the time spent in the meta row
+        
+        console.log("Final result text:", resultText);
+        
+        // Show the result popup
+        const basePrompt = `Rewrite the following text in plain, simple words for a general audience. Do not use phrases like 'it means' or 'it describes'—just give the transformed meaning directly. Be concise and clear. Respond in ${settings.language || 'English'}.`;
+        const fullPrompt = `${basePrompt}\nPage Title: ${context.page_title || ""}\nSection Heading: ${context.section_heading || ""}\nContext Snippet: ${context.context_snippet || ""}\nUser Selection: "${context.user_selection || ""}"`;
+        await showUnriddlePopup(selectedText, false, resultText, false, fullPrompt, settings.language);
+        
+        // Get the popup and result span
         const popup = document.getElementById("unriddle-popup");
+        console.log("Popup found:", !!popup);
+        
         if (popup) {
-          const timeSpan = popup.querySelector(".unriddle-time-text");
-          if (timeSpan) {
-            timeSpan.textContent = `⏱️ Time used: ${((Date.now() - startTime) / 1000).toFixed(2)}s`;
-          }
-          
-          // Update feedback button data attributes with the final result
-          const feedbackBtn = popup.querySelector('.unriddle-feedback-btn') as HTMLElement;
-          if (feedbackBtn) {
-            feedbackBtn.dataset.result = resultText;
-          }
+          resultSpan = popup.querySelector(".unriddle-result") as HTMLElement;
+          console.log("Result span found:", !!resultSpan);
         }
-        return;
       }
-      const elapsed = ((Date.now() - startTime) / 1000).toFixed(2);
-      // Show final result with markdown rendered
-      // Update the final result without recreating the popup (to preserve meta row)
-      resultSpan!.innerHTML = simpleMarkdownToHtml(resultText);
+      
+      // Final processing for both streaming and non-streaming paths
+      if (resultSpan) {
+        // Unescape quotes and apply markdown processing
+        const unescapedResult = unescapeQuotes(resultText);
+        console.log("Unescaped result:", unescapedResult);
+        resultSpan.innerHTML = simpleMarkdownToHtml(unescapedResult);
+      }
+      
       // Update the time spent in the meta row
       const popup = document.getElementById("unriddle-popup");
       if (popup) {
         const timeSpan = popup.querySelector(".unriddle-time-text");
         if (timeSpan) {
-          timeSpan.textContent = `⏱️ Time used: ${elapsed}s`;
+          timeSpan.textContent = `⏱️ Time used: ${((Date.now() - startTime) / 1000).toFixed(2)}s`;
         }
         
         // Update feedback button data attributes with the final result

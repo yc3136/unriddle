@@ -229,6 +229,9 @@ export async function* unriddleTextStream(
   } else {
     prompt = `${basePrompt}\nPage Title: ${context.page_title || ""}\nSection Heading: ${context.section_heading || ""}\nContext Snippet: ${context.context_snippet || ""}\nUser Selection: \"${context.user_selection || ""}\"`;
   }
+  
+  // Debug: log the prompt being sent
+  console.log('STREAM PROMPT:', prompt);
   const body = {
     contents: [
       {
@@ -258,30 +261,32 @@ export async function* unriddleTextStream(
   const reader = res.body!.getReader();
   const decoder = new TextDecoder();
   let buffer = '';
-  let lastYielded = '';
-  let accumulatedText = '';
+
   while (true) {
     const { value, done } = await reader.read();
+    if (value) buffer += decoder.decode(value, { stream: true });
     if (done) break;
-    buffer += decoder.decode(value, { stream: true });
-    // Use a regex to extract all "text": "..." fields in the buffer
-    let match;
-    const textRegex = /"text":\s*"((?:[^"\\]|\\.)*)"/g;
-    while ((match = textRegex.exec(buffer)) !== null) {
-      const text = match[1];
-      // Only yield new text (avoid duplicates)
-      if (text && text !== lastYielded) {
-        lastYielded = text;
-        // If this is a complete text (not a partial), yield it
-        if (text.length > accumulatedText.length) {
-          const newText = text.slice(accumulatedText.length);
-          accumulatedText = text;
-          yield newText;
-        }
+  }
+
+  // Now parse the entire buffer as JSON
+  try {
+    const data = JSON.parse(buffer);
+    // If the response is an array, iterate through it
+    const candidatesArr = Array.isArray(data) ? data : [data];
+    for (const item of candidatesArr) {
+      if (
+        item.candidates &&
+        item.candidates[0] &&
+        item.candidates[0].content &&
+        item.candidates[0].content.parts &&
+        item.candidates[0].content.parts[0] &&
+        item.candidates[0].content.parts[0].text
+      ) {
+        yield item.candidates[0].content.parts[0].text;
       }
     }
-    // Optionally, clear buffer if it gets too large
-    if (buffer.length > 10000) buffer = '';
+  } catch (parseError) {
+    console.error('STREAM FINAL JSON PARSE ERROR:', parseError, 'for buffer:', buffer);
   }
 }
 
