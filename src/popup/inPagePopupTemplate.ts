@@ -143,13 +143,33 @@ export const IN_PAGE_POPUP_TEMPLATE = `
 `;
 
 /**
+ * Escapes HTML special characters to prevent XSS
+ */
+function escapeHtml(str: string): string {
+  return String(str).replace(/[&<>'"]/g, function (c) {
+    switch (c) {
+      case '&': return '&amp;';
+      case '<': return '&lt;';
+      case '>': return '&gt;';
+      case '"': return '&quot;';
+      case "'": return '&#39;';
+      default: return c;
+    }
+  });
+}
+
+/**
  * Simple template renderer that replaces {{variable}} placeholders with values
+ * Escapes all variables except for resultContent, which is trusted HTML from the markdown sanitizer
  * @param template - HTML template string
  * @param variables - Object containing variable values
  * @returns Rendered HTML string
  */
 export function renderTemplate(template: string, variables: TemplateVariables): string {
   return template.replace(/\{\{(\w+)\}\}/g, (match, variable) => {
-    return variables[variable] !== undefined ? variables[variable] : match;
+    if (variable === 'resultContent') {
+      return variables[variable] !== undefined ? variables[variable] as string : match;
+    }
+    return variables[variable] !== undefined ? escapeHtml(variables[variable] as string) : match;
   });
 } 

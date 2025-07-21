@@ -147,6 +147,19 @@ class SettingsManager {
       });
     }
 
+    // Clear API Key (×) button
+    const clearApiKeyBtn = document.getElementById('clear-api-key');
+    if (clearApiKeyBtn) {
+      clearApiKeyBtn.addEventListener('click', async () => {
+        if (this.elements.apiKeyInput) {
+          this.elements.apiKeyInput.value = '';
+        }
+        await chrome.storage.sync.set({ geminiApiKey: '' });
+        this.updateApiKeyStatus();
+        this.showToast('API key cleared.', 'success');
+      });
+    }
+
     // Model selection change
     if (this.elements.modelSelect) {
       this.elements.modelSelect.addEventListener('change', () => {
