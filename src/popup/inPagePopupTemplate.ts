@@ -64,33 +64,8 @@ export const IN_PAGE_POPUP_TEMPLATE = `
     
     <!-- Loading state -->
     <div class="unriddle-loading-state" style="display: {{loadingDisplay}};">
-      <span class="unriddle-loader" role="status" aria-live="polite" aria-label="Loading" aria-busy="true">
-        <svg width="96" height="32" viewBox="0 0 96 32" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block" aria-hidden="true" focusable="false">
-          <defs>
-            <linearGradient id="unknot-gradient" x1="0" y1="16" x2="96" y2="16" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stop-color="#43e97b"/>
-              <stop offset="20%" stop-color="#38f9d7"/>
-              <stop offset="40%" stop-color="#6a82fb"/>
-              <stop offset="60%" stop-color="#fc5c7d"/>
-              <stop offset="80%" stop-color="#fcb045"/>
-              <stop offset="100%" stop-color="#ffd200"/>
-            </linearGradient>
-          </defs>
-          <path
-            d="M16 16 Q20 4, 36 12 Q52 20, 32 24 Q16 28, 24 16 Q32 4, 48 16"
-            stroke="url(#unknot-gradient)"
-            stroke-width="3"
-            stroke-linecap="round"
-            fill="none">
-            <animate attributeName="d"
-              values="M16 16 Q20 4, 36 12 Q52 20, 32 24 Q16 28, 24 16 Q32 4, 48 16;M48 16 Q56 16, 64 16 Q72 16, 80 16 Q88 16, 88 16 Q88 16, 88 16, 88 16;M16 16 Q20 4, 36 12 Q52 20, 32 24 Q16 28, 24 16 Q32 4, 48 16"
-              keyTimes="0;0.5;1"
-              dur="2.13s"
-              repeatCount="indefinite"/>
-          </path>
-        </svg>
-      </span>
-      <span class="unriddle-loading-text">unriddling...</span>
+      <span class="unriddle-loader loader" role="status" aria-live="polite" aria-label="Loading" aria-busy="true"></span>
+      <span class="unriddle-loading-text">unriddling</span>
     </div>
     
     <!-- Result state -->
