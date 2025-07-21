@@ -90,6 +90,13 @@ async function getCachedSettings(): Promise<UnriddleSettings> {
   return cachedSettings!;
 }
 
+// Add a simple in-memory cache for LLM results
+const llmResultCache = new Map<string, string>();
+
+function getCacheKey(prompt: string, model: string, language: string): string {
+  return `${model}::${language}::${prompt}`;
+}
+
 /**
  * Processes text through the Gemini API to simplify/explain content
  * @param context - Text to process or context object with page info
@@ -141,6 +148,16 @@ export async function unriddleText(
     prompt = `${basePrompt}\nPage Title: ${context.page_title || ""}\nSection Heading: ${context.section_heading || ""}\nContext Snippet: ${context.context_snippet || ""}\nUser Selection: "${context.user_selection || ""}"`;
   }
 
+  // Check cache before making API request
+  const cacheKey = getCacheKey(prompt, model, language);
+  if (llmResultCache.has(cacheKey)) {
+    const cachedResult = llmResultCache.get(cacheKey)!;
+    if (options.returnPrompt) {
+      return { result: cachedResult, prompt };
+    }
+    return cachedResult;
+  }
+
   // Prepare request payload
   const body = {
     contents: [
@@ -184,13 +201,16 @@ export async function unriddleText(
     throw new Error("No response from Gemini API");
   }
   if (options.returnPrompt) {
+    llmResultCache.set(cacheKey, result.trim());
     return { result: result.trim(), prompt };
   }
+  llmResultCache.set(cacheKey, result.trim());
   return result.trim();
 }
 
 /**
  * Streams text through the Gemini API using streamGenerateContent for real-time output
+ * Note: Streaming results are not cached, as partial results are not deterministic and caching would require buffering the entire response.
  * @param context - Text to process or context object with page info
  * @param options - Configuration options
  * @returns Yields text chunks as they arrive
