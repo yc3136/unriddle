@@ -6,6 +6,7 @@ This directory contains modular components that were extracted from the main `co
 
 ### `popup/inPagePopup.js`
 Handles all in-page popup functionality including:
+- **Template-based popup rendering** using HTML templates with variable substitution (see `inPagePopupTemplate.js` for template approach details)
 - Popup creation and styling (using CSS classes)
 - Focus management and accessibility features
 - Loading states and result display
@@ -20,6 +21,7 @@ Handles all in-page popup functionality including:
 
 **Related files:**
 - `popup/inPagePopup.css` - Contains all static styles for the in-page popup
+- `popup/inPagePopupTemplate.js` - HTML template with {{variable}} placeholders for dynamic content
 
 ### `contextGatherer.js`
 Manages context expansion around selected text:

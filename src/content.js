@@ -4,6 +4,7 @@
  */
 
 import { unriddleText, unriddleTextStream } from "./llmApi.js";
+// Uses template-based popup rendering (see inPagePopupTemplate.js for template approach details)
 import { showUnriddlePopup } from "./popup/inPagePopup.js";
 import { gatherContext } from "./modules/contextGatherer.js";
 import { setupEventHandlers } from "./modules/eventHandlers.js";

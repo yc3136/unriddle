@@ -10,7 +10,7 @@
 - **Multi-language support** - Get explanations in 80+ languages
 - **Right-to-left (RTL) language support** - For languages like Arabic, Hebrew, Persian, and Urdu, the LLM response in the popup is automatically displayed right-to-left and right-aligned, while the rest of the popup remains in English and left-to-right.
 - **Settings page** - Customize your language, font, and more
-- Clean, accessible popup UI near your selection
+- **Template-based popup UI** - Clean, accessible popup using HTML templates with dynamic variable substitution for better maintainability
 - - **Modern meta row icons** - Uses Material Icons (Outlined) for feedback, settings, and copy prompt actions in the in-page popup
 - - **Animated & vibrant icons** - Meta row icons feature a playful scale-up animation and color transition on hover, with vibrant blue in light mode and light blue in dark mode for clear contrast
 - - **Dark mode support** - All icons and UI elements adapt for both light and dark themes, ensuring readability and a polished look
@@ -335,6 +335,23 @@ Pull requests welcome! Please open issues for suggestions or bugs.
 - Follow the existing module structure
 - Keep functions focused and single-purpose
 - Add comments for complex logic
+
+## Technical Architecture
+
+### Template-Based Popup System
+The in-page popup uses a **template-based approach** for better maintainability:
+
+- **HTML Template**: Located in `src/popup/inPagePopupTemplate.js` with `{{variable}}` placeholders
+- **Why JS instead of HTML**: Chrome extension content scripts have limitations accessing external HTML files, so templates are stored as JavaScript template literals for direct import and variable substitution
+- **Dynamic Rendering**: Template variables are substituted at runtime with actual content (loading states, results, settings, etc.)
+- **Benefits**: Easier UI modifications, better separation of concerns, improved maintainability
+
+### Modular Structure
+The codebase follows a modular architecture:
+- **Content Scripts**: Handle page interaction and popup orchestration
+- **Modules**: Separated concerns (context gathering, markdown processing, event handling)
+- **Templates**: HTML structure with dynamic variable substitution
+- **CSS**: Styled components with proper separation of concerns
 
 ## Build System
 

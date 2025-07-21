@@ -54,6 +54,15 @@
   box-shadow: none;
 }
 
+/* Loading state container */
+.unriddle-loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
 /* Loader styles */
 .unriddle-loader {
   display: flex;
@@ -278,6 +287,14 @@
   .unriddle-copy-prompt-btn:hover .unriddle-icon {
     color: #90cdf4;
   }
+}
+
+/* Model chip row */
+.unriddle-model-chip-row {
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+  margin: 6px 0 10px 0;
 }
 
 /* Model chip styles */
