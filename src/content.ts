@@ -120,6 +120,12 @@ chrome.runtime.onMessage.addListener(async (msg: UnriddleMessage, _sender, _send
           if (timeSpan) {
             timeSpan.textContent = `⏱️ Time used: ${((Date.now() - startTime) / 1000).toFixed(2)}s`;
           }
+          
+          // Update feedback button data attributes with the final result
+          const feedbackBtn = popup.querySelector('.unriddle-feedback-btn') as HTMLElement;
+          if (feedbackBtn) {
+            feedbackBtn.dataset.result = resultText;
+          }
         }
         return;
       }
@@ -133,6 +139,12 @@ chrome.runtime.onMessage.addListener(async (msg: UnriddleMessage, _sender, _send
         const timeSpan = popup.querySelector(".unriddle-time-text");
         if (timeSpan) {
           timeSpan.textContent = `⏱️ Time used: ${elapsed}s`;
+        }
+        
+        // Update feedback button data attributes with the final result
+        const feedbackBtn = popup.querySelector('.unriddle-feedback-btn') as HTMLElement;
+        if (feedbackBtn) {
+          feedbackBtn.dataset.result = resultText;
         }
       }
     } catch (err: any) {

@@ -242,14 +242,19 @@ async function prepareTemplateVariables(
     // fallback to default
   }
 
-  // Check if user has API key
+  // Check if user has API key and get additional instructions
   let warningDisplay = 'none';
+  let additionalInstructions = "";
   try {
-    const result = await chrome.storage.sync.get({ geminiApiKey: "" });
+    const result = await chrome.storage.sync.get({ 
+      geminiApiKey: "",
+      additionalLLMInstructions: ""
+    });
     const hasUserApiKey = result.geminiApiKey && result.geminiApiKey.trim() !== '';
     if (!hasUserApiKey) {
       warningDisplay = 'flex';
     }
+    additionalInstructions = result.additionalLLMInstructions || "";
   } catch (error) {
     // fallback to hidden
   }
@@ -268,7 +273,7 @@ async function prepareTemplateVariables(
     resultData: typeof result === 'string' ? result : "",
     prompt: prompt || "",
     language: language || "",
-    additionalInstructions: "",
+    additionalInstructions,
     currentModel,
     modelDisplayName,
     warningDisplay
