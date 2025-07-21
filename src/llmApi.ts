@@ -106,11 +106,6 @@ export async function unriddleText(
   const settings = await getCachedSettings();
   const cacheTime = performance.now() - cacheStartTime;
   
-  // Log cache performance (only in development)
-  if (import.meta.env.DEV) {
-    console.log(`🔧 Settings cache time: ${cacheTime.toFixed(2)}ms`);
-  }
-  
   // Get API key - try user's key first, then fall back to environment variable
   let GEMINI_API_KEY: string | null = null;
   
@@ -229,9 +224,6 @@ export async function* unriddleTextStream(
   } else {
     prompt = `${basePrompt}\nPage Title: ${context.page_title || ""}\nSection Heading: ${context.section_heading || ""}\nContext Snippet: ${context.context_snippet || ""}\nUser Selection: \"${context.user_selection || ""}\"`;
   }
-  
-  // Debug: log the prompt being sent
-  console.log('STREAM PROMPT:', prompt);
   const body = {
     contents: [
       {
@@ -286,7 +278,6 @@ export async function* unriddleTextStream(
       }
     }
   } catch (parseError) {
-    console.error('STREAM FINAL JSON PARSE ERROR:', parseError, 'for buffer:', buffer);
   }
 }
 

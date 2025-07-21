@@ -1,5 +1,11 @@
 # unriddle Chrome Extension
 
+**What's New in 1.4.0**
+- Improved streaming: More robust, faster, and now works reliably for all responses
+- Cleaner UI: Settings page and popup have a refreshed, modern look
+- Version number is now managed only in the manifest (removed from settings page for easier maintenance)
+- Internal cleanup: All debug logging removed for production
+
 **unriddle** helps you understand selected text by explaining, simplifying, or translating it using LLMs. Great for cultural references, slang, jargon, and more.
 
 ## Features
@@ -10,6 +16,7 @@
 - **Multi-language support** - Get explanations in 80+ languages
 - **Right-to-left (RTL) language support** - For languages like Arabic, Hebrew, Persian, and Urdu, the LLM response in the popup is automatically displayed right-to-left and right-aligned, while the rest of the popup remains in English and left-to-right.
 - **Settings page** - Customize your language, font, and more
+- **Streaming output** - See explanations appear faster and more smoothly with improved streaming (now robust and chunked)
 - **Template-based popup UI** - Clean, accessible popup using HTML templates with dynamic variable substitution for better maintainability
 - - **Modern meta row icons** - Uses Material Icons (Outlined) for feedback, settings, and copy prompt actions in the in-page popup
 - - **Animated & vibrant icons** - Meta row icons feature a playful scale-up animation and color transition on hover, with vibrant blue in light mode and light blue in dark mode for clear contrast
@@ -78,6 +85,8 @@ For Arabic, Hebrew, Persian, and Urdu, the LLM response is shown right-to-left a
 1. **From Extension Popup**: Click the extension icon, then click "Settings"
 2. **From In-Page Popup**: After getting an explanation, click the gear icon (⚙️) in the popup
 3. **Direct Access**: Right-click the extension icon and select "Options"
+
+*Note: The version number is now managed only in the manifest and not shown in the settings page, to avoid duplicate updates.*
 
 ### Changing Language
 1. Open the settings page

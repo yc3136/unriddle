@@ -78,10 +78,10 @@ class SettingsManager {
       this.initializeEventListeners();
       this.loadSettings();
     } else {
-      console.error('SettingsManager: Required elements not found:', {
-        languageSelect: !!this.elements.languageSelect,
-        saveButton: !!this.elements.saveButton
-      });
+      // console.error('SettingsManager: Required elements not found:', {
+      //   languageSelect: !!this.elements.languageSelect,
+      //   saveButton: !!this.elements.saveButton
+      // });
     }
   }
 
@@ -281,7 +281,7 @@ class SettingsManager {
       this.updateFontCustomControls();
       this.updateFontExample();
     } catch (error: any) {
-      console.error('SettingsManager: Error loading settings:', error);
+      // console.error('SettingsManager: Error loading settings:', error);
       this.showStatus(`Error loading settings: ${error.message}`, 'error');
     }
   }
@@ -399,7 +399,7 @@ class SettingsManager {
       
       this.showToast('Settings saved successfully!', 'success');
     } catch (error: any) {
-      console.error('SettingsManager: Error saving settings:', error);
+      // console.error('SettingsManager: Error saving settings:', error);
       this.showToast(`Error saving settings: ${error.message}`, 'error');
     }
   }

@@ -81,7 +81,6 @@ chrome.runtime.onMessage.addListener(async (msg: UnriddleMessage, _sender, _send
     
     const startTime = Date.now();
     try {
-      console.log("Starting unriddle process...");
       
       // Try streaming first, with fallback to non-streaming
       let resultText = "";
@@ -90,19 +89,15 @@ chrome.runtime.onMessage.addListener(async (msg: UnriddleMessage, _sender, _send
       let gotChunk = false;
       
       try {
-        console.log("Attempting streaming...");
         // Attempt streaming
         for await (const chunk of unriddleTextStream(context, { language: settings.language, model: settings.selectedModel })) {
-          console.log("Received chunk:", chunk);
           if (firstChunk) {
-            console.log("First chunk received, switching to result popup...");
             // Switch from loading to result popup on first chunk
             const basePrompt = `Rewrite the following text in plain, simple words for a general audience. Do not use phrases like 'it means' or 'it describes'—just give the transformed meaning directly. Be concise and clear. Respond in ${settings.language || 'English'}.`;
             const fullPrompt = `${basePrompt}\nPage Title: ${context.page_title || ""}\nSection Heading: ${context.section_heading || ""}\nContext Snippet: ${context.context_snippet || ""}\nUser Selection: "${context.user_selection || ""}"`;
             await showUnriddlePopup(selectedText, false, "", true, fullPrompt, settings.language);
             const popup = document.getElementById("unriddle-popup");
             if (!popup) {
-              console.log("Popup not found after first chunk");
               return;
             }
             resultSpan = popup.querySelector(".unriddle-result") as HTMLElement;
@@ -120,25 +115,19 @@ chrome.runtime.onMessage.addListener(async (msg: UnriddleMessage, _sender, _send
             resultSpan.textContent = resultText;
           }
         }
-        console.log("Streaming completed successfully");
       } catch (streamError) {
-        console.log("Streaming failed, falling back to non-streaming:", streamError);
         gotChunk = false;
       }
       
       if (!gotChunk) {
         // Fallback: use non-streaming method
-        console.log("Using non-streaming fallback...");
         const unriddleResult = await unriddleText(context, { language: settings.language, model: settings.selectedModel, returnPrompt: true });
-        console.log("Got unriddle result:", unriddleResult);
         
         if (typeof unriddleResult === 'object' && 'result' in unriddleResult) {
           resultText = unriddleResult.result;
         } else {
           resultText = unriddleResult as string;
         }
-        
-        console.log("Final result text:", resultText);
         
         // Show the result popup
         const basePrompt = `Rewrite the following text in plain, simple words for a general audience. Do not use phrases like 'it means' or 'it describes'—just give the transformed meaning directly. Be concise and clear. Respond in ${settings.language || 'English'}.`;
@@ -147,11 +136,9 @@ chrome.runtime.onMessage.addListener(async (msg: UnriddleMessage, _sender, _send
         
         // Get the popup and result span
         const popup = document.getElementById("unriddle-popup");
-        console.log("Popup found:", !!popup);
         
         if (popup) {
           resultSpan = popup.querySelector(".unriddle-result") as HTMLElement;
-          console.log("Result span found:", !!resultSpan);
         }
       }
       
@@ -159,7 +146,6 @@ chrome.runtime.onMessage.addListener(async (msg: UnriddleMessage, _sender, _send
       if (resultSpan) {
         // Unescape quotes and apply markdown processing
         const unescapedResult = unescapeQuotes(resultText);
-        console.log("Unescaped result:", unescapedResult);
         resultSpan.innerHTML = simpleMarkdownToHtml(unescapedResult);
       }
       
