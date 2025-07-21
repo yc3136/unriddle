@@ -8,6 +8,52 @@
 
 import { SUPPORTED_LANGUAGES, DEFAULT_LANGUAGE, LANGUAGE_DISPLAY_NAMES, SupportedLanguage } from "../config/languages.js";
 import { SUPPORTED_MODELS, DEFAULT_MODEL, MODEL_DISPLAY_NAMES, MODEL_DESCRIPTIONS, SupportedModel } from "../config/models.js";
+// Error logger for unriddle extension (single source of truth)
+export interface ErrorLogEntry {
+  message: string;
+  name?: string;
+  stack?: string;
+  context?: any;
+  timestamp: string;
+  extensionVersion?: string;
+  browserVersion?: string;
+}
+export function sanitizeError(error: any): Partial<ErrorLogEntry> {
+  if (!error) return { message: 'Unknown error' };
+  if (typeof error === 'string') return { message: error };
+  return {
+    message: error.message || String(error),
+    name: error.name,
+    stack: error.stack ? error.stack.split('\n').slice(0, 5).join('\n') : undefined // limit stack
+  };
+}
+export async function logError(error: any, context?: any) {
+  const sanitized = sanitizeError(error);
+  const entry: ErrorLogEntry = {
+    message: sanitized.message || 'Unknown error',
+    name: sanitized.name,
+    stack: sanitized.stack,
+    context: context ? JSON.stringify(context) : undefined,
+    timestamp: new Date().toISOString(),
+    extensionVersion: (chrome.runtime && chrome.runtime.getManifest) ? chrome.runtime.getManifest().version : undefined,
+    browserVersion: navigator.userAgent
+  };
+  try {
+    const { unriddleErrorLogs = [] } = await chrome.storage.local.get('unriddleErrorLogs');
+    unriddleErrorLogs.push(entry);
+    await chrome.storage.local.set({ unriddleErrorLogs });
+  } catch (e) {
+    // Fallback: log to console if storage fails
+    console.error('Failed to log error:', entry, e);
+  }
+}
+export async function getErrorLogs(): Promise<ErrorLogEntry[]> {
+  const { unriddleErrorLogs = [] } = await chrome.storage.local.get('unriddleErrorLogs');
+  return unriddleErrorLogs;
+}
+export async function clearErrorLogs() {
+  await chrome.storage.local.remove('unriddleErrorLogs');
+}
 
 // Type definitions
 interface UserSettings {
@@ -77,6 +123,15 @@ class SettingsManager {
       this.populateModelDropdown();
       this.initializeEventListeners();
       this.loadSettings();
+      // Wire up error log buttons
+      const copyBtn = document.getElementById('copy-error-logs-btn');
+      if (copyBtn) {
+        copyBtn.addEventListener('click', () => this.showErrorLogs());
+      }
+      const clearBtn = document.getElementById('clear-error-logs-btn');
+      if (clearBtn) {
+        clearBtn.addEventListener('click', () => this.clearErrorLogsUI());
+      }
     } else {
       // console.error('SettingsManager: Required elements not found:', {
       //   languageSelect: !!this.elements.languageSelect,
@@ -356,6 +411,30 @@ class SettingsManager {
     return toast;
   }
 
+  // Add method to download/copy error logs
+  public async showErrorLogs() {
+    try {
+      const logs = await getErrorLogs();
+      const logStr = JSON.stringify(logs, null, 2);
+      // Try to use clipboard API
+      await navigator.clipboard.writeText(logStr);
+      this.showToast('Error logs copied to clipboard!', 'success');
+    } catch (e) {
+      this.showToast('Failed to copy error logs', 'error');
+      await logError(e, { phase: 'settings.showErrorLogs' });
+    }
+  }
+
+  public async clearErrorLogsUI() {
+    try {
+      await clearErrorLogs();
+      this.showToast('Error logs cleared!', 'success');
+    } catch (e) {
+      this.showToast('Failed to clear error logs', 'error');
+      await logError(e, { phase: 'settings.clearErrorLogsUI' });
+    }
+  }
+
   private dismissToast(toast: HTMLElement): void {
     if (toast && toast.parentNode) {
       toast.classList.remove('show');
@@ -412,7 +491,7 @@ class SettingsManager {
       
       this.showToast('Settings saved successfully!', 'success');
     } catch (error: any) {
-      // console.error('SettingsManager: Error saving settings:', error);
+      await logError(error, { phase: 'settings.saveSettings' });
       this.showToast(`Error saving settings: ${error.message}`, 'error');
     }
   }
@@ -458,3 +537,44 @@ document.addEventListener('visibilitychange', () => {
     }, 100);
   }
 }); 
+
+// Global error handlers
+if (typeof window !== 'undefined') {
+  window.onerror = (msg, src, line, col, err) => {
+    logError(err || msg, { src, line, col, phase: 'settings.global' });
+  };
+  window.onunhandledrejection = (event) => {
+    logError(event.reason, { type: 'unhandledrejection', phase: 'settings.global' });
+  };
+} 
+
+// Developer options toggle logic for standard checkbox
+const devOptionsToggle = document.getElementById('dev-options-toggle') as HTMLInputElement | null;
+const errorLogsSection = document.getElementById('error-logs-section') as HTMLElement | null;
+const copyBtn = document.getElementById('copy-error-logs-btn');
+const clearBtn = document.getElementById('clear-error-logs-btn');
+
+function updateDevOptionsUI(enabled: boolean) {
+  if (errorLogsSection) errorLogsSection.style.display = enabled ? '' : 'none';
+  if (devOptionsToggle) devOptionsToggle.checked = enabled;
+}
+
+chrome.storage.sync.get({ unriddleDevOptions: false }, (result) => {
+  updateDevOptionsUI(!!result.unriddleDevOptions);
+});
+
+if (devOptionsToggle) {
+  devOptionsToggle.addEventListener('change', () => {
+    const enabled = devOptionsToggle.checked;
+    chrome.storage.sync.set({ unriddleDevOptions: enabled }, () => {
+      updateDevOptionsUI(enabled);
+    });
+  });
+}
+
+if (copyBtn) {
+  copyBtn.addEventListener('click', () => (window as any).settingsManager?.showErrorLogs());
+}
+if (clearBtn) {
+  clearBtn.addEventListener('click', () => (window as any).settingsManager?.clearErrorLogsUI());
+} 

@@ -1134,3 +1134,140 @@ body {
     box-shadow: 0 0 0 2px #ffb74d33;
   }
 } 
+
+.dev-options-header-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75em;
+  flex-wrap: nowrap;
+}
+
+.dev-options-header-row label,
+.dev-options-header-row h2 {
+  margin: 0;
+  display: flex;
+  align-items: center;
+} 
+
+#error-logs-section {
+  background: #f8f9fa;
+  border-radius: 12px;
+  border-left: 4px solid #6a82fb;
+  padding: 16px;
+  margin-bottom: 0;
+}
+
+.error-logs-btn-row {
+  display: flex;
+  flex-direction: row;
+  gap: 14px;
+  margin-bottom: 0;
+}
+
+@media (prefers-color-scheme: dark) {
+  #error-logs-section {
+    background: #2d3748;
+    border-left-color: #6a82fb;
+  }
+}
+
+.error-logs-btn-row {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 1em;
+}
+
+#error-logs-section button,
+.error-logs-btn {
+  background: transparent;
+  color: #4f5bd5;
+  border: 2px solid #4f5bd5;
+  padding: 10px 22px;
+  border-radius: 10px;
+  font-size: 1em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.18s, background 0.18s, color 0.18s;
+  box-shadow: none;
+  outline: none;
+  margin: 0;
+  display: inline-block;
+}
+
+#error-logs-section button:hover,
+.error-logs-btn:hover {
+  background: rgba(79, 91, 213, 0.08);
+  border-width: 2.5px;
+  color: #23286b;
+}
+
+#error-logs-section button:active,
+.error-logs-btn:active {
+  transform: translateY(0) scale(0.98);
+}
+
+#clear-error-logs-btn {
+  color: #e74c3c;
+  border-color: #e74c3c;
+}
+#clear-error-logs-btn:hover {
+  background: rgba(231, 76, 60, 0.08);
+  color: #b71c1c;
+  border-width: 2.5px;
+}
+
+@media (prefers-color-scheme: dark) {
+  #error-logs-section button,
+  .error-logs-btn {
+    color: #a0aaff;
+    border-color: #a0aaff;
+    background: transparent;
+  }
+  #error-logs-section button:hover,
+  .error-logs-btn:hover {
+    background: rgba(160, 170, 255, 0.10);
+    color: #fff;
+    border-color: #fff;
+  }
+  #clear-error-logs-btn {
+    color: #ff7675;
+    border-color: #ff7675;
+  }
+  #clear-error-logs-btn:hover {
+    background: rgba(255, 118, 117, 0.10);
+    color: #fff;
+    border-color: #fff;
+  }
+} 
+
+#developer-options-section {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 16px;
+  padding: 24px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  margin-top: 0;
+  margin-bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+#developer-options-section > *:not(:last-child) {
+  margin-bottom: 12px;
+}
+
+@media (max-width: 768px) {
+  #developer-options-section {
+    padding: 20px;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  #developer-options-section {
+    background: rgba(45, 55, 72, 0.9);
+    color: #f3f6fa;
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+} 

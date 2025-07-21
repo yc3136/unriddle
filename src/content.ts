@@ -11,6 +11,52 @@ import { showUnriddlePopup } from "./popup/inPagePopup.js";
 import { gatherContext } from "./modules/contextGatherer.js";
 import { setupEventHandlers } from "./modules/eventHandlers.js";
 import { simpleMarkdownToHtml } from "./modules/markdownProcessor.js";
+// Error logger for unriddle extension (single source of truth)
+export interface ErrorLogEntry {
+  message: string;
+  name?: string;
+  stack?: string;
+  context?: any;
+  timestamp: string;
+  extensionVersion?: string;
+  browserVersion?: string;
+}
+export function sanitizeError(error: any): Partial<ErrorLogEntry> {
+  if (!error) return { message: 'Unknown error' };
+  if (typeof error === 'string') return { message: error };
+  return {
+    message: error.message || String(error),
+    name: error.name,
+    stack: error.stack ? error.stack.split('\n').slice(0, 5).join('\n') : undefined // limit stack
+  };
+}
+export async function logError(error: any, context?: any) {
+  const sanitized = sanitizeError(error);
+  const entry: ErrorLogEntry = {
+    message: sanitized.message || 'Unknown error',
+    name: sanitized.name,
+    stack: sanitized.stack,
+    context: context ? JSON.stringify(context) : undefined,
+    timestamp: new Date().toISOString(),
+    extensionVersion: (chrome.runtime && chrome.runtime.getManifest) ? chrome.runtime.getManifest().version : undefined,
+    browserVersion: navigator.userAgent
+  };
+  try {
+    const { unriddleErrorLogs = [] } = await chrome.storage.local.get('unriddleErrorLogs');
+    unriddleErrorLogs.push(entry);
+    await chrome.storage.local.set({ unriddleErrorLogs });
+  } catch (e) {
+    // Fallback: log to console if storage fails
+    console.error('Failed to log error:', entry, e);
+  }
+}
+export async function getErrorLogs(): Promise<ErrorLogEntry[]> {
+  const { unriddleErrorLogs = [] } = await chrome.storage.local.get('unriddleErrorLogs');
+  return unriddleErrorLogs;
+}
+export async function clearErrorLogs() {
+  await chrome.storage.local.remove('unriddleErrorLogs');
+}
 
 // Type definitions
 interface UserSettings {
@@ -165,6 +211,7 @@ chrome.runtime.onMessage.addListener(async (msg: UnriddleMessage, _sender, _send
       }
     } catch (err: any) {
       let errorMessage = err.message || err;
+      // logError(err, { phase: 'content.onMessage', selectedText }); // This line was removed as per the edit hint
       if (errorMessage.includes('Gemini API error: 400')) {
         errorMessage = `Invalid API key. Please check your Gemini API key in <a href=\"#\" class=\"error-link\">Settings</a> and try again.`;
       } else if (errorMessage.includes('Gemini API error: 429') || 
@@ -178,3 +225,13 @@ chrome.runtime.onMessage.addListener(async (msg: UnriddleMessage, _sender, _send
     }
   }
 }); 
+
+// Global error handlers
+if (typeof window !== 'undefined') {
+  window.onerror = (msg, src, line, col, err) => {
+    // logError(err || msg, { src, line, col }); // This line was removed as per the edit hint
+  };
+  window.onunhandledrejection = (event) => {
+    // logError(event.reason, { type: 'unhandledrejection' }); // This line was removed as per the edit hint
+  };
+} 

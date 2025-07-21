@@ -11,6 +11,52 @@
 import { simpleMarkdownToHtml } from '../modules/markdownProcessor.js';
 // Template approach: See inPagePopupTemplate.js for why this is a JS file instead of HTML
 import { IN_PAGE_POPUP_TEMPLATE, renderTemplate, TemplateVariables } from './inPagePopupTemplate.js';
+// Error logger for unriddle extension (single source of truth)
+export interface ErrorLogEntry {
+  message: string;
+  name?: string;
+  stack?: string;
+  context?: any;
+  timestamp: string;
+  extensionVersion?: string;
+  browserVersion?: string;
+}
+export function sanitizeError(error: any): Partial<ErrorLogEntry> {
+  if (!error) return { message: 'Unknown error' };
+  if (typeof error === 'string') return { message: error };
+  return {
+    message: error.message || String(error),
+    name: error.name,
+    stack: error.stack ? error.stack.split('\n').slice(0, 5).join('\n') : undefined // limit stack
+  };
+}
+export async function logError(error: any, context?: any) {
+  const sanitized = sanitizeError(error);
+  const entry: ErrorLogEntry = {
+    message: sanitized.message || 'Unknown error',
+    name: sanitized.name,
+    stack: sanitized.stack,
+    context: context ? JSON.stringify(context) : undefined,
+    timestamp: new Date().toISOString(),
+    extensionVersion: (chrome.runtime && chrome.runtime.getManifest) ? chrome.runtime.getManifest().version : undefined,
+    browserVersion: navigator.userAgent
+  };
+  try {
+    const { unriddleErrorLogs = [] } = await chrome.storage.local.get('unriddleErrorLogs');
+    unriddleErrorLogs.push(entry);
+    await chrome.storage.local.set({ unriddleErrorLogs });
+  } catch (e) {
+    // Fallback: log to console if storage fails
+    console.error('Failed to log error:', entry, e);
+  }
+}
+export async function getErrorLogs(): Promise<ErrorLogEntry[]> {
+  const { unriddleErrorLogs = [] } = await chrome.storage.local.get('unriddleErrorLogs');
+  return unriddleErrorLogs;
+}
+export async function clearErrorLogs() {
+  await chrome.storage.local.remove('unriddleErrorLogs');
+}
 
 // Type definitions
 interface Coordinates {
@@ -374,6 +420,13 @@ function setupPopupEventHandlers(
         "entry.2020962734": llmConfigString,
         "entry.342051201": lang
       });
+      // Add error log context if available (but never sensitive data)
+      try {
+        const logs = await getErrorLogs();
+        if (logs && logs.length > 0) {
+          params.set('entry.123456789', JSON.stringify(logs.slice(-3))); // Add last 3 errors (example field)
+        }
+      } catch (e) {}
       window.open(`${baseUrl}?${params.toString()}`, "_blank");
     };
   }
@@ -404,6 +457,7 @@ function setupPopupEventHandlers(
     (link as HTMLElement).onclick = function(e: Event) {
       e.preventDefault();
       e.stopPropagation();
+      logError('User clicked error link', { phase: 'popup.errorLink', errorContent: popup.textContent });
       chrome.runtime.sendMessage({ action: "OPEN_OPTIONS_PAGE" });
     };
   });

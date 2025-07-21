@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>unriddle Settings</title>
   <link rel="stylesheet" href="settings.css">
+  <script type="module" src="https://unpkg.com/@material/web@latest/all.js"></script>
 </head>
 <body>
   <div class="settings-container">
@@ -35,7 +36,7 @@
       </section>
 
       <section class="setting-section">
-        <h2>LLM Configuration</h2>
+        <h2>LLM</h2>
         <p class="setting-description">Configure your Gemini API key and context window size for explanations</p>
         <div class="llm-info">
           <div class="api-key-info">
@@ -128,7 +129,7 @@
       </section>
 
       <section class="setting-section">
-        <h2>Font Configuration</h2>
+        <h2>Font</h2>
         <p class="setting-description">Configure the font used for LLM responses in the in-page popup.</p>
         <div class="font-config-info">
           <label style="display: flex; align-items: center; gap: 8px;">
@@ -175,6 +176,23 @@
           <div style="margin-top: 16px;">
             <span class="font-example-label" style="font-size: 0.95em; color: #888;">Example:</span>
             <div id="font-example-text" style="margin-top: 6px; padding: 10px 16px; border-radius: 8px; background: #f8f9fa; border: 1px solid #eee; display: inline-block; min-width: 120px;">The quick brown fox jumps over the lazy dog.</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="setting-section" id="developer-options-section">
+        <div class="dev-options-header-row">
+          <label for="dev-options-toggle">
+            <input type="checkbox" id="dev-options-toggle" />
+          </label>
+          <h2>Developer Options</h2>
+        </div>
+        <div id="error-logs-section" style="display: none;">
+          <h3>Error Logs</h3>
+          <p class="font-dynamic-explanation">Error logs are stored locally and never sent anywhere unless you choose to share them.</p>
+          <div class="error-logs-btn-row">
+            <button id="copy-error-logs-btn" type="button">Copy Error Logs</button>
+            <button id="clear-error-logs-btn" type="button">Clear Error Logs</button>
           </div>
         </div>
       </section>

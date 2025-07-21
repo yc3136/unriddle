@@ -11,10 +11,11 @@
     "type-check": "tsc --noEmit"
   },
   "devDependencies": {
+    "@types/chrome": "^0.0.260",
+    "@types/node": "^24.0.15",
     "terser": "^5.43.1",
-    "vite": "^5.2.0",
-    "vite-plugin-static-copy": "^1.0.0",
     "typescript": "^5.3.3",
-    "@types/chrome": "^0.0.260"
+    "vite": "^5.2.0",
+    "vite-plugin-static-copy": "^1.0.0"
   }
 }

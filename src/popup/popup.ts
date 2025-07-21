@@ -11,6 +11,8 @@
 // Future versions may include settings, history, or other features
 
 // Add settings button functionality
+import { logError, getErrorLogs, clearErrorLogs } from "../modules/util.js";
+
 document.addEventListener('DOMContentLoaded', () => {
   const settingsButton = document.getElementById('open-settings');
   
