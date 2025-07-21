@@ -389,6 +389,31 @@ If you encounter issues, have suggestions, or want to provide feedback:
 
 **Note:** Your API key is never included in feedback. All settings are stringified for clarity and support purposes.
 
+## Test Strategy & Coverage
+
+### Unit Testing
+- All core logic, helpers, and utility modules are covered by unit tests using [Vitest](https://vitest.dev/).
+- Tests are located alongside their respective modules (e.g., `src/modules/`, `src/config/`, etc.).
+- These tests ensure that the main business logic, markdown processing, context gathering, and API integration work as expected.
+
+### Omitted Tests: Chrome API Limitations
+- Tests for extension entry points (`settings`, `background`, `popup`) are **omitted** because they use Chrome APIs at the top level (e.g., `chrome.runtime.onInstalled`, `chrome.storage.sync.get`).
+- This top-level usage runs before any test can set up mocks, making reliable automated testing impossible in a Node or jsdom environment.
+- This is a common and accepted limitation in Chrome extension testing.
+- For full testability, such code would need to be refactored to only use Chrome APIs inside functions or after `DOMContentLoaded`.
+
+### Omitted: Integration & E2E Testing
+- Integration and end-to-end (E2E) tests are **intentionally omitted** to:
+  - Keep the codebase simple and easy to maintain.
+  - Avoid introducing heavy dependencies (e.g., Selenium, Playwright, Puppeteer) and complex CI setups.
+  - Prevent increased build times and maintenance burden.
+- For Chrome extensions, integration/E2E testing typically requires browser automation, which is overkill for this project's goals.
+- Manual testing in the browser is fast and reliable for this use case, and all critical logic is already covered by unit tests.
+
+### Manual Testing
+- All UI and integration flows are manually tested in the browser during development.
+- This approach is standard for Chrome extensions and ensures a balance between reliability and maintainability.
+
 ---
 
 _Made with ❤️ as a personal project to help everyone understand more!_ 

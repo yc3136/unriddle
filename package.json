@@ -8,14 +8,22 @@
     "build:prod": "vite build --mode production",
     "preview": "vite preview",
     "clean": "rm -rf dist",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "test": "vitest run",
+    "test:ui": "vitest --ui"
   },
   "devDependencies": {
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/user-event": "^14.6.1",
     "@types/chrome": "^0.0.260",
     "@types/node": "^24.0.15",
+    "@vitest/ui": "^3.2.4",
+    "jsdom": "^26.1.0",
     "terser": "^5.43.1",
     "typescript": "^5.3.3",
     "vite": "^5.2.0",
-    "vite-plugin-static-copy": "^1.0.0"
+    "vite-plugin-static-copy": "^1.0.0",
+    "vitest": "^3.2.4"
   }
 }
