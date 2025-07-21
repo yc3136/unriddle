@@ -3,12 +3,26 @@
  * Handles communication with the background script and orchestrates popup display
  */
 
+/// <reference types="chrome"/>
+
 import { unriddleText, unriddleTextStream } from "./llmApi.js";
 // Uses template-based popup rendering (see inPagePopupTemplate.js for template approach details)
 import { showUnriddlePopup } from "./popup/inPagePopup.js";
 import { gatherContext } from "./modules/contextGatherer.js";
 import { setupEventHandlers } from "./modules/eventHandlers.js";
 import { simpleMarkdownToHtml } from "./modules/markdownProcessor.js";
+
+// Type definitions
+interface UserSettings {
+  language: string;
+  contextWindowSize: number;
+  selectedModel: string;
+}
+
+interface UnriddleMessage {
+  action: "UNRIDDLE_SELECTED_TEXT";
+  text: string;
+}
 
 // Initialize event handlers for popup interactions
 setupEventHandlers();
@@ -17,7 +31,7 @@ setupEventHandlers();
 // This avoids circular import issues and still provides the performance benefit
 
 // Default settings - hardcode the default language to avoid import issues
-const DEFAULT_SETTINGS = {
+const DEFAULT_SETTINGS: UserSettings = {
   language: "English",
   contextWindowSize: 40,
   selectedModel: "gemini-2.5-flash"
@@ -25,9 +39,9 @@ const DEFAULT_SETTINGS = {
 
 /**
  * Loads user settings from Chrome storage
- * @returns {Promise<Object>} User settings
+ * @returns User settings
  */
-async function loadSettings() {
+async function loadSettings(): Promise<UserSettings> {
   try {
     const result = await chrome.storage.sync.get(DEFAULT_SETTINGS);
     const settings = { ...DEFAULT_SETTINGS, ...result };
@@ -41,7 +55,7 @@ async function loadSettings() {
  * Main message listener for handling unriddle requests from the background script
  * Processes selected text through LLM and displays results in popup
  */
-chrome.runtime.onMessage.addListener(async (msg, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener(async (msg: UnriddleMessage, _sender, _sendResponse) => {
   if (msg.action === "UNRIDDLE_SELECTED_TEXT") {
     const selectedText = msg.text;
     
@@ -60,8 +74,7 @@ chrome.runtime.onMessage.addListener(async (msg, sender, sendResponse) => {
     try {
       // Streaming LLM response
       let resultText = "";
-      let prompt = "";
-      let resultSpan = null;
+      let resultSpan: HTMLElement | null = null;
       // Keep loading popup until first chunk arrives
       // Stream chunks
       let firstChunk = true;
@@ -77,7 +90,7 @@ chrome.runtime.onMessage.addListener(async (msg, sender, sendResponse) => {
           if (!popup) {
             return;
           }
-          resultSpan = popup.querySelector(".unriddle-result");
+          resultSpan = popup.querySelector(".unriddle-result") as HTMLElement;
           if (!resultSpan) {
             resultSpan = document.createElement("span");
             resultSpan.className = "unriddle-result";
@@ -88,14 +101,18 @@ chrome.runtime.onMessage.addListener(async (msg, sender, sendResponse) => {
         resultText += chunk;
         gotChunk = true;
         // Process the full accumulated text with markdown to handle newlines properly
-        resultSpan.innerHTML = simpleMarkdownToHtml(resultText);
+        resultSpan!.innerHTML = simpleMarkdownToHtml(resultText);
       }
       if (!gotChunk) {
         // Fallback: use non-streaming method if no chunks received
         const unriddleResult = await unriddleText(context, { language: settings.language, model: settings.selectedModel, returnPrompt: true });
-        resultText = unriddleResult.result;
-        prompt = unriddleResult.prompt;
-        resultSpan.innerHTML = simpleMarkdownToHtml(resultText);
+        if (typeof unriddleResult === 'object' && 'result' in unriddleResult) {
+          resultText = unriddleResult.result;
+          // prompt = unriddleResult.prompt; // Not used in this context
+        } else {
+          resultText = unriddleResult as string;
+        }
+        resultSpan!.innerHTML = simpleMarkdownToHtml(resultText);
         // Update the time spent in the meta row
         const popup = document.getElementById("unriddle-popup");
         if (popup) {
@@ -109,7 +126,7 @@ chrome.runtime.onMessage.addListener(async (msg, sender, sendResponse) => {
       const elapsed = ((Date.now() - startTime) / 1000).toFixed(2);
       // Show final result with markdown rendered
       // Update the final result without recreating the popup (to preserve meta row)
-      resultSpan.innerHTML = simpleMarkdownToHtml(resultText);
+      resultSpan!.innerHTML = simpleMarkdownToHtml(resultText);
       // Update the time spent in the meta row
       const popup = document.getElementById("unriddle-popup");
       if (popup) {
@@ -118,7 +135,7 @@ chrome.runtime.onMessage.addListener(async (msg, sender, sendResponse) => {
           timeSpan.textContent = `⏱️ Time used: ${elapsed}s`;
         }
       }
-    } catch (err) {
+    } catch (err: any) {
       let errorMessage = err.message || err;
       if (errorMessage.includes('Gemini API error: 400')) {
         errorMessage = `Invalid API key. Please check your Gemini API key in <a href=\"#\" class=\"error-link\">Settings</a> and try again.`;
@@ -132,4 +149,4 @@ chrome.runtime.onMessage.addListener(async (msg, sender, sendResponse) => {
       showUnriddlePopup(selectedText, false, `Error: ${errorMessage}\n\n⏱️ Time used: ${elapsed}s`, true, undefined, settings.language);
     }
   }
-});
+}); 

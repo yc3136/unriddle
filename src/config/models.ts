@@ -5,8 +5,19 @@
  * for available Gemini models on the free tier.
  */
 
+// Type definitions
+export type SupportedModel = 
+  | 'gemini-1.5-flash'
+  | 'gemini-1.5-pro'
+  | 'gemini-2.0-flash'
+  | 'gemini-2.0-pro'
+  | 'gemini-2.5-flash'
+  | 'gemini-2.5-pro';
+
+export type ModelCategory = 'Flash Models' | 'Pro Models';
+
 // Available Gemini models on free tier (alphabetical order)
-export const SUPPORTED_MODELS = [
+export const SUPPORTED_MODELS: SupportedModel[] = [
   'gemini-1.5-flash',
   'gemini-1.5-pro',
   'gemini-2.0-flash',
@@ -16,10 +27,10 @@ export const SUPPORTED_MODELS = [
 ];
 
 // Default model
-export const DEFAULT_MODEL = 'gemini-2.5-flash';
+export const DEFAULT_MODEL: SupportedModel = 'gemini-2.5-flash';
 
 // Model display names and descriptions
-export const MODEL_DISPLAY_NAMES = {
+export const MODEL_DISPLAY_NAMES: Record<SupportedModel, string> = {
   'gemini-1.5-flash': 'Gemini 1.5 Flash',
   'gemini-1.5-pro': 'Gemini 1.5 Pro',
   'gemini-2.0-flash': 'Gemini 2.0 Flash',
@@ -29,7 +40,7 @@ export const MODEL_DISPLAY_NAMES = {
 };
 
 // Short descriptions for dropdown menu
-export const MODEL_DESCRIPTIONS = {
+export const MODEL_DESCRIPTIONS: Record<SupportedModel, string> = {
   'gemini-1.5-flash': 'Fast responses, good for simple explanations',
   'gemini-1.5-pro': 'Balanced speed and quality, reliable performance',
   'gemini-2.0-flash': 'Faster than 1.5, good for most tasks',
@@ -39,7 +50,7 @@ export const MODEL_DESCRIPTIONS = {
 };
 
 // Model categories for organization
-export const MODEL_CATEGORIES = {
+export const MODEL_CATEGORIES: Record<ModelCategory, SupportedModel[]> = {
   'Flash Models': ['gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-2.5-flash'],
   'Pro Models': ['gemini-1.5-pro', 'gemini-2.0-pro', 'gemini-2.5-pro']
 }; 

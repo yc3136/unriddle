@@ -3,14 +3,41 @@
  * Handles communication with Google's Gemini API for text processing
  */
 
+/// <reference types="chrome"/>
+
+// Type definitions
+export interface UnriddleSettings {
+  geminiApiKey: string;
+  additionalLLMInstructions: string;
+  selectedModel: string;
+}
+
+export interface ContextData {
+  page_title?: string;
+  section_heading?: string;
+  context_snippet?: string;
+  user_selection?: string;
+}
+
+export interface UnriddleOptions {
+  model?: string;
+  language?: string;
+  returnPrompt?: boolean;
+}
+
+export interface UnriddleResult {
+  result: string;
+  prompt: string;
+}
+
 // Cache for settings to avoid reading Chrome storage on every LLM call
-let cachedSettings = null;
+let cachedSettings: UnriddleSettings | null = null;
 
 /**
  * Loads and caches settings from Chrome storage
- * @returns {Promise<Object>} Cached settings object
+ * @returns Cached settings object
  */
-async function loadAndCacheSettings() {
+async function loadAndCacheSettings(): Promise<UnriddleSettings> {
   try {
     if (typeof chrome !== 'undefined' && chrome.storage) {
       const result = await chrome.storage.sync.get({
@@ -18,8 +45,8 @@ async function loadAndCacheSettings() {
         additionalLLMInstructions: "",
         selectedModel: "gemini-2.5-flash"
       });
-      cachedSettings = result;
-      return result;
+      cachedSettings = result as UnriddleSettings;
+      return result as UnriddleSettings;
     }
   } catch (error) {
     cachedSettings = {
@@ -28,42 +55,52 @@ async function loadAndCacheSettings() {
       selectedModel: "gemini-2.5-flash"
     };
   }
-  return cachedSettings;
+  return cachedSettings!;
 }
 
 /**
  * Updates the cached settings (called when settings are saved)
- * @param {Object} newSettings - New settings to cache
+ * @param newSettings - New settings to cache
  */
-function updateCachedSettings(newSettings) {
-  cachedSettings = { ...cachedSettings, ...newSettings };
+function updateCachedSettings(newSettings: Partial<UnriddleSettings>): void {
+  if (cachedSettings) {
+    cachedSettings = { ...cachedSettings, ...newSettings };
+  }
 }
 
 // Expose cache update function globally for settings page
+declare global {
+  interface Window {
+    updateUnriddleCache: typeof updateCachedSettings;
+  }
+}
+
 if (typeof window !== 'undefined') {
   window.updateUnriddleCache = updateCachedSettings;
 }
 
 /**
  * Gets cached settings, loading them if not already cached
- * @returns {Promise<Object>} Cached settings
+ * @returns Cached settings
  */
-async function getCachedSettings() {
+async function getCachedSettings(): Promise<UnriddleSettings> {
   if (cachedSettings === null) {
     await loadAndCacheSettings();
   }
-  return cachedSettings;
+  return cachedSettings!;
 }
 
 /**
  * Processes text through the Gemini API to simplify/explain content
- * @param {string|Object} context - Text to process or context object with page info
- * @param {Object} options - Configuration options
- * @param {string} options.model - Gemini model to use (default: "gemini-2.5-flash")
- * @returns {Promise<string>} Processed text response
- * @throws {Error} If API key is missing or API request fails
+ * @param context - Text to process or context object with page info
+ * @param options - Configuration options
+ * @returns Processed text response
+ * @throws If API key is missing or API request fails
  */
-export async function unriddleText(context, options = {}) {
+export async function unriddleText(
+  context: string | ContextData, 
+  options: UnriddleOptions = {}
+): Promise<string | UnriddleResult> {
   // Get cached settings instead of reading Chrome storage every time
   const cacheStartTime = performance.now();
   const settings = await getCachedSettings();
@@ -75,12 +112,12 @@ export async function unriddleText(context, options = {}) {
   }
   
   // Get API key - try user's key first, then fall back to environment variable
-  let GEMINI_API_KEY = null;
+  let GEMINI_API_KEY: string | null = null;
   
   if (settings.geminiApiKey && settings.geminiApiKey.trim() !== '') {
     GEMINI_API_KEY = settings.geminiApiKey.trim();
   } else {
-    GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+    GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY as string;
   }
   
   if (!GEMINI_API_KEY) {
@@ -159,19 +196,21 @@ export async function unriddleText(context, options = {}) {
 
 /**
  * Streams text through the Gemini API using streamGenerateContent for real-time output
- * @param {string|Object} context - Text to process or context object with page info
- * @param {Object} options - Configuration options
- * @param {string} options.model - Gemini model to use (default: "gemini-2.5-flash")
- * @returns {AsyncGenerator<string>} Yields text chunks as they arrive
- * @throws {Error} If API key is missing or API request fails
+ * @param context - Text to process or context object with page info
+ * @param options - Configuration options
+ * @returns Yields text chunks as they arrive
+ * @throws If API key is missing or API request fails
  */
-export async function* unriddleTextStream(context, options = {}) {
+export async function* unriddleTextStream(
+  context: string | ContextData, 
+  options: UnriddleOptions = {}
+): AsyncGenerator<string> {
   const settings = await getCachedSettings();
-  let GEMINI_API_KEY = null;
+  let GEMINI_API_KEY: string | null = null;
   if (settings.geminiApiKey && settings.geminiApiKey.trim() !== '') {
     GEMINI_API_KEY = settings.geminiApiKey.trim();
   } else {
-    GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+    GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY as string;
   }
   if (!GEMINI_API_KEY) {
     throw new Error("Missing Gemini API key. Please set your own API key in Settings or ensure VITE_GEMINI_API_KEY is set in your .env file.");
@@ -216,7 +255,7 @@ export async function* unriddleTextStream(context, options = {}) {
     } catch (parseError) {}
     throw new Error(`Gemini API error: ${errorDetails}`);
   }
-  const reader = res.body.getReader();
+  const reader = res.body!.getReader();
   const decoder = new TextDecoder();
   let buffer = '';
   let lastYielded = '';

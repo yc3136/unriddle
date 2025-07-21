@@ -6,6 +6,7 @@
  * - Source maps for debugging
  * - Static asset copying
  * - Development server setup
+ * - TypeScript support
  */
 
 import { defineConfig } from 'vite';
@@ -16,10 +17,10 @@ export default defineConfig({
   build: {
     rollupOptions: {
       input: {
-        background: resolve(__dirname, 'src/background.js'),
-        content: resolve(__dirname, 'src/content.js'),
-        popup: resolve(__dirname, 'src/popup/popup.js'),
-        settings: resolve(__dirname, 'src/settings/settings.js')
+        background: resolve(__dirname, 'src/background.ts'),
+        content: resolve(__dirname, 'src/content.ts'),
+        popup: resolve(__dirname, 'src/popup/popup.ts'),
+        settings: resolve(__dirname, 'src/settings/settings.ts')
       },
       output: {
         entryFileNames: (chunkInfo) => {

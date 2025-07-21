@@ -3,18 +3,28 @@
  * Expands selected text with surrounding context for better LLM prompts
  */
 
+// Type definitions
+export interface ContextData {
+  page_title: string;
+  section_heading: string;
+  context_snippet: string;
+  user_selection: string;
+}
+
+export type ContextWindowSize = number | string;
+
 /**
  * Gathers contextual information around selected text
- * @param {string} selectedText - The text selected by the user
- * @param {number|string} contextWindowSize - Number of words, empty string for full page, 0 for only selection
- * @returns {Object} Context object with page title, section heading, and expanded text
+ * @param selectedText - The text selected by the user
+ * @param contextWindowSize - Number of words, empty string for full page, 0 for only selection
+ * @returns Context object with page title, section heading, and expanded text
  */
-export function gatherContext(selectedText, contextWindowSize = 40) {
+export function gatherContext(selectedText: string, contextWindowSize: ContextWindowSize = 40): ContextData {
   // Initialize context variables
-  let selection = window.getSelection();
+  const selection = window.getSelection();
   let contextSnippet = selectedText;
   let sectionHeading = "";
-  let pageTitle = document.title;
+  const pageTitle = document.title;
 
   // Handle full page content option
   if (contextWindowSize === "") {
@@ -27,36 +37,36 @@ export function gatherContext(selectedText, contextWindowSize = 40) {
     contextSnippet = selectedText;
   } else if (selection && selection.rangeCount > 0) {
     const range = selection.getRangeAt(0);
-    let node = range.commonAncestorContainer;
+    let node: Node | null = range.commonAncestorContainer;
     while (node && node.nodeType !== Node.ELEMENT_NODE) {
       node = node.parentNode;
     }
-    let block = node && (node.closest('p,li,blockquote,td,th,div,section,article') || node);
-    if (block && block.innerText) {
-      let words = block.innerText.trim().split(/\s+/);
+    const block = node && (node as Element).closest('p,li,blockquote,td,th,div,section,article') || node;
+    if (block && (block as HTMLElement).innerText) {
+      let words = (block as HTMLElement).innerText.trim().split(/\s+/);
       if (typeof contextWindowSize === 'number' && contextWindowSize > 0) {
         words = words.slice(0, contextWindowSize);
       }
       contextSnippet = words.join(' ');
     }
     // Find nearest heading for better context
-    let headingNode = node;
+    let headingNode: Element | null = node as Element;
     while (headingNode && !/^H[1-6]$/.test(headingNode.tagName)) {
       headingNode = headingNode.previousElementSibling;
     }
-    if (headingNode && headingNode.innerText) {
-      sectionHeading = headingNode.innerText.trim();
+    if (headingNode && (headingNode as HTMLElement).innerText) {
+      sectionHeading = (headingNode as HTMLElement).innerText.trim();
     }
   }
 
   // Fallback: try to find a heading above the selection
-  if (!sectionHeading) {
-    let headings = Array.from(document.querySelectorAll('h1, h2, h3, h4, h5, h6'));
-    let bestHeading = headings.reverse().find(h => 
-      h.compareDocumentPosition(selection.anchorNode) & Node.DOCUMENT_POSITION_PRECEDING
+  if (!sectionHeading && selection && selection.anchorNode) {
+    const headings = Array.from(document.querySelectorAll('h1, h2, h3, h4, h5, h6'));
+    const bestHeading = headings.reverse().find(h => 
+      h.compareDocumentPosition(selection.anchorNode!) & Node.DOCUMENT_POSITION_PRECEDING
     );
     if (bestHeading) {
-      sectionHeading = bestHeading.innerText.trim();
+      sectionHeading = (bestHeading as HTMLElement).innerText.trim();
     }
   }
 

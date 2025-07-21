@@ -8,11 +8,13 @@
     "build:prod": "vite build --mode production",
     "preview": "vite preview",
     "clean": "rm -rf dist",
-    "type-check": "echo 'No TypeScript configured yet'"
+    "type-check": "tsc --noEmit"
   },
   "devDependencies": {
     "terser": "^5.43.1",
     "vite": "^5.2.0",
-    "vite-plugin-static-copy": "^1.0.0"
+    "vite-plugin-static-copy": "^1.0.0",
+    "typescript": "^5.3.3",
+    "@types/chrome": "^0.0.260"
   }
 }

@@ -5,10 +5,10 @@
 
 /**
  * Converts basic markdown syntax to HTML
- * @param {string} md - Markdown text to convert
- * @returns {string} HTML string with basic markdown formatting
+ * @param md - Markdown text to convert
+ * @returns HTML string with basic markdown formatting
  */
-export function simpleMarkdownToHtml(md) {
+export function simpleMarkdownToHtml(md: string): string {
   if (!md) return "";
   
   // Unescape any escaped newlines (\\n or \\n\\n) to real newlines

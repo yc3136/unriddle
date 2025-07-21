@@ -19,7 +19,7 @@
 - Smart context gathering for better explanations
 - Loading indicator with animated feedback
 - Dark/light theme support
-- Built with modern tooling (Vite, Manifest V3)
+- Built with modern tooling (Vite, TypeScript, Manifest V3)
 
 ## Prerequisites
 - Node.js (v16 or higher)
@@ -331,6 +331,7 @@ Pull requests welcome! Please open issues for suggestions or bugs.
 - Ensure your API key is properly set in `.env`
 
 ### Code Style
+- Use TypeScript for type safety and better development experience
 - Use ES6+ features
 - Follow the existing module structure
 - Keep functions focused and single-purpose
@@ -341,10 +342,10 @@ Pull requests welcome! Please open issues for suggestions or bugs.
 ### Template-Based Popup System
 The in-page popup uses a **template-based approach** for better maintainability:
 
-- **HTML Template**: Located in `src/popup/inPagePopupTemplate.js` with `{{variable}}` placeholders
-- **Why JS instead of HTML**: Chrome extension content scripts have limitations accessing external HTML files, so templates are stored as JavaScript template literals for direct import and variable substitution
+- **HTML Template**: Located in `src/popup/inPagePopupTemplate.ts` with `{{variable}}` placeholders
+- **Why TS instead of HTML**: Chrome extension content scripts have limitations accessing external HTML files, so templates are stored as TypeScript template literals for direct import and variable substitution
 - **Dynamic Rendering**: Template variables are substituted at runtime with actual content (loading states, results, settings, etc.)
-- **Benefits**: Easier UI modifications, better separation of concerns, improved maintainability
+- **Benefits**: Easier UI modifications, better separation of concerns, improved maintainability, type safety
 
 ### Modular Structure
 The codebase follows a modular architecture:

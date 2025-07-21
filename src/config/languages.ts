@@ -5,8 +5,24 @@
  * to ensure consistency across the extension.
  */
 
+// Type definitions
+export type SupportedLanguage = 
+  | 'Afrikaans' | 'Amharic' | 'Arabic' | 'Armenian' | 'Assamese' | 'Azerbaijani'
+  | 'Basque' | 'Bengali' | 'Bulgarian' | 'Burmese' | 'Catalan' | 'Chinese (Simplified)'
+  | 'Chinese (Traditional)' | 'Croatian' | 'Czech' | 'Danish' | 'Dutch' | 'English'
+  | 'Estonian' | 'Filipino' | 'Finnish' | 'French' | 'Galician' | 'Georgian'
+  | 'German' | 'Greek' | 'Gujarati' | 'Hausa' | 'Hebrew' | 'Hindi' | 'Hmong'
+  | 'Hungarian' | 'Icelandic' | 'Igbo' | 'Indonesian' | 'Irish' | 'Italian'
+  | 'Japanese' | 'Kannada' | 'Kazakh' | 'Khmer' | 'Korean' | 'Kyrgyz' | 'Lao'
+  | 'Latvian' | 'Lithuanian' | 'Malay' | 'Malayalam' | 'Maltese' | 'Marathi'
+  | 'Mongolian' | 'Nepali' | 'Norwegian' | 'Odia' | 'Persian' | 'Polish'
+  | 'Portuguese' | 'Punjabi' | 'Romanian' | 'Russian' | 'Sanskrit' | 'Sinhala'
+  | 'Slovak' | 'Slovenian' | 'Spanish' | 'Swahili' | 'Swedish' | 'Tajik'
+  | 'Tamil' | 'Telugu' | 'Thai' | 'Tibetan' | 'Turkish' | 'Turkmen' | 'Ukrainian'
+  | 'Urdu' | 'Uzbek' | 'Vietnamese' | 'Welsh' | 'Xhosa' | 'Yoruba' | 'Zulu';
+
 // Available languages - commonly used languages well-supported by Gemini models (alphabetical order)
-export const SUPPORTED_LANGUAGES = [
+export const SUPPORTED_LANGUAGES: SupportedLanguage[] = [
   'Afrikaans',
   'Amharic',
   'Arabic',
@@ -92,10 +108,10 @@ export const SUPPORTED_LANGUAGES = [
 ];
 
 // Default language setting
-export const DEFAULT_LANGUAGE = 'English';
+export const DEFAULT_LANGUAGE: SupportedLanguage = 'English';
 
 // Language display names with English names first for better searchability
-export const LANGUAGE_DISPLAY_NAMES = {
+export const LANGUAGE_DISPLAY_NAMES: Record<SupportedLanguage, string> = {
   'Afrikaans': 'Afrikaans (Afrikaans)',
   'Amharic': 'Amharic (አማርኛ)',
   'Arabic': 'Arabic (العربية)',
@@ -181,7 +197,7 @@ export const LANGUAGE_DISPLAY_NAMES = {
 };
 
 // List of supported right-to-left (RTL) languages
-export const RTL_LANGUAGES = [
+export const RTL_LANGUAGES: SupportedLanguage[] = [
   'Arabic',
   'Hebrew',
   'Persian',
@@ -190,18 +206,18 @@ export const RTL_LANGUAGES = [
 
 /**
  * Validates if a language is supported
- * @param {string} language - The language to validate
- * @returns {boolean} True if the language is supported
+ * @param language - The language to validate
+ * @returns True if the language is supported
  */
-export function isSupportedLanguage(language) {
-  return SUPPORTED_LANGUAGES.includes(language);
+export function isSupportedLanguage(language: string): language is SupportedLanguage {
+  return SUPPORTED_LANGUAGES.includes(language as SupportedLanguage);
 }
 
 /**
  * Gets the display name for a language
- * @param {string} language - The language code
- * @returns {string} The display name or the original code if not found
+ * @param language - The language code
+ * @returns The display name or the original code if not found
  */
-export function getLanguageDisplayName(language) {
-  return LANGUAGE_DISPLAY_NAMES[language] || language;
+export function getLanguageDisplayName(language: string): string {
+  return LANGUAGE_DISPLAY_NAMES[language as SupportedLanguage] || language;
 } 

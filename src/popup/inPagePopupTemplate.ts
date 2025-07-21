@@ -35,6 +35,28 @@
  *    - Better IDE support for template variables
  */
 
+// Type definitions
+export interface TemplateVariables {
+  direction?: string;
+  loadingDisplay?: string;
+  resultDisplay?: string;
+  resultId?: string;
+  resultDirection?: string;
+  resultStyles?: string;
+  resultContent?: string;
+  timeText?: string;
+  copyButtonDisplay?: string;
+  prompt?: string;
+  selectedText?: string;
+  resultData?: string;
+  language?: string;
+  additionalInstructions?: string;
+  modelDisplayName?: string;
+  currentModel?: string;
+  warningDisplay?: string;
+  [key: string]: string | undefined;
+}
+
 export const IN_PAGE_POPUP_TEMPLATE = `
   <div id="unriddle-popup" class="unriddle-popup" role="dialog" aria-modal="true" tabindex="-1" dir="{{direction}}">
     <!-- Focus trap start -->
@@ -122,11 +144,11 @@ export const IN_PAGE_POPUP_TEMPLATE = `
 
 /**
  * Simple template renderer that replaces {{variable}} placeholders with values
- * @param {string} template - HTML template string
- * @param {Object} variables - Object containing variable values
- * @returns {string} Rendered HTML string
+ * @param template - HTML template string
+ * @param variables - Object containing variable values
+ * @returns Rendered HTML string
  */
-export function renderTemplate(template, variables) {
+export function renderTemplate(template: string, variables: TemplateVariables): string {
   return template.replace(/\{\{(\w+)\}\}/g, (match, variable) => {
     return variables[variable] !== undefined ? variables[variable] : match;
   });

@@ -5,6 +5,8 @@
  * the extension icon in the browser toolbar.
  */
 
+/// <reference types="chrome"/>
+
 // Popup is currently informational only
 // Future versions may include settings, history, or other features
 
