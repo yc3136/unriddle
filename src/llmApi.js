@@ -15,7 +15,8 @@ async function loadAndCacheSettings() {
     if (typeof chrome !== 'undefined' && chrome.storage) {
       const result = await chrome.storage.sync.get({
         geminiApiKey: "",
-        additionalLLMInstructions: ""
+        additionalLLMInstructions: "",
+        selectedModel: "gemini-2.5-flash"
       });
       cachedSettings = result;
       return result;
@@ -23,7 +24,8 @@ async function loadAndCacheSettings() {
   } catch (error) {
     cachedSettings = {
       geminiApiKey: "",
-      additionalLLMInstructions: ""
+      additionalLLMInstructions: "",
+      selectedModel: "gemini-2.5-flash"
     };
   }
   return cachedSettings;
@@ -86,7 +88,7 @@ export async function unriddleText(context, options = {}) {
   }
   
   // Configure API request
-  const model = options.model || "gemini-2.5-flash";
+  const model = options.model || settings.selectedModel || "gemini-2.5-flash";
   const language = options.language || "English";
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`;
 
@@ -174,7 +176,7 @@ export async function* unriddleTextStream(context, options = {}) {
   if (!GEMINI_API_KEY) {
     throw new Error("Missing Gemini API key. Please set your own API key in Settings or ensure VITE_GEMINI_API_KEY is set in your .env file.");
   }
-  const model = options.model || "gemini-2.5-flash";
+  const model = options.model || settings.selectedModel || "gemini-2.5-flash";
   const language = options.language || "English";
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?key=${GEMINI_API_KEY}`;
   const additionalLLMInstructions = settings.additionalLLMInstructions || "";

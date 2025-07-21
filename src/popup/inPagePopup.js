@@ -257,6 +257,77 @@ function showCopySuccessMessage(btn, message) {
   setTimeout(() => { msg.remove(); }, 1200);
 }
 
+async function createModelChip() {
+  const modelChip = document.createElement("div");
+  modelChip.className = "unriddle-model-chip";
+  modelChip.style.cssText = `
+    position: absolute;
+    bottom: 8px;
+    left: 8px;
+    background: rgba(0, 0, 0, 0.1);
+    color: rgba(0, 0, 0, 0.7);
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    z-index: 1001;
+  `;
+  
+  // Get the current model from settings
+  let currentModel = "gemini-2.5-flash";
+  try {
+    const result = await chrome.storage.sync.get({ selectedModel: "gemini-2.5-flash" });
+    currentModel = result.selectedModel;
+  } catch (e) {
+    // Fallback to default
+  }
+  
+  // Get model display name
+  // Use full name for the chip
+  const modelDisplayNames = {
+    'gemini-1.5-flash': 'Gemini 1.5 Flash',
+    'gemini-1.5-pro': 'Gemini 1.5 Pro',
+    'gemini-2.0-flash': 'Gemini 2.0 Flash',
+    'gemini-2.0-pro': 'Gemini 2.0 Pro',
+    'gemini-2.5-flash': 'Gemini 2.5 Flash',
+    'gemini-2.5-pro': 'Gemini 2.5 Pro'
+  };
+  
+  modelChip.textContent = modelDisplayNames[currentModel] || currentModel;
+  
+  // Add hover effects
+  modelChip.addEventListener('mouseenter', () => {
+    modelChip.style.background = 'rgba(0, 0, 0, 0.15)';
+    modelChip.style.transform = 'scale(1.05)';
+  });
+  
+  modelChip.addEventListener('mouseleave', () => {
+    modelChip.style.background = 'rgba(0, 0, 0, 0.1)';
+    modelChip.style.transform = 'scale(1)';
+  });
+  
+  // Add click handler to open settings
+  modelChip.addEventListener('click', () => {
+    chrome.runtime.sendMessage({ action: 'openSettings' });
+  });
+  
+  // Add tooltip
+  modelChip.title = `Current model: ${modelDisplayNames[currentModel] || currentModel}. Click to change in settings.`;
+  
+  // Add dark mode support
+  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    modelChip.style.background = 'rgba(255,255,255,0.12)';
+    modelChip.style.color = '#f3f6fa';
+    modelChip.style.border = '1px solid rgba(255,255,255,0.18)';
+  }
+  
+  return modelChip;
+}
+
 function createMetaRow(text, result, prompt, language = undefined, additionalLlmInstructions = "") {
   const metaRow = document.createElement("div");
   metaRow.className = "unriddle-meta-row";
@@ -455,6 +526,20 @@ export async function showUnriddlePopup(text, loading = true, result = "", isHtm
 
     const metaRow = createMetaRow(text, result, prompt, language, "");
     popup.appendChild(metaRow);
+    
+    // Add model chip on a separate line
+    const modelChipRow = document.createElement('div');
+    modelChipRow.style.width = '100%';
+    modelChipRow.style.display = 'flex';
+    modelChipRow.style.justifyContent = 'flex-start';
+    modelChipRow.style.margin = '6px 0 10px 0'; // add bottom margin for spacing
+    const modelChip = await createModelChip();
+    // Remove any absolute positioning from the chip
+    modelChip.style.position = 'static';
+    modelChip.style.left = '';
+    modelChip.style.bottom = '';
+    modelChipRow.appendChild(modelChip);
+    popup.appendChild(modelChipRow);
     
     // Check if user has set their own API key and show warning if not
     try {

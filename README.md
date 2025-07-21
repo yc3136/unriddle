@@ -6,6 +6,7 @@
 - **Keyboard shortcut** - Press `Ctrl+Shift+U` (Windows/Linux) or `Cmd+Shift+U` (Mac) to quickly unriddle selected text
 - Right-click any selected text to "unriddle" it
 - LLM-powered explanations using Google's Gemini API
+- **Model Selection** - Choose from 6 available Gemini models (Flash and Pro variants) to balance speed vs. quality
 - **Multi-language support** - Get explanations in 80+ languages
 - **Right-to-left (RTL) language support** - For languages like Arabic, Hebrew, Persian, and Urdu, the LLM response in the popup is automatically displayed right-to-left and right-aligned, while the rest of the popup remains in English and left-to-right.
 - **Settings page** - Customize your language, font, and more
@@ -84,24 +85,29 @@ For Arabic, Hebrew, Persian, and Urdu, the LLM response is shown right-to-left a
 3. Click "Save" or press Ctrl+S
 4. Your preference is automatically saved and will be used for future explanations
 
-### LLM Configuration (API Key, Context Window & Additional LLM Instructions)
+### LLM Configuration (API Key, Model Selection, Context Window & Additional LLM Instructions)
 
-unriddle lets you configure your Gemini API key, how much context is sent to the LLM, and provide additional instructions for the LLM output:
+unriddle lets you configure your Gemini API key, choose which model to use, how much context is sent to the LLM, and provide additional instructions for the LLM output:
 
 - **API Key**: Currently, unriddle only works with Gemini. More API provider integration coming soon.
+- **Model Selection**: Choose from 6 available Gemini models:
+  - **Flash Models** (faster, good for most tasks): Gemini 1.5 Flash, Gemini 2.0 Flash, Gemini 2.5 Flash
+  - **Pro Models** (higher quality, better for complex topics): Gemini 1.5 Pro, Gemini 2.0 Pro, Gemini 2.5 Pro
+  - Default is Gemini 2.5 Flash (recommended for most users)
 - **Context Window Size**: Set the number of words of surrounding context to include with your selection (default: 40 words). Leave empty for full page, or enter 0 for only your selection. Higher values may improve explanations but use more API quota.
 - **Additional LLM Instructions**: Add extra instructions that will be included with every LLM request. For example, you can ask the LLM to "explain as if to a 5 year old", "use a friendly tone", or any other style or audience preference. This is useful for customizing the output to your needs.
 - **Language Selection**: Choosing a language other than English may increase response time, as the LLM may take longer to process translations.
 
-**Note:** Using a different language or adding additional LLM instructions can increase the time it takes to receive a response, as these options require more processing by the LLM.
+**Note:** Using a different language, selecting a Pro model, or adding additional LLM instructions can increase the time it takes to receive a response, as these options require more processing by the LLM.
 
 #### How to Configure
 1. Open the settings page
 2. Scroll to the "LLM Configuration" section
 3. Enter your Gemini API key (see instructions above)
-4. Set your preferred context window size (in words)
-5. Add any additional LLM instructions in the provided field (optional)
-6. Changes are saved automatically
+4. Select your preferred model from the dropdown
+5. Set your preferred context window size (in words)
+6. Add any additional LLM instructions in the provided field (optional)
+7. Changes are saved automatically
 
 ### Font Configuration (Popup Font Customization)
 unriddle lets you control the font used for LLM responses in the in-page popup:
@@ -182,7 +188,8 @@ npm run clean        # Clean build output directory
 unriddle/
 ├── src/
 │   ├── config/               # Configuration files
-│   │   └── languages.js      # Supported languages list
+│   │   ├── languages.js      # Supported languages list
+│   │   └── models.js         # Available Gemini models configuration
 │   ├── modules/              # Shared utilities
 │   │   ├── contextGatherer.js    # Context expansion logic
 │   │   ├── markdownProcessor.js  # Markdown to HTML conversion
@@ -251,6 +258,7 @@ The extension follows a modular architecture with clear separation of concerns:
 - Use keyboard navigation (Escape to close)
 - Click outside to dismiss
 - **Quick access to settings**: Click the gear icon (⚙️) in the popup
+- **Model indicator**: The current model is shown as a chip in the popup - click it to open settings
 
 ## Features
 

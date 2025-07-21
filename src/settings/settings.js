@@ -5,10 +5,12 @@
  */
 
 import { SUPPORTED_LANGUAGES, DEFAULT_LANGUAGE, LANGUAGE_DISPLAY_NAMES } from "../config/languages.js";
+import { SUPPORTED_MODELS, DEFAULT_MODEL, MODEL_DISPLAY_NAMES, MODEL_DESCRIPTIONS } from "../config/models.js";
 
 const DEFAULT_SETTINGS = {
   language: DEFAULT_LANGUAGE,
   geminiApiKey: "",
+  selectedModel: DEFAULT_MODEL,
   contextWindowSize: 40, // default to 40 words
   useDynamicFont: true,
   customFontFamily: "Arial",
@@ -24,6 +26,7 @@ class SettingsManager {
     this.apiKeyInput = document.getElementById('api-key-input');
     this.toggleApiKeyBtn = document.getElementById('toggle-api-key');
     this.apiKeyStatus = document.getElementById('api-key-status');
+    this.modelSelect = document.getElementById('model-select');
     this.fontDynamicCheckbox = document.getElementById('font-dynamic-checkbox');
     this.fontFamilySelect = document.getElementById('font-family-select');
     this.fontSizeInput = document.getElementById('font-size-input');
@@ -35,6 +38,7 @@ class SettingsManager {
     
     if (this.languageSelect && this.saveButton) {
       this.populateLanguageDropdown();
+      this.populateModelDropdown();
       this.initializeEventListeners();
       this.loadSettings();
     } else {
@@ -55,6 +59,24 @@ class SettingsManager {
       option.value = language;
       option.textContent = LANGUAGE_DISPLAY_NAMES[language] || language;
       this.languageSelect.appendChild(option);
+    });
+  }
+
+  populateModelDropdown() {
+    if (!this.modelSelect) return;
+    
+    // Clear existing options
+    this.modelSelect.innerHTML = '';
+    
+    // Add options using display names and short descriptions
+    SUPPORTED_MODELS.forEach(model => {
+      const option = document.createElement('option');
+      const displayName = MODEL_DISPLAY_NAMES[model] || model;
+      const description = MODEL_DESCRIPTIONS[model] || '';
+      const label = description ? `${displayName} (${description})` : displayName;
+      option.value = model;
+      option.textContent = label;
+      this.modelSelect.appendChild(option);
     });
   }
 
@@ -86,6 +108,13 @@ class SettingsManager {
       this.apiKeyInput.addEventListener('input', () => {
         this.updateApiKeyStatus();
         this.saveSettings(); // Auto-save when API key changes
+      });
+    }
+
+    // Model selection change
+    if (this.modelSelect) {
+      this.modelSelect.addEventListener('change', () => {
+        this.saveSettings(); // Auto-save when model changes
       });
     }
 
@@ -196,6 +225,9 @@ class SettingsManager {
         this.apiKeyInput.value = settings.geminiApiKey || '';
         this.updateApiKeyStatus();
       }
+      if (this.modelSelect) {
+        this.modelSelect.value = settings.selectedModel || DEFAULT_MODEL;
+      }
       if (this.fontDynamicCheckbox) this.fontDynamicCheckbox.checked = settings.useDynamicFont !== false;
       if (this.fontFamilySelect) this.fontFamilySelect.value = settings.customFontFamily || 'Arial';
       if (this.fontSizeInput) this.fontSizeInput.value = settings.customFontSize || 16;
@@ -299,6 +331,7 @@ class SettingsManager {
       }
       const settings = {
         language: this.languageSelect.value,
+        selectedModel: this.modelSelect ? this.modelSelect.value : DEFAULT_MODEL,
         contextWindowSize,
         geminiApiKey: this.apiKeyInput ? this.apiKeyInput.value : "",
         useDynamicFont: this.fontModeDynamic ? this.fontModeDynamic.checked : true,
@@ -322,7 +355,8 @@ class SettingsManager {
       if (window.updateUnriddleCache) {
         window.updateUnriddleCache({
           geminiApiKey: settings.geminiApiKey,
-          additionalLLMInstructions: settings.additionalLLMInstructions
+          additionalLLMInstructions: settings.additionalLLMInstructions,
+          selectedModel: settings.selectedModel
         });
       }
       
@@ -354,6 +388,14 @@ document.addEventListener('DOMContentLoaded', () => {
     for (let i = 0; i < fontFamilySelect.options.length; i++) {
       const opt = fontFamilySelect.options[i];
       opt.style.fontFamily = opt.value;
+    }
+  }
+  if (window.location.hash === '#model-selection-anchor') {
+    const anchor = document.getElementById('model-selection-anchor');
+    if (anchor) {
+      anchor.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      anchor.setAttribute('tabindex', '-1');
+      anchor.focus({ preventScroll: true });
     }
   }
 });

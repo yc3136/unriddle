@@ -278,4 +278,42 @@
   .unriddle-copy-prompt-btn:hover .unriddle-icon {
     color: #90cdf4;
   }
+}
+
+/* Model chip styles */
+.unriddle-model-chip {
+  display: inline-flex;
+  background: rgba(0, 0, 0, 0.1);
+  color: rgba(0, 0, 0, 0.7);
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  z-index: 1001;
+  user-select: none;
+  margin-bottom: 0;
+  margin-top: 0;
+  position: static;
+}
+
+.unriddle-model-chip:hover {
+  background: rgba(0, 0, 0, 0.15);
+  transform: scale(1.05);
+  color: rgba(0, 0, 0, 0.8);
+}
+
+@media (prefers-color-scheme: dark) {
+  .unriddle-model-chip {
+    background: rgba(255, 255, 255, 0.12);
+    color: #f3f6fa;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+  }
+  .unriddle-model-chip:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+  }
 } 

@@ -61,4 +61,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "OPEN_OPTIONS_PAGE") {
     chrome.runtime.openOptionsPage();
   }
+  if (message.action === "openSettings") {
+    chrome.runtime.openOptionsPage();
+  }
 }); 

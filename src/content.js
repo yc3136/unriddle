@@ -18,7 +18,8 @@ setupEventHandlers();
 // Default settings - hardcode the default language to avoid import issues
 const DEFAULT_SETTINGS = {
   language: "English",
-  contextWindowSize: 40
+  contextWindowSize: 40,
+  selectedModel: "gemini-2.5-flash"
 };
 
 /**
@@ -64,7 +65,7 @@ chrome.runtime.onMessage.addListener(async (msg, sender, sendResponse) => {
       // Stream chunks
       let firstChunk = true;
       let gotChunk = false;
-      for await (const chunk of unriddleTextStream(context, { language: settings.language })) {
+      for await (const chunk of unriddleTextStream(context, { language: settings.language, model: settings.selectedModel })) {
         if (firstChunk) {
           // Switch from loading to result popup on first chunk
           // Create the prompt for the meta row (robot button)
@@ -90,7 +91,7 @@ chrome.runtime.onMessage.addListener(async (msg, sender, sendResponse) => {
       }
       if (!gotChunk) {
         // Fallback: use non-streaming method if no chunks received
-        const unriddleResult = await unriddleText(context, { language: settings.language, returnPrompt: true });
+        const unriddleResult = await unriddleText(context, { language: settings.language, model: settings.selectedModel, returnPrompt: true });
         resultText = unriddleResult.result;
         prompt = unriddleResult.prompt;
         resultSpan.innerHTML = simpleMarkdownToHtml(resultText);
