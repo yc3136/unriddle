@@ -4,7 +4,7 @@
   "description": "A Chrome extension to explain/simplify/translate selected text using Gemini LLM.",
   "scripts": {
     "dev": "vite",
-    "build": "node scripts/inject-logger.js && vite build",
+    "build": "vite build",
     "build:prod": "vite build --mode production",
     "preview": "vite preview",
     "clean": "rm -rf dist",
