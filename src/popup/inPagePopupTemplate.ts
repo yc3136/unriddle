@@ -64,7 +64,9 @@ export const IN_PAGE_POPUP_TEMPLATE = `
     
     <!-- Loading state -->
     <div class="unriddle-loading-state" style="display: {{loadingDisplay}};">
-      <span class="unriddle-loader loader" role="status" aria-live="polite" aria-label="Loading" aria-busy="true"></span>
+      <div class="loader" role="status" aria-live="polite" aria-label="Loading" aria-busy="true">
+        <div class="segment"></div><div class="segment"></div><div class="segment"></div><div class="segment"></div>
+      </div>
       <span class="unriddle-loading-text">unriddling</span>
     </div>
     

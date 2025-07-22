@@ -64,88 +64,175 @@
 }
 
 /* Loader styles */
-.unriddle-loader {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 96px;
-  height: 32px;
-  margin-top: 16px;
-}
-
-/* Fun animated loader styles (replaces SVG loader) */
+/* HTML: <div class="loader"><div class="segment"></div><div class="segment"></div><div class="segment"></div><div class="segment"></div></div> */
 .loader {
-  width: 40px;
-  height: 20px;
-  margin-top: 16px;
-  --loader-color: linear-gradient(90deg, #ffd600 0%, #ff6a00 50%, #ff3a7a 100%);
-  --loader-solid: #ff6a00;
-  --c: no-repeat radial-gradient(farthest-side, var(--loader-solid) 93%, #0000);
-  background:
-    var(--c) 0    0,
-    var(--c) 50%  0;
-  background-size: 8px 8px;
-  position: relative;
-  clip-path: inset(-200% -100% 0 0);
-  animation: l6-0 1.5s linear infinite;
-}
-.loader:before {
-  content: "";
-  position: absolute;
-  width: 8px;
-  height: 12px;
-  background: var(--loader-solid);
-  left: -16px;
-  top: 0;
-  animation:
-    l6-1 1.5s linear infinite,
-    l6-2 0.5s cubic-bezier(0,200,.8,200) infinite;
-}
-.loader:after {
-  content: "";
-  position: absolute;
-  inset: 0 0 auto auto;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--loader-solid);
-  animation: l6-3 1.5s linear infinite;
+   display: flex;
+   gap: 0px;
+   height: 3px;
 }
 
-/* Gradient fill for the loader main bar */
-.loader {
-  /* Overlay a gradient bar for the loader */
-}
-.loader::before,
-.loader::after {
-  /* Use solid color for the moving parts */
+.segment {
+   width: 15px;
+   height: 3px;
+   background: #000;
 }
 
-@keyframes l6-0 {
-  0%,30%  {background-position: 0  0   ,50% 0   }
-  33%     {background-position: 0  100%,50% 0   }
-  41%,63% {background-position: 0  0   ,50% 0   }
-  66%     {background-position: 0  0   ,50% 100%}
-  74%,100%{background-position: 0  0   ,50% 0   }
+.segment:nth-child(1) {
+   animation: flip-color-1 2.8s linear infinite;
 }
-@keyframes l6-1 {
-  90%  {transform:translateY(0)}
-  95%  {transform:translateY(15px)}
-  100% {transform:translateY(15px);left:calc(100% - 8px)}
+
+.segment:nth-child(2) {
+   animation: flip-color-2 2.8s linear infinite;
 }
-@keyframes l6-2 {
-  100% {top:-0.1px}
+
+.segment:nth-child(3) {
+   animation: flip-color-3 2.8s linear infinite;
 }
-@keyframes l6-3 {
-  0%,80%,100% {transform:translate(0)}
-  90%         {transform:translate(26px)}
+
+.segment:nth-child(4) {
+   animation: flip-color-4 2.8s linear infinite;
+}
+
+@keyframes flip-color-1 {
+   0% { 
+       background: #FFD600;
+       transform: rotate(0deg);
+   }
+   25% {
+       background: #FFD600;
+       transform: rotate(180deg);
+   }
+   25.1%, 100% { 
+       background: #000;
+       transform: rotate(180deg);
+   }
+}
+
+@keyframes flip-color-2 {
+   0%, 25% { 
+       background: #000;
+       transform: rotate(180deg);
+   }
+   25.1% { 
+       background: #FF9800;
+       transform: rotate(180deg);
+   }
+   50% {
+       background: #FF9800;
+       transform: rotate(360deg);
+   }
+   50.1%, 100% { 
+       background: #000;
+       transform: rotate(360deg);
+   }
+}
+
+@keyframes flip-color-3 {
+   0%, 50% { 
+       background: #000;
+       transform: rotate(360deg);
+   }
+   50.1% { 
+       background: #FF3A7A;
+       transform: rotate(360deg);
+   }
+   75% {
+       background: #FF3A7A;
+       transform: rotate(540deg);
+   }
+   75.1%, 100% { 
+       background: #000;
+       transform: rotate(540deg);
+   }
+}
+
+@keyframes flip-color-4 {
+   0%, 75% { 
+       background: #000;
+       transform: rotate(540deg);
+   }
+   75.1% { 
+       background: #C13AFF;
+       transform: rotate(540deg);
+   }
+   100% {
+       background: #C13AFF;
+       transform: rotate(720deg);
+   }
 }
 
 @media (prefers-color-scheme: dark) {
-  .loader {
-    --loader-color: linear-gradient(90deg, #ff9800 0%, #ff3a7a 100%);
-    --loader-solid: #ff9800;
+  .segment {
+    background: #fff;
   }
+  @keyframes flip-color-1 {
+    0% { 
+      background: #FFD600;
+      transform: rotate(0deg);
+    }
+    25% {
+      background: #FFD600;
+      transform: rotate(180deg);
+    }
+    25.1%, 100% { 
+      background: #fff;
+      transform: rotate(180deg);
+    }
+  }
+  @keyframes flip-color-2 {
+    0%, 25% { 
+      background: #fff;
+      transform: rotate(180deg);
+    }
+    25.1% { 
+      background: #FF9800;
+      transform: rotate(180deg);
+    }
+    50% {
+      background: #FF9800;
+      transform: rotate(360deg);
+    }
+    50.1%, 100% { 
+      background: #fff;
+      transform: rotate(360deg);
+    }
+  }
+  @keyframes flip-color-3 {
+    0%, 50% { 
+      background: #fff;
+      transform: rotate(360deg);
+    }
+    50.1% { 
+      background: #FF3A7A;
+      transform: rotate(360deg);
+    }
+    75% {
+      background: #FF3A7A;
+      transform: rotate(540deg);
+    }
+    75.1%, 100% { 
+      background: #fff;
+      transform: rotate(540deg);
+    }
+  }
+  @keyframes flip-color-4 {
+    0%, 75% { 
+      background: #fff;
+      transform: rotate(540deg);
+    }
+    75.1% { 
+      background: #C13AFF;
+      transform: rotate(540deg);
+    }
+    100% {
+      background: #C13AFF;
+      transform: rotate(720deg);
+    }
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  /* Colors remain the same for dark mode for vibrancy */
 }
 
 /* Loading text */
