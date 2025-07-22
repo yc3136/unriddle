@@ -1,16 +1,6 @@
 /**
  * Main content script for the unriddle Chrome Extension
- * Handles communication with the background script and orchestrates popup display
- */
-
-/// <reference types="chrome"/>
-
-import { unriddleText, unriddleTextStream } from "./llmApi.js";
-// Uses template-based popup rendering (see inPagePopupTemplate.js for template approach details)
-import { showUnriddlePopup } from "./popup/inPagePopup.js";
-import { gatherContext } from "./modules/contextGatherer.js";
-import { setupEventHandlers } from "./modules/eventHandlers.js";
-import { simpleMarkdownToHtml } from "./modules/markdownProcessor.js";
+ * 
 // Error logger for unriddle extension (single source of truth)
 export interface ErrorLogEntry {
   message: string;
@@ -21,6 +11,7 @@ export interface ErrorLogEntry {
   extensionVersion?: string;
   browserVersion?: string;
 }
+
 export function sanitizeError(error: any): Partial<ErrorLogEntry> {
   if (!error) return { message: 'Unknown error' };
   if (typeof error === 'string') return { message: error };
@@ -30,6 +21,7 @@ export function sanitizeError(error: any): Partial<ErrorLogEntry> {
     stack: error.stack ? error.stack.split('\n').slice(0, 5).join('\n') : undefined // limit stack
   };
 }
+
 export async function logError(error: any, context?: any) {
   const sanitized = sanitizeError(error);
   const entry: ErrorLogEntry = {
@@ -50,13 +42,43 @@ export async function logError(error: any, context?: any) {
     console.error('Failed to log error:', entry, e);
   }
 }
+
 export async function getErrorLogs(): Promise<ErrorLogEntry[]> {
   const { unriddleErrorLogs = [] } = await chrome.storage.local.get('unriddleErrorLogs');
   return unriddleErrorLogs;
 }
+
 export async function clearErrorLogs() {
   await chrome.storage.local.remove('unriddleErrorLogs');
 }
+
+if (typeof window !== 'undefined') {
+  (window as any).logError = logError;
+  (window as any).sanitizeError = sanitizeError;
+  (window as any).getErrorLogs = getErrorLogs;
+  (window as any).clearErrorLogs = clearErrorLogs;
+}
+
+
+if (typeof window !== 'undefined') {
+  (window as any).logError = logError;
+  (window as any).sanitizeError = sanitizeError;
+  (window as any).getErrorLogs = getErrorLogs;
+  (window as any).clearErrorLogs = clearErrorLogs;
+}
+
+
+Handles communication with the background script and orchestrates popup display
+ */
+
+/// <reference types="chrome"/>
+
+import { unriddleText, unriddleTextStream } from "./llmApi.js";
+// Uses template-based popup rendering (see inPagePopupTemplate.js for template approach details)
+import { showUnriddlePopup } from "./popup/inPagePopup.js";
+import { gatherContext } from "./modules/contextGatherer.js";
+import { setupEventHandlers } from "./modules/eventHandlers.js";
+import { simpleMarkdownToHtml } from "./modules/markdownProcessor.js";
 
 // Type definitions
 interface UserSettings {

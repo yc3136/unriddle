@@ -1,16 +1,5 @@
 /**
  * In-page popup management module for the unriddle Chrome Extension
- * Handles creation, styling, and interaction of in-page popups using HTML templates
- *
- * NOTE: Requires Material Icons stylesheet in your HTML:
- * <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
- */
-
-/// <reference types="chrome"/>
-
-import { simpleMarkdownToHtml } from '../modules/markdownProcessor.js';
-// Template approach: See inPagePopupTemplate.js for why this is a JS file instead of HTML
-import { IN_PAGE_POPUP_TEMPLATE, renderTemplate, TemplateVariables } from './inPagePopupTemplate.js';
 // Error logger for unriddle extension (single source of truth)
 export interface ErrorLogEntry {
   message: string;
@@ -21,6 +10,7 @@ export interface ErrorLogEntry {
   extensionVersion?: string;
   browserVersion?: string;
 }
+
 export function sanitizeError(error: any): Partial<ErrorLogEntry> {
   if (!error) return { message: 'Unknown error' };
   if (typeof error === 'string') return { message: error };
@@ -30,6 +20,7 @@ export function sanitizeError(error: any): Partial<ErrorLogEntry> {
     stack: error.stack ? error.stack.split('\n').slice(0, 5).join('\n') : undefined // limit stack
   };
 }
+
 export async function logError(error: any, context?: any) {
   const sanitized = sanitizeError(error);
   const entry: ErrorLogEntry = {
@@ -50,13 +41,44 @@ export async function logError(error: any, context?: any) {
     console.error('Failed to log error:', entry, e);
   }
 }
+
 export async function getErrorLogs(): Promise<ErrorLogEntry[]> {
   const { unriddleErrorLogs = [] } = await chrome.storage.local.get('unriddleErrorLogs');
   return unriddleErrorLogs;
 }
+
 export async function clearErrorLogs() {
   await chrome.storage.local.remove('unriddleErrorLogs');
 }
+
+if (typeof window !== 'undefined') {
+  (window as any).logError = logError;
+  (window as any).sanitizeError = sanitizeError;
+  (window as any).getErrorLogs = getErrorLogs;
+  (window as any).clearErrorLogs = clearErrorLogs;
+}
+
+
+if (typeof window !== 'undefined') {
+  (window as any).logError = logError;
+  (window as any).sanitizeError = sanitizeError;
+  (window as any).getErrorLogs = getErrorLogs;
+  (window as any).clearErrorLogs = clearErrorLogs;
+}
+
+
+
+ * Handles creation, styling, and interaction of in-page popups using HTML templates
+ *
+ * NOTE: Requires Material Icons stylesheet in your HTML:
+ * <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+ */
+
+/// <reference types="chrome"/>
+
+import { simpleMarkdownToHtml } from '../modules/markdownProcessor.js';
+// Template approach: See inPagePopupTemplate.js for why this is a JS file instead of HTML
+import { IN_PAGE_POPUP_TEMPLATE, renderTemplate, TemplateVariables } from './inPagePopupTemplate.js';
 
 // Type definitions
 interface Coordinates {
@@ -422,7 +444,7 @@ function setupPopupEventHandlers(
       });
       // Add error log context if available (but never sensitive data)
       try {
-        const logs = await getErrorLogs();
+        const logs = (window as any).getErrorLogs();
         if (logs && logs.length > 0) {
           params.set('entry.123456789', JSON.stringify(logs.slice(-3))); // Add last 3 errors (example field)
         }
@@ -457,7 +479,7 @@ function setupPopupEventHandlers(
     (link as HTMLElement).onclick = function(e: Event) {
       e.preventDefault();
       e.stopPropagation();
-      logError('User clicked error link', { phase: 'popup.errorLink', errorContent: popup.textContent });
+      (window as any).logError('User clicked error link', { phase: 'popup.errorLink', errorContent: popup.textContent });
       chrome.runtime.sendMessage({ action: "OPEN_OPTIONS_PAGE" });
     };
   });

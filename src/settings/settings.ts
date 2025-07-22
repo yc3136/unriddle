@@ -1,13 +1,7 @@
 /**
  * Settings page script for the unriddle Chrome Extension
  * 
- * Handles loading and saving user preferences using Chrome storage API
- */
-
-/// <reference types="chrome"/>
-
-import { SUPPORTED_LANGUAGES, DEFAULT_LANGUAGE, LANGUAGE_DISPLAY_NAMES, SupportedLanguage } from "../config/languages.js";
-import { SUPPORTED_MODELS, DEFAULT_MODEL, MODEL_DISPLAY_NAMES, MODEL_DESCRIPTIONS, SupportedModel } from "../config/models.js";
+ * Handles loading and saving user preferences using Chrome sto
 // Error logger for unriddle extension (single source of truth)
 export interface ErrorLogEntry {
   message: string;
@@ -18,6 +12,7 @@ export interface ErrorLogEntry {
   extensionVersion?: string;
   browserVersion?: string;
 }
+
 export function sanitizeError(error: any): Partial<ErrorLogEntry> {
   if (!error) return { message: 'Unknown error' };
   if (typeof error === 'string') return { message: error };
@@ -27,6 +22,7 @@ export function sanitizeError(error: any): Partial<ErrorLogEntry> {
     stack: error.stack ? error.stack.split('\n').slice(0, 5).join('\n') : undefined // limit stack
   };
 }
+
 export async function logError(error: any, context?: any) {
   const sanitized = sanitizeError(error);
   const entry: ErrorLogEntry = {
@@ -47,13 +43,36 @@ export async function logError(error: any, context?: any) {
     console.error('Failed to log error:', entry, e);
   }
 }
+
 export async function getErrorLogs(): Promise<ErrorLogEntry[]> {
   const { unriddleErrorLogs = [] } = await chrome.storage.local.get('unriddleErrorLogs');
   return unriddleErrorLogs;
 }
+
 export async function clearErrorLogs() {
   await chrome.storage.local.remove('unriddleErrorLogs');
 }
+
+if (typeof window !== 'undefined') {
+  (window as any).logError = logError;
+  (window as any).sanitizeError = sanitizeError;
+  (window as any).getErrorLogs = getErrorLogs;
+  (window as any).clearErrorLogs = clearErrorLogs;
+}
+
+
+if (typeof window !== 'undefined') {
+  (window as any).logError = logError;
+  (window as any).sanitizeError = sanitizeError;
+  (window as any).getErrorLogs = getErrorLogs;
+  (window as any).clearErrorLogs = clearErrorLogs;
+}
+rage API
+ */
+
+/// <reference types="chrome"/>
+
+import { SUPPORTED_MODELS, DEFAULT_MODEL, MODEL_DISPLAY_NAMES, MODEL_DESCRIPTIONS, SupportedModel } from "../config/models.js";
 
 // Type definitions
 interface UserSettings {
@@ -414,24 +433,24 @@ class SettingsManager {
   // Add method to download/copy error logs
   public async showErrorLogs() {
     try {
-      const logs = await getErrorLogs();
+      const logs = await (window as any).getErrorLogs();
       const logStr = JSON.stringify(logs, null, 2);
       // Try to use clipboard API
       await navigator.clipboard.writeText(logStr);
       this.showToast('Error logs copied to clipboard!', 'success');
     } catch (e) {
       this.showToast('Failed to copy error logs', 'error');
-      await logError(e, { phase: 'settings.showErrorLogs' });
+      await (window as any).logError(e, { phase: 'settings.showErrorLogs' });
     }
   }
 
   public async clearErrorLogsUI() {
     try {
-      await clearErrorLogs();
+      await (window as any).clearErrorLogs();
       this.showToast('Error logs cleared!', 'success');
     } catch (e) {
       this.showToast('Failed to clear error logs', 'error');
-      await logError(e, { phase: 'settings.clearErrorLogsUI' });
+      await (window as any).logError(e, { phase: 'settings.clearErrorLogsUI' });
     }
   }
 
@@ -491,7 +510,7 @@ class SettingsManager {
       
       this.showToast('Settings saved successfully!', 'success');
     } catch (error: any) {
-      await logError(error, { phase: 'settings.saveSettings' });
+      await (window as any).logError(error, { phase: 'settings.saveSettings' });
       this.showToast(`Error saving settings: ${error.message}`, 'error');
     }
   }
@@ -541,10 +560,10 @@ document.addEventListener('visibilitychange', () => {
 // Global error handlers
 if (typeof window !== 'undefined') {
   window.onerror = (msg, src, line, col, err) => {
-    logError(err || msg, { src, line, col, phase: 'settings.global' });
+    (window as any).logError(err || msg, { src, line, col, phase: 'settings.global' });
   };
   window.onunhandledrejection = (event) => {
-    logError(event.reason, { type: 'unhandledrejection', phase: 'settings.global' });
+    (window as any).logError(event.reason, { type: 'unhandledrejection', phase: 'settings.global' });
   };
 } 
 
