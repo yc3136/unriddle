@@ -1,10 +1,9 @@
 # unriddle Chrome Extension
 
-**What's New in 1.4.0**
-- Improved streaming: More robust, faster, and now works reliably for all responses
-- Cleaner UI: Settings page and popup have a refreshed, modern look
-- Version number is now managed only in the manifest (removed from settings page for easier maintenance)
-- Internal cleanup: All debug logging removed for production
+**What's New in 1.4.1**
+- Removed obsolete import from popup.ts (no longer references non-existent util.js)
+- Updated documentation to reference .ts files instead of .js
+- Note: Error logging code is intentionally duplicated in entry points for now
 
 **unriddle** helps you understand selected text by explaining, simplifying, or translating it using LLMs. Great for cultural references, slang, jargon, and more.
 
@@ -197,25 +196,25 @@ npm run clean        # Clean build output directory
 unriddle/
 ├── src/
 │   ├── config/               # Configuration files
-│   │   ├── languages.js      # Supported languages list
-│   │   └── models.js         # Available Gemini models configuration
+│   │   ├── languages.ts      # Supported languages list
+│   │   └── models.ts         # Available Gemini models configuration
 │   ├── modules/              # Shared utilities
-│   │   ├── contextGatherer.js    # Context expansion logic
-│   │   ├── markdownProcessor.js  # Markdown to HTML conversion
-│   │   └── eventHandlers.js      # Event handling
+│   │   ├── contextGatherer.ts    # Context expansion logic
+│   │   ├── markdownProcessor.ts  # Markdown to HTML conversion
+│   │   └── eventHandlers.ts      # Event handling
 │   ├── popup/                # Popup-related code
-│   │   ├── inPagePopup.js    # In-page popup functionality
+│   │   ├── inPagePopup.ts    # In-page popup functionality
 │   │   ├── inPagePopup.css   # In-page popup styles
-│   │   ├── popup.js          # Extension popup script
+│   │   ├── popup.ts          # Extension popup script
 │   │   ├── popup.html        # Extension popup HTML
 │   │   └── popup.css         # Extension popup styles
 │   ├── settings/             # Settings page
-│   │   ├── settings.js       # Settings page logic
+│   │   ├── settings.ts       # Settings page logic
 │   │   ├── settings.html     # Settings page HTML
 │   │   └── settings.css      # Settings page styles
-│   ├── content.js            # Main content script
-│   ├── background.js         # Background script
-│   └── llmApi.js            # LLM API integration
+│   ├── content.ts            # Main content script
+│   ├── background.ts         # Background script
+│   └── llmApi.ts            # LLM API integration
 ├── icons/                    # Extension icons
 ├── manifest.json             # Chrome extension manifest
 ├── vite.config.mjs           # Vite build configuration
@@ -230,26 +229,26 @@ unriddle/
 The extension follows a modular architecture with clear separation of concerns:
 
 ### **Core Modules**
-- **`content.js`**: Main orchestrator for content script functionality
-- **`background.js`**: Service worker for extension lifecycle management
-- **`llmApi.js`**: LLM API integration and communication
+- **`content.ts`**: Main orchestrator for content script functionality
+- **`background.ts`**: Service worker for extension lifecycle management
+- **`llmApi.ts`**: LLM API integration and communication
 
 ### **Configuration** (`src/config/`)
-- **`languages.js`**: Comprehensive list of supported languages with native names
+- **`languages.ts`**: Comprehensive list of supported languages with native names
 
 ### **Settings System** (`src/settings/`)
-- **`settings.js`**: Settings page logic with Chrome storage integration
+- **`settings.ts`**: Settings page logic with Chrome storage integration
 - **`settings.html/css`**: Settings page interface with toast notifications
 
 ### **Utility Modules** (`src/modules/`)
-- **`contextGatherer.js`**: Expands selection context for better LLM prompts
-- **`markdownProcessor.js`**: Converts markdown to HTML for rich text display
-- **`eventHandlers.js`**: Manages user interactions and accessibility
+- **`contextGatherer.ts`**: Expands selection context for better LLM prompts
+- **`markdownProcessor.ts`**: Converts markdown to HTML for rich text display
+- **`eventHandlers.ts`**: Manages user interactions and accessibility
 
 ### **Popup System** (`src/popup/`)
-- **`inPagePopup.js`**: Creates and manages in-page popups
+- **`inPagePopup.ts`**: Creates and manages in-page popups
 - **`inPagePopup.css`**: Styles for in-page popups with theme support
-- **`popup.js/html/css`**: Extension popup interface
+- **`popup.ts/html/css`**: Extension popup interface
 
 ## Usage
 
