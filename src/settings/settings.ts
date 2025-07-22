@@ -73,6 +73,7 @@ rage API
 /// <reference types="chrome"/>
 
 import { SUPPORTED_MODELS, DEFAULT_MODEL, MODEL_DISPLAY_NAMES, MODEL_DESCRIPTIONS, SupportedModel } from "../config/models.js";
+import { SUPPORTED_LANGUAGES, LANGUAGE_DISPLAY_NAMES, DEFAULT_LANGUAGE, SupportedLanguage } from "../config/languages.js";
 
 // Type definitions
 interface UserSettings {
@@ -529,6 +530,10 @@ class SettingsManager {
 
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
+  // Always hide error logs section initially
+  const errorLogsSection = document.getElementById('error-logs-section') as HTMLElement | null;
+  if (errorLogsSection) errorLogsSection.style.display = 'none';
+
   new SettingsManager();
   // Style font family dropdown options
   const fontFamilySelect = document.getElementById('font-family-select') as HTMLSelectElement;
