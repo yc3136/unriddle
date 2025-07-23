@@ -1,9 +1,13 @@
 # unriddle Chrome Extension
 
-**What's New in 1.4.1**
-- Removed obsolete import from popup.ts (no longer references non-existent util.js)
-- Updated documentation to reference .ts files instead of .js
-- Note: Error logging code is intentionally duplicated in entry points for now
+## Recent Changes
+
+- **Font Settings UI Refactor:** Redesigned for better usability and responsiveness. Font family dropdown uses fit-content width, layout uses flexbox for improved alignment and mobile support. Material Icons dependency removed. Accessibility improved.
+- **Error Logging:** Now handled directly in entry points and is more robust. Logger functions are globally accessible. Build process for logger injection was simplified and then removed.
+- **Settings Page:** Improved dropdown handling and show/hide logic for developer options. Bug fixes for dropdown selection.
+- **Popup UI:** In-page popup and settings UI now use CSS classes for visibility control. Material Icons dependency removed. Font settings layout improved for responsiveness.
+- **Model Selection:** Default model is now 'gemini-2.0-flash' for best speed/quality. Only supported models are shown in the dropdown. Model selection logic is more robust and user-friendly.
+- **API Key Handling:** All settings, including API key changes, now sync instantly across all extension contexts (popups, content scripts, etc.).
 
 **unriddle** helps you understand selected text by explaining, simplifying, or translating it using LLMs. Great for cultural references, slang, jargon, and more.
 
@@ -97,16 +101,18 @@ For Arabic, Hebrew, Persian, and Urdu, the LLM response is shown right-to-left a
 
 unriddle lets you configure your Gemini API key, choose which model to use, how much context is sent to the LLM, and provide additional instructions for the LLM output:
 
-- **API Key**: Currently, unriddle only works with Gemini. More API provider integration coming soon.
-- **Model Selection**: Choose from 6 available Gemini models:
+- **API Key**: unriddle only works with Gemini. More API provider integration coming soon.
+- **Model Selection**: Choose from supported Gemini models:
   - **Flash Models** (faster, good for most tasks): Gemini 1.5 Flash, Gemini 2.0 Flash, Gemini 2.5 Flash
-  - **Pro Models** (higher quality, better for complex topics): Gemini 1.5 Pro, Gemini 2.0 Pro, Gemini 2.5 Pro
-  - Default is Gemini 2.5 Flash (recommended for most users)
+  - **Pro Models** (higher quality, better for complex topics): Gemini 2.5 Pro
+  - **Default is Gemini 2.0 Flash** (recommended for most users)
 - **Context Window Size**: Set the number of words of surrounding context to include with your selection (default: 40 words). Leave empty for full page, or enter 0 for only your selection. Higher values may improve explanations but use more API quota.
 - **Additional LLM Instructions**: Add extra instructions that will be included with every LLM request. For example, you can ask the LLM to "explain as if to a 5 year old", "use a friendly tone", or any other style or audience preference. This is useful for customizing the output to your needs.
 - **Language Selection**: Choosing a language other than English may increase response time, as the LLM may take longer to process translations.
 
 **Note:** Using a different language, selecting a Pro model, or adding additional LLM instructions can increase the time it takes to receive a response, as these options require more processing by the LLM.
+
+**New:** Model selection logic is now more robust and user-friendly. Only supported models are shown in the dropdown, and the default is now 'gemini-2.0-flash' for best speed/quality.
 
 #### How to Configure
 1. Open the settings page
@@ -123,6 +129,8 @@ unriddle lets you control the font used for LLM responses in the in-page popup:
 - **Dynamic Font (default):** The popup matches the font family and size of your selected text for seamless integration with any website.
 - **Custom Font:** Choose from a wide selection of browser-supported fonts (Arial, Times New Roman, Roboto, etc.) and set your preferred font size. A live preview is shown as you adjust the settings.
 
+**New:** The font settings UI is now more responsive and accessible, with a flexbox layout for better alignment and mobile support. The font family dropdown uses fit-content width for improved usability. Material Icons dependency has been removed.
+
 To configure:
 1. Open the settings page
 2. Scroll to the "Font Configuration" section
@@ -133,6 +141,8 @@ To configure:
 Your font preference will be used for all future LLM responses in the popup.
 
 ### API Key Management (Bring Your Own Key)
+
+**New in 1.4.x:** Clearing your API key in the settings now takes effect immediately across all tabs and popups, just like updating the key or any other setting. No refresh required!
 
 unriddle supports two ways to provide your Gemini API key:
 
@@ -152,7 +162,7 @@ unriddle supports two ways to provide your Gemini API key:
 #### How It Works
 - **Priority System**: The extension first checks for a user-provided key in settings, then falls back to the environment variable
 - **Secure Storage**: User keys are stored locally in Chrome's sync storage, never sent to our servers
-- **Auto-Save**: API key changes are automatically saved, no need to click a save button
+- **Auto-Save & Instant Effect**: API key changes (including clearing the key) are automatically saved and take effect immediately everywhere—no need to refresh or reload
 - **Visual Feedback**: Settings page shows whether you're using your own key or the shared key
 
 #### Why Use Your Own API Key?
@@ -170,6 +180,8 @@ unriddle supports two ways to provide your Gemini API key:
 5. Paste it in the extension settings
 
 **Note**: The shared API key included with the extension has limited quota and may run out. Using your own key ensures uninterrupted service.
+
+**Tip:** If you clear your API key from the settings, the extension will instantly switch to using the shared key (if available) or show a warning if no key is set. This now works immediately everywhere, without needing to refresh the page or extension.
 
 **For Repository Forks**: If you forked this repository, you'll need to set up your own API key in the `.env` file as the original shared key is not included in the repository for security reasons.
 
@@ -280,6 +292,7 @@ The extension follows a modular architecture with clear separation of concerns:
 - **Dedicated settings page** accessible from multiple entry points
 - **Bring your own API key** with secure local storage and auto-save
 - **Smart key management** with priority system (user key → environment variable)
+- **Instant Settings Sync:** All settings changes, including clearing or updating your API key, now take effect immediately across all extension contexts (popups, content scripts, etc.).
 - **Context window size**: Choose how many words of surrounding context to include (default: 40 words; empty = full page; 0 = only selection)
 - **Additional LLM instructions**: Add extra instructions to customize the style, tone, or audience for every LLM response
 - **Toast notifications** for save confirmation
@@ -311,6 +324,7 @@ The extension follows a modular architecture with clear separation of concerns:
 - **Proactive warnings** when using shared API key
 - **Automatic warning dismissal** when user sets their own key
 - **Clear instructions** for getting and setting up API keys
+- **Error logging is now handled directly in entry points and is more robust.**
 
 ## Permissions
 
