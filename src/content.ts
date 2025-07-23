@@ -202,7 +202,7 @@ setupEventHandlers();
 const DEFAULT_SETTINGS: UserSettings = {
   language: "English",
   contextWindowSize: 40,
-  selectedModel: "gemini-2.5-flash"
+  selectedModel: "gemini-2.0-flash"
 };
 
 /**
@@ -339,13 +339,6 @@ chrome.runtime.onMessage.addListener(async (msg: UnriddleMessage, _sender, _send
 }); 
 
 // Listen for cache refresh messages from settings page
-if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.onMessage) {
-  chrome.runtime.onMessage.addListener((msg, _sender, _sendResponse) => {
-    if (msg.action === 'UNRIDDLE_REFRESH_CACHE' && typeof window.updateUnriddleCache === 'function') {
-      window.updateUnriddleCache(msg.settings);
-    }
-  });
-}
 
 // Global error handlers
 if (typeof window !== 'undefined') {

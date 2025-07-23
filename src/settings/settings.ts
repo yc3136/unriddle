@@ -214,7 +214,7 @@ class SettingsManager {
         if (this.elements.apiKeyInput) {
           this.elements.apiKeyInput.value = '';
         }
-        await chrome.storage.sync.set({ geminiApiKey: '' });
+        await this.saveSettings();
         this.updateApiKeyStatus();
         this.showToast('API key cleared.', 'success');
       });

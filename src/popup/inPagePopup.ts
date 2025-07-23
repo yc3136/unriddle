@@ -205,10 +205,10 @@ async function prepareTemplateVariables(
   }
 
   // Get current model
-  let currentModel = "gemini-2.5-flash";
+  let currentModel = "gemini-2.0-flash";
   let modelDisplayName = "Gemini 2.5 Flash";
   try {
-    const result = await chrome.storage.sync.get({ selectedModel: "gemini-2.5-flash" });
+    const result = await chrome.storage.sync.get({ selectedModel: "gemini-2.0-flash" });
     currentModel = result.selectedModel;
     
     const modelDisplayNames: Record<string, string> = {

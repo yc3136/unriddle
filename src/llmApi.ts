@@ -5,6 +5,8 @@
 
 /// <reference types="chrome"/>
 
+const DEFAULT_MODEL = "gemini-2.0-flash";
+
 // Type definitions
 export interface UnriddleSettings {
   geminiApiKey: string;
@@ -43,7 +45,7 @@ async function loadAndCacheSettings(): Promise<UnriddleSettings> {
       const result = await chrome.storage.sync.get({
         geminiApiKey: "",
         additionalLLMInstructions: "",
-        selectedModel: "gemini-2.5-flash"
+        selectedModel: DEFAULT_MODEL
       });
       cachedSettings = result as UnriddleSettings;
       return result as UnriddleSettings;
@@ -52,7 +54,7 @@ async function loadAndCacheSettings(): Promise<UnriddleSettings> {
     cachedSettings = {
       geminiApiKey: "",
       additionalLLMInstructions: "",
-      selectedModel: "gemini-2.5-flash"
+      selectedModel: DEFAULT_MODEL
     };
   }
   return cachedSettings!;
@@ -70,7 +72,7 @@ function updateCachedSettings(newSettings: Partial<UnriddleSettings>): void {
     cachedSettings = {
       geminiApiKey: newSettings.geminiApiKey || "",
       additionalLLMInstructions: newSettings.additionalLLMInstructions || "",
-      selectedModel: newSettings.selectedModel || "gemini-2.5-flash"
+      selectedModel: newSettings.selectedModel || DEFAULT_MODEL
     };
   }
 }
@@ -84,6 +86,15 @@ declare global {
 
 if (typeof window !== 'undefined') {
   window.updateUnriddleCache = updateCachedSettings;
+}
+
+// Listen for settings refresh messages from the settings page
+if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.onMessage) {
+  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.action === 'UNRIDDLE_REFRESH_CACHE' && message.settings) {
+      updateCachedSettings(message.settings);
+    }
+  });
 }
 
 /**
@@ -134,7 +145,7 @@ export async function unriddleText(
   }
   
   // Configure API request
-  const model = options.model || settings.selectedModel || "gemini-2.5-flash";
+  const model = options.model || settings.selectedModel || DEFAULT_MODEL;
   const language = options.language || "English";
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`;
 
@@ -143,16 +154,23 @@ export async function unriddleText(
 
   // Build prompt based on context type (string or object)
   let prompt = "";
-  let basePrompt = "Rewrite the following text in plain, simple words for a general audience. Do not use phrases like 'it means' or 'it describes'—just give the transformed meaning directly. Be concise and clear. Respond in "+language+".";
+  let basePrompt =
+    `Task: Rewrite the text below into simple, easy-to-understand language.\n\n` +
+    `Instructions:\n` +
+    `- Keep the explanation concise and direct.\n` +
+    `- Do not use phrases like \"it means,\" \"it describes,\" \"this term is,\" or \"this refers to.\"\n` +
+    `- The rewritten text should directly replace the original, as if it were the only explanation.\n` +
+    `- The response must be in ${language}.\n` +
+    `- Do not include any labels, headers, or introductory phrases (such as \"Selected:\", \"Explanation:\", or similar) in your response. Output only the rewritten text.`;
   if (additionalLLMInstructions) {
-    basePrompt += "\n" + additionalLLMInstructions;
+    basePrompt += `\n- ${additionalLLMInstructions.replace(/\n/g, '\n- ')}`;
   }
   if (typeof context === "string") {
     // Simple text processing
-    prompt = `${basePrompt}\nText: "${context}"`;
+    prompt = `${basePrompt}\n\nText: "${context}"`;
   } else {
     // Rich context processing with page information
-    prompt = `${basePrompt}\nPage Title: ${context.page_title || ""}\nSection Heading: ${context.section_heading || ""}\nContext Snippet: ${context.context_snippet || ""}\nUser Selection: "${context.user_selection || ""}"`;
+    prompt = `${basePrompt}\n\nPage Title: ${context.page_title || ""}\nSection Heading: ${context.section_heading || ""}\nContext Snippet: ${context.context_snippet || ""}\nUser Selection: "${context.user_selection || ""}"`;
   }
 
   // DEBUG LOGS
@@ -239,19 +257,26 @@ export async function* unriddleTextStream(
   if (!GEMINI_API_KEY) {
     throw new Error("Missing Gemini API key. Please set your own API key in Settings or ensure VITE_GEMINI_API_KEY is set in your .env file.");
   }
-  const model = options.model || settings.selectedModel || "gemini-2.5-flash";
+  const model = options.model || settings.selectedModel || DEFAULT_MODEL;
   const language = options.language || "English";
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?key=${GEMINI_API_KEY}`;
   const additionalLLMInstructions = settings.additionalLLMInstructions || "";
   let prompt = "";
-  let basePrompt = "Rewrite the following text in plain, simple words for a general audience. Do not use phrases like 'it means' or 'it describes'—just give the transformed meaning directly. Be concise and clear. Respond in "+language+".";
+  let basePrompt =
+    `Task: Rewrite the text below into simple, easy-to-understand language.\n\n` +
+    `Instructions:\n` +
+    `- Keep the explanation concise and direct.\n` +
+    `- Do not use phrases like \"it means,\" \"it describes,\" \"this term is,\" or \"this refers to.\"\n` +
+    `- The rewritten text should directly replace the original, as if it were the only explanation.\n` +
+    `- The response must be in ${language}.\n` +
+    `- Do not include any labels, headers, or introductory phrases (such as \"Selected:\", \"Explanation:\", or similar) in your response. Output only the rewritten text.`;
   if (additionalLLMInstructions) {
-    basePrompt += "\n" + additionalLLMInstructions;
+    basePrompt += `\n- ${additionalLLMInstructions.replace(/\n/g, '\n- ')}`;
   }
   if (typeof context === "string") {
-    prompt = `${basePrompt}\nText: \"${context}\"`;
+    prompt = `${basePrompt}\n\nText: \"${context}\"`;
   } else {
-    prompt = `${basePrompt}\nPage Title: ${context.page_title || ""}\nSection Heading: ${context.section_heading || ""}\nContext Snippet: ${context.context_snippet || ""}\nUser Selection: \"${context.user_selection || ""}\"`;
+    prompt = `${basePrompt}\n\nPage Title: ${context.page_title || ""}\nSection Heading: ${context.section_heading || ""}\nContext Snippet: ${context.context_snippet || ""}\nUser Selection: \"${context.user_selection || ""}\"`;
   }
 
   // DEBUG LOGS

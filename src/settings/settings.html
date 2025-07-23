@@ -24,9 +24,6 @@
             the AI will explain the content in the language you choose here. 
             This affects all future unriddle requests until you change this setting.
           </p>
-          <p class="setting-caveat caveat-note">
-            <strong>Note:</strong> Choosing a language other than English may increase response time, as the LLM may take longer to process translations.
-          </p>
         </div>
         <div class="language-selector">
           <select id="language-select" class="language-dropdown">
@@ -94,9 +91,6 @@
                 <li>Higher values provide more background but may be slower and use more API quota.</li>
                 <li>Default is <strong>40</strong> words.</li>
               </ul>
-              <p class="setting-caveat caveat-note">
-                <strong>Note:</strong> Increasing the context window size may increase response time, as more text is sent to the LLM for processing.
-              </p>
             </div>
             <input 
               type="number" 
@@ -112,9 +106,6 @@
             <h3 class="config-subheading">Additional LLM Instructions</h3>
             <div class="additional-llm-instructions-description addllm-desc">
               This text will be added to the LLM's instructions, together with the default prompt. Use it to customize the style, audience, or other preferences for the output.
-              <p class="setting-caveat caveat-note">
-                <strong>Note:</strong> Adding extra instructions may increase response time, especially if the instructions are long or complex.
-              </p>
             </div>
             <textarea 
               id="custom-prompt-input" 
