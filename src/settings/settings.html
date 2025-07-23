@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>unriddle Settings</title>
   <link rel="stylesheet" href="settings.css">
-  <script type="module" src="https://unpkg.com/@material/web@latest/all.js"></script>
+  <!-- Removed Material Web and Google Fonts links -->
 </head>
 <body>
   <div class="settings-container">
@@ -24,7 +24,7 @@
             the AI will explain the content in the language you choose here. 
             This affects all future unriddle requests until you change this setting.
           </p>
-          <p class="setting-caveat" style="color: #b85c00; font-size: 0.98em; margin-top: 6px;">
+          <p class="setting-caveat caveat-note">
             <strong>Note:</strong> Choosing a language other than English may increase response time, as the LLM may take longer to process translations.
           </p>
         </div>
@@ -67,7 +67,7 @@
               <button id="toggle-api-key" class="toggle-api-key-btn" type="button" aria-label="Show/hide API key">
                 👁
               </button>
-              <button id="clear-api-key" class="clear-api-key-btn" type="button" aria-label="Clear API Key" title="Clear API Key" style="background: none; border: none; padding: 0 6px; font-size: 1.2em; cursor: pointer; color: #888;">
+              <button id="clear-api-key" class="clear-api-key-btn clear-btn-style" type="button" aria-label="Clear API Key" title="Clear API Key">
                 ×
               </button>
             </div>
@@ -75,7 +75,7 @@
 
           <div class="model-selection-info" id="model-selection-anchor">
             <h3 class="config-subheading">Model Selection</h3>
-            <div class="model-selection-description settings-description-unified" style="margin-bottom: 12px;">
+            <div class="model-selection-description settings-description-unified mb-12">
               Choose which Gemini model to use for explanations. Different models offer different balances of speed, quality, and capabilities.
             </div>
             <div class="model-selector">
@@ -87,14 +87,14 @@
 
           <div class="context-window-info">
             <h3 class="config-subheading">Context Window Size (number of words)</h3>
-            <div class="context-window-instructions settings-description-unified" style="margin-bottom: 12px;">
-              <ul style="margin: 0; padding-left: 20px;">
+            <div class="context-window-instructions settings-description-unified mb-12">
+              <ul class="pl-20">
                 <li>Leave empty for <strong>full page</strong> context.</li>
                 <li>Enter <strong>0</strong> for no extra context (just your selection).</li>
                 <li>Higher values provide more background but may be slower and use more API quota.</li>
                 <li>Default is <strong>40</strong> words.</li>
               </ul>
-              <p class="setting-caveat" style="color: #b85c00; font-size: 0.98em; margin-top: 6px;">
+              <p class="setting-caveat caveat-note">
                 <strong>Note:</strong> Increasing the context window size may increase response time, as more text is sent to the LLM for processing.
               </p>
             </div>
@@ -110,19 +110,18 @@
 
           <div class="additional-llm-instructions-info">
             <h3 class="config-subheading">Additional LLM Instructions</h3>
-            <div class="additional-llm-instructions-description" style="font-size: 0.92em; margin-top: 4px;">
+            <div class="additional-llm-instructions-description addllm-desc">
               This text will be added to the LLM's instructions, together with the default prompt. Use it to customize the style, audience, or other preferences for the output.
-              <p class="setting-caveat" style="color: #b85c00; font-size: 0.98em; margin-top: 6px;">
+              <p class="setting-caveat caveat-note">
                 <strong>Note:</strong> Adding extra instructions may increase response time, especially if the instructions are long or complex.
               </p>
             </div>
             <textarea 
               id="custom-prompt-input" 
-              class="additional-llm-instructions-field" 
+              class="additional-llm-instructions-field fullwidth-mt6-resize" 
               rows="3" 
               placeholder="E.g. Explain as if to a 5 year old, use a friendly tone, etc."
               autocomplete="off"
-              style="width: 100%; margin-top: 6px; resize: vertical; min-height: 48px;"
             ></textarea>
           </div>
         </div>
@@ -132,19 +131,19 @@
         <h2>Font</h2>
         <p class="setting-description">Configure the font used for LLM responses in the in-page popup.</p>
         <div class="font-config-info">
-          <label style="display: flex; align-items: center; gap: 8px;">
+          <label class="flex-align-center gap-8">
             <input type="radio" name="font-mode" id="font-mode-dynamic" checked />
             <span><strong>Use dynamic font</strong> (match the font of your selected text)</span>
           </label>
-          <div class="font-dynamic-explanation additional-llm-instructions-description" style="margin: 8px 0 0 28px;">
+          <div class="font-dynamic-explanation additional-llm-instructions-description mt8-ml28">
             The popup will use the same font family and size as the text you selected. This is the default and works best for most sites.
           </div>
-          <label style="display: flex; align-items: center; gap: 8px; margin-top: 16px;">
+          <label class="flex-align-center gap-8 mt-16">
             <input type="radio" name="font-mode" id="font-mode-custom" />
             <span><strong>Use custom font</strong></span>
           </label>
         </div>
-        <div id="font-custom-controls" style="margin-top: 18px; display: none;">
+        <div id="font-custom-controls" class="mt-18 d-none">
           <div class="font-custom-row">
             <label for="font-family-select" class="font-family-label">Font Family</label>
             <select id="font-family-select" class="font-family-dropdown">
@@ -172,12 +171,12 @@
               <option value="Gill Sans">Gill Sans</option>
               <option value="Optima">Optima</option>
             </select>
-            <label for="font-size-input" style="margin: 0 8px 0 24px; white-space: nowrap;">Font Size (px)</label>
-            <input type="number" id="font-size-input" class="font-size-field" min="10" max="48" step="1" value="16" style="width: 80px; margin-top: 0;" />
+            <label for="font-size-input" class="mx-8 ml-24 nowrap">Font Size (px)</label>
+            <input type="number" id="font-size-input" class="font-size-field w-80 mt-0" min="10" max="48" step="1" value="16" />
           </div>
-          <div style="margin-top: 16px;">
-            <span class="font-example-label" style="font-size: 0.95em; color: #888;">Example:</span>
-            <div id="font-example-text" style="margin-top: 6px; padding: 10px 16px; border-radius: 8px; background: #f8f9fa; border: 1px solid #eee; display: inline-block; min-width: 120px;">The quick brown fox jumps over the lazy dog.</div>
+          <div class="mt-16">
+            <span class="font-example-label font-example">Example:</span>
+            <div id="font-example-text" class="font-example-text">The quick brown fox jumps over the lazy dog.</div>
           </div>
         </div>
       </section>
@@ -189,7 +188,7 @@
           </label>
           <h2>Developer Options</h2>
         </div>
-        <div id="error-logs-section" style="display: none;">
+        <div id="error-logs-section" class="d-none">
           <h3>Error Logs</h3>
           <p class="font-dynamic-explanation">Error logs are stored locally and never sent anywhere unless you choose to share them.</p>
           <div class="error-logs-btn-row">

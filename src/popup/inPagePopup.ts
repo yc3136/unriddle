@@ -1,8 +1,5 @@
 /**
  * In-page popup management module for the unriddle Chrome Extension
- *
- * NOTE: Requires Material Icons stylesheet in your HTML:
- * <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
  */
 
 /// <reference types="chrome"/>
@@ -95,19 +92,6 @@ function injectPopupStyles(): void {
   }
 }
 
-/**
- * Injects the Material Icons stylesheet into the page if not already loaded
- */
-function injectMaterialIconsStylesheet(): void {
-  if (!document.getElementById("unriddle-material-icons-styles")) {
-    const link = document.createElement("link");
-    link.id = "unriddle-material-icons-styles";
-    link.rel = "stylesheet";
-    link.href = "https://fonts.googleapis.com/icon?family=Material+Icons+Outlined";
-    document.head.appendChild(link);
-  }
-}
-
 function showCopySuccessMessage(btn: HTMLElement, message: string): void {
   // Remove any existing message
   let existing = document.getElementById("unriddle-copy-success-msg");
@@ -167,10 +151,10 @@ async function prepareTemplateVariables(
     resultDirection = 'rtl';
   }
 
-  // Display states
-  const loadingDisplay = loading ? 'flex' : 'none';
-  const resultDisplay = loading ? 'none' : 'block';
-  const copyButtonDisplay = prompt ? 'flex' : 'none';
+  // Display states (use CSS classes instead of inline styles)
+  const loadingDisplayClass = loading ? '' : 'hidden';
+  const resultDisplayClass = loading ? 'hidden' : '';
+  const copyButtonDisplayClass = prompt ? '' : 'hidden';
 
   // Time text extraction
   let timeText = "";
@@ -183,7 +167,7 @@ async function prepareTemplateVariables(
 
   // Result content processing
   let resultContent = "";
-  let resultStyles = "";
+  let resultStylesClass = "";
   let resultId = "";
   
   if (!loading) {
@@ -212,12 +196,11 @@ async function prepareTemplateVariables(
     // Generate result ID
     resultId = `unriddle-result-${Date.now()}`;
 
-    // Apply font styles
+    // Apply font styles via CSS classes
     if (fontSettings.useDynamicFont) {
-      const fontStyles = getSelectionFontStyles();
-      resultStyles = `font-family: ${fontStyles.fontFamily}; font-size: ${fontStyles.fontSize}; font-weight: ${fontStyles.fontWeight}; font-style: ${fontStyles.fontStyle};`;
+      resultStylesClass = 'dynamic-font';
     } else {
-      resultStyles = `font-family: ${fontSettings.customFontFamily}; font-size: ${fontSettings.customFontSize}px;`;
+      resultStylesClass = 'custom-font';
     }
   }
 
@@ -242,7 +225,7 @@ async function prepareTemplateVariables(
   }
 
   // Check if user has API key and get additional instructions
-  let warningDisplay = 'none';
+  let warningDisplayClass = 'hidden';
   let additionalInstructions = "";
   try {
     const result = await chrome.storage.sync.get({ 
@@ -251,7 +234,7 @@ async function prepareTemplateVariables(
     });
     const hasUserApiKey = result.geminiApiKey && result.geminiApiKey.trim() !== '';
     if (!hasUserApiKey) {
-      warningDisplay = 'flex';
+      warningDisplayClass = '';
     }
     additionalInstructions = result.additionalLLMInstructions || "";
   } catch (error) {
@@ -260,12 +243,13 @@ async function prepareTemplateVariables(
 
   return {
     direction,
-    loadingDisplay,
-    resultDisplay,
-    copyButtonDisplay,
+    loadingDisplayClass,
+    resultDisplayClass,
+    copyButtonDisplayClass,
+    warningDisplayClass,
     timeText,
     resultContent,
-    resultStyles,
+    resultStylesClass,
     resultId,
     resultDirection,
     selectedText: text || "",
@@ -274,8 +258,7 @@ async function prepareTemplateVariables(
     language: language || "",
     additionalInstructions,
     currentModel,
-    modelDisplayName,
-    warningDisplay
+    modelDisplayName
   };
 }
 
@@ -297,13 +280,23 @@ function setupPopupEventHandlers(
   // Copy prompt button
   const copyBtn = popup.querySelector('.unriddle-copy-prompt-btn') as HTMLElement;
   if (copyBtn) {
-    copyBtn.onclick = function(e: Event) {
+    copyBtn.onclick = async function(e: Event) {
       e.preventDefault();
       e.stopPropagation();
       const promptData = copyBtn.dataset.prompt;
       if (!promptData) return;
       const url = window.location.href;
-      const textToCopy = `${promptData}\n\n[Source: ${url}]\n- from unriddle Chrome Extension`;
+      // Get additional instructions from the popup's dataset or chrome.storage
+      let additionalInstructions = '';
+      try {
+        const result = await chrome.storage.sync.get({ additionalLLMInstructions: '' });
+        additionalInstructions = result.additionalLLMInstructions || '';
+      } catch (e) {}
+      let textToCopy = promptData;
+      if (additionalInstructions && !promptData.includes(additionalInstructions)) {
+        textToCopy += `\n${additionalInstructions}`;
+      }
+      textToCopy += `\n\n[Source: ${url}]\n- from unriddle Chrome Extension`;
       navigator.clipboard.writeText(textToCopy).then(() => {
         showCopySuccessMessage(copyBtn, "Prompt copied to clipboard");
       });
@@ -438,7 +431,6 @@ export async function showUnriddlePopup(
 
   // Inject CSS styles if not already done
   injectPopupStyles();
-  injectMaterialIconsStylesheet();
 
   // Prepare template variables
   const templateVars = await prepareTemplateVariables(text, loading, result, isHtml, prompt, language);

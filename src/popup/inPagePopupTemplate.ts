@@ -63,7 +63,7 @@ export const IN_PAGE_POPUP_TEMPLATE = `
     <div class="unriddle-focus-trap" tabindex="0" aria-hidden="true"></div>
     
     <!-- Loading state -->
-    <div class="unriddle-loading-state" style="display: {{loadingDisplay}};">
+    <div class="unriddle-loading-state {{loadingDisplayClass}}">
       <div class="loader" role="status" aria-live="polite" aria-label="Loading" aria-busy="true">
         <div class="segment"></div><div class="segment"></div><div class="segment"></div><div class="segment"></div>
       </div>
@@ -71,9 +71,9 @@ export const IN_PAGE_POPUP_TEMPLATE = `
     </div>
     
     <!-- Result state -->
-    <div class="unriddle-result-state" style="display: {{resultDisplay}};">
+    <div class="unriddle-result-state {{resultDisplayClass}}">
       <!-- Result content -->
-      <span id="{{resultId}}" class="unriddle-result" dir="{{resultDirection}}" style="{{resultStyles}}">
+      <span id="{{resultId}}" class="unriddle-result" dir="{{resultDirection}} {{resultStylesClass}}">
         {{resultContent}}
       </span>
       
@@ -82,18 +82,21 @@ export const IN_PAGE_POPUP_TEMPLATE = `
         <span class="unriddle-time-text">{{timeText}}</span>
         
         <!-- Copy prompt button -->
-        <button class="unriddle-copy-prompt-btn" aria-label="Copy LLM context for follow up" title="Copy LLM context for follow up" data-prompt="{{prompt}}" style="display: {{copyButtonDisplay}};">
-          <span class="material-icons-outlined unriddle-icon">smart_toy</span>
+        <button class="unriddle-copy-prompt-btn {{copyButtonDisplayClass}}" aria-label="Copy LLM context for follow up" title="Copy LLM context for follow up" data-prompt="{{prompt}}">
+          <!-- Removed Material Icon -->
+          <span class="unriddle-icon">🤖</span>
         </button>
         
         <!-- Settings button -->
         <button class="unriddle-settings-btn" aria-label="Open Settings" title="Open Settings">
-          <span class="material-icons-outlined unriddle-icon">settings</span>
+          <!-- Removed Material Icon -->
+          <span class="unriddle-icon">⚙️</span>
         </button>
         
         <!-- Feedback button -->
         <button class="unriddle-feedback-btn" aria-label="Send Feedback" title="Send Feedback" data-text="{{selectedText}}" data-result="{{resultData}}" data-prompt="{{prompt}}" data-language="{{language}}" data-instructions="{{additionalInstructions}}">
-          <span class="material-icons-outlined unriddle-icon">feedback</span>
+          <!-- Removed Material Icon -->
+          <span class="unriddle-icon">💬</span>
         </button>
       </div>
       
@@ -105,7 +108,7 @@ export const IN_PAGE_POPUP_TEMPLATE = `
       </div>
       
       <!-- Shared key warning -->
-      <div class="unriddle-shared-key-warning" style="display: {{warningDisplay}};">
+      <div class="unriddle-shared-key-warning {{warningDisplayClass}}">
         <div class="warning-icon">⚠️</div>
         <div class="warning-text">
           <strong>Using shared API key</strong> - This has limited quota. 

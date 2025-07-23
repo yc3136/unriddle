@@ -148,6 +148,8 @@ export async function unriddleText(
     prompt = `${basePrompt}\nPage Title: ${context.page_title || ""}\nSection Heading: ${context.section_heading || ""}\nContext Snippet: ${context.context_snippet || ""}\nUser Selection: "${context.user_selection || ""}"`;
   }
 
+  // DEBUG LOGS
+
   // Check cache before making API request
   const cacheKey = getCacheKey(prompt, model, language);
   if (llmResultCache.has(cacheKey)) {
@@ -244,6 +246,9 @@ export async function* unriddleTextStream(
   } else {
     prompt = `${basePrompt}\nPage Title: ${context.page_title || ""}\nSection Heading: ${context.section_heading || ""}\nContext Snippet: ${context.context_snippet || ""}\nUser Selection: \"${context.user_selection || ""}\"`;
   }
+
+  // DEBUG LOGS
+
   const body = {
     contents: [
       {

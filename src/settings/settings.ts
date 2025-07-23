@@ -308,7 +308,11 @@ class SettingsManager {
   private updateFontCustomControls(): void {
     if (!this.elements.fontCustomControls || !this.elements.fontModeDynamic || !this.elements.fontModeCustom) return;
     const isDynamic = this.elements.fontModeDynamic.checked;
-    this.elements.fontCustomControls.style.display = isDynamic ? 'none' : '';
+    if (isDynamic) {
+      this.elements.fontCustomControls.classList.add('d-none');
+    } else {
+      this.elements.fontCustomControls.classList.remove('d-none');
+    }
     this.updateFontExample();
   }
 
@@ -515,11 +519,18 @@ class SettingsManager {
 
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
+  console.log('[unriddle] DOMContentLoaded fired');
   // Always hide error logs section initially
   const errorLogsSection = document.getElementById('error-logs-section') as HTMLElement | null;
-  if (errorLogsSection) errorLogsSection.style.display = 'none';
+  if (errorLogsSection) {
+    errorLogsSection.style.display = 'none';
+    console.log('[unriddle] errorLogsSection found');
+  } else {
+    console.warn('[unriddle] errorLogsSection NOT found');
+  }
 
-  new SettingsManager();
+  const settingsManager = new SettingsManager();
+  (window as any).settingsManager = settingsManager;
   // Style font family dropdown options
   const fontFamilySelect = document.getElementById('font-family-select') as HTMLSelectElement;
   if (fontFamilySelect) {
@@ -535,6 +546,61 @@ document.addEventListener('DOMContentLoaded', () => {
       anchor.setAttribute('tabindex', '-1');
       anchor.focus({ preventScroll: true });
     }
+  }
+
+  // Developer options logic (moved inside DOMContentLoaded)
+  const devOptionsToggle = document.getElementById('dev-options-toggle') as HTMLInputElement | null;
+  const errorLogsSection2 = document.getElementById('error-logs-section') as HTMLElement | null;
+  const copyBtn = document.getElementById('copy-error-logs-btn');
+  const clearBtn = document.getElementById('clear-error-logs-btn');
+
+  console.log('[unriddle] devOptionsToggle:', !!devOptionsToggle);
+  console.log('[unriddle] errorLogsSection2:', !!errorLogsSection2);
+  console.log('[unriddle] copyBtn:', !!copyBtn);
+  console.log('[unriddle] clearBtn:', !!clearBtn);
+
+  function updateDevOptionsUI(enabled: boolean) {
+    console.log('[unriddle] updateDevOptionsUI called with enabled:', enabled);
+    if (errorLogsSection2) {
+      if (enabled) {
+        errorLogsSection2.classList.remove('d-none');
+        errorLogsSection2.style.display = '';
+        console.log('[unriddle] errorLogsSection2 shown');
+      } else {
+        errorLogsSection2.classList.add('d-none');
+        errorLogsSection2.style.display = 'none';
+        console.log('[unriddle] errorLogsSection2 hidden');
+      }
+    }
+    if (devOptionsToggle) devOptionsToggle.checked = enabled;
+  }
+
+  chrome.storage.sync.get({ unriddleDevOptions: false }, (result) => {
+    console.log('[unriddle] chrome.storage.sync.get unriddleDevOptions:', result.unriddleDevOptions);
+    updateDevOptionsUI(!!result.unriddleDevOptions);
+  });
+
+  if (devOptionsToggle) {
+    devOptionsToggle.addEventListener('change', () => {
+      const enabled = devOptionsToggle.checked;
+      console.log('[unriddle] devOptionsToggle changed, new value:', enabled);
+      chrome.storage.sync.set({ unriddleDevOptions: enabled }, () => {
+        updateDevOptionsUI(enabled);
+      });
+    });
+  }
+
+  if (copyBtn) {
+    copyBtn.addEventListener('click', () => {
+      console.log('[unriddle] copyBtn clicked');
+      (window as any).settingsManager?.showErrorLogs();
+    });
+  }
+  if (clearBtn) {
+    clearBtn.addEventListener('click', () => {
+      console.log('[unriddle] clearBtn clicked');
+      (window as any).settingsManager?.clearErrorLogsUI();
+    });
   }
 });
 
@@ -555,35 +621,4 @@ if (typeof window !== 'undefined') {
   window.onunhandledrejection = (event) => {
     logError(event.reason, { type: 'unhandledrejection', phase: 'settings.global' });
   };
-} 
-
-// Developer options toggle logic for standard checkbox
-const devOptionsToggle = document.getElementById('dev-options-toggle') as HTMLInputElement | null;
-const errorLogsSection = document.getElementById('error-logs-section') as HTMLElement | null;
-const copyBtn = document.getElementById('copy-error-logs-btn');
-const clearBtn = document.getElementById('clear-error-logs-btn');
-
-function updateDevOptionsUI(enabled: boolean) {
-  if (errorLogsSection) errorLogsSection.style.display = enabled ? '' : 'none';
-  if (devOptionsToggle) devOptionsToggle.checked = enabled;
-}
-
-chrome.storage.sync.get({ unriddleDevOptions: false }, (result) => {
-  updateDevOptionsUI(!!result.unriddleDevOptions);
-});
-
-if (devOptionsToggle) {
-  devOptionsToggle.addEventListener('change', () => {
-    const enabled = devOptionsToggle.checked;
-    chrome.storage.sync.set({ unriddleDevOptions: enabled }, () => {
-      updateDevOptionsUI(enabled);
-    });
-  });
-}
-
-if (copyBtn) {
-  copyBtn.addEventListener('click', () => (window as any).settingsManager?.showErrorLogs());
-}
-if (clearBtn) {
-  clearBtn.addEventListener('click', () => (window as any).settingsManager?.clearErrorLogsUI());
 } 

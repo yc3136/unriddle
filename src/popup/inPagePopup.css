@@ -497,3 +497,22 @@
     color: #fff;
   }
 } 
+
+.hidden {
+  display: none !important;
+}
+.visible {
+  display: block !important;
+} 
+
+.dynamic-font {
+  /* Use inherit to match the selected text's font, or set via JS if needed */
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  font-style: inherit;
+}
+.custom-font {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 16px;
+} 

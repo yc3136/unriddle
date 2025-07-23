@@ -288,10 +288,9 @@ chrome.runtime.onMessage.addListener(async (msg: UnriddleMessage, _sender, _send
           resultText = unriddleResult as string;
         }
         
-        // Show the result popup
-        const basePrompt = `Rewrite the following text in plain, simple words for a general audience. Do not use phrases like 'it means' or 'it describes'—just give the transformed meaning directly. Be concise and clear. Respond in ${settings.language || 'English'}.`;
-        const fullPrompt = `${basePrompt}\nPage Title: ${context.page_title || ""}\nSection Heading: ${context.section_heading || ""}\nContext Snippet: ${context.context_snippet || ""}\nUser Selection: "${context.user_selection || ""}"`;
-        await showUnriddlePopup(selectedText, false, resultText, false, fullPrompt, settings.language);
+        // Use the actual prompt returned by the LLM API for the popup
+        const actualPrompt = (typeof unriddleResult === 'object' && 'prompt' in unriddleResult) ? unriddleResult.prompt : undefined;
+        await showUnriddlePopup(selectedText, false, resultText, false, actualPrompt, settings.language);
         
         // Get the popup and result span
         const popup = document.getElementById("unriddle-popup");
