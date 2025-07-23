@@ -251,9 +251,25 @@ chrome.runtime.onMessage.addListener(async (msg: UnriddleMessage, _sender, _send
         // Attempt streaming
         for await (const chunk of unriddleTextStream(context, { language: settings.language, model: settings.selectedModel })) {
           if (firstChunk) {
-            // Switch from loading to result popup on first chunk
-            const basePrompt = `Rewrite the following text in plain, simple words for a general audience. Do not use phrases like 'it means' or 'it describes'—just give the transformed meaning directly. Be concise and clear. Respond in ${settings.language || 'English'}.`;
-            const fullPrompt = `${basePrompt}\nPage Title: ${context.page_title || ""}\nSection Heading: ${context.section_heading || ""}\nContext Snippet: ${context.context_snippet || ""}\nUser Selection: "${context.user_selection || ""}"`;
+            // Build prompt exactly as in llmApi.ts
+            let basePrompt =
+              `Task: Rewrite the text below into simple, easy-to-understand language.\n\n` +
+              `Instructions:\n` +
+              `- Keep the explanation concise and direct.\n` +
+              `- Do not use phrases like \"it means,\" \"it describes,\" \"this term is,\" or \"this refers to.\"\n` +
+              `- The rewritten text should directly replace the original, as if it were the only explanation.\n` +
+              `- The response must be in ${settings.language || 'English'}.\n` +
+              `- Do not include any labels, headers, or introductory phrases (such as \"Selected:\", \"Explanation:\", or similar) in your response. Output only the rewritten text.`;
+            // Add additional instructions if present
+            let additionalLLMInstructions = "";
+            try {
+              const result = await chrome.storage.sync.get({ additionalLLMInstructions: '' });
+              additionalLLMInstructions = result.additionalLLMInstructions || '';
+            } catch (e) {}
+            if (additionalLLMInstructions) {
+              basePrompt += `\n- ${additionalLLMInstructions.replace(/\n/g, '\n- ')}`;
+            }
+            const fullPrompt = `${basePrompt}\n\nPage Title: ${context.page_title || ""}\nSection Heading: ${context.section_heading || ""}\nContext Snippet: ${context.context_snippet || ""}\nUser Selection: \"${context.user_selection || ""}\"`;
             await showUnriddlePopup(selectedText, false, "", true, fullPrompt, settings.language);
             const popup = document.getElementById("unriddle-popup");
             if (!popup) {
