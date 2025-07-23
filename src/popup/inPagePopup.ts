@@ -29,8 +29,6 @@ interface FontSettings {
 
 interface LLMConfig {
   model: string;
-  temperature: string;
-  maxTokens: string;
 }
 
 // List of supported right-to-left (RTL) languages (inlined to avoid shared chunk issues)
@@ -319,7 +317,6 @@ function setupPopupEventHandlers(
     feedbackBtn.onclick = async function(e: Event) {
       e.preventDefault();
       e.stopPropagation();
-      
       // Gather settings from chrome.storage.sync
       const DEFAULT_FONT_SETTINGS: FontSettings = {
         useDynamicFont: true,
@@ -327,35 +324,27 @@ function setupPopupEventHandlers(
         customFontSize: 16
       };
       const DEFAULT_LLM_CONFIG: LLMConfig = {
-        model: '',
-        temperature: '',
-        maxTokens: ''
+        model: ''
       };
       let fontSettings = DEFAULT_FONT_SETTINGS;
       let llmConfig = DEFAULT_LLM_CONFIG;
       let lang = language || '';
-      
       try {
         const fontResult = await chrome.storage.sync.get(DEFAULT_FONT_SETTINGS);
         fontSettings = { ...DEFAULT_FONT_SETTINGS, ...fontResult };
       } catch (e) {}
-      
       try {
-        const llmResult = await chrome.storage.sync.get(DEFAULT_LLM_CONFIG);
-        llmConfig = { ...DEFAULT_LLM_CONFIG, ...llmResult };
-        if ((llmConfig as any).geminiApiKey) delete (llmConfig as any).geminiApiKey;
+        const llmResult = await chrome.storage.sync.get({ selectedModel: '' });
+        llmConfig.model = llmResult.selectedModel || '';
       } catch (e) {}
-      
       if (!lang && typeof window !== 'undefined' && (window as any).unriddleLanguage) {
         lang = (window as any).unriddleLanguage;
       }
-      
       const fontString = JSON.stringify(fontSettings);
       let llmConfigString = JSON.stringify(llmConfig);
       if (feedbackBtn.dataset.instructions) {
         llmConfigString += `\nAdditional LLM Instructions: ${feedbackBtn.dataset.instructions}`;
       }
-      
       const baseUrl = "https://docs.google.com/forms/d/e/1FAIpQLSdJUcgB0AbgSI59oE_O7DFBSKOivFWLNpCXXH4WMBsKrnHanw/viewform";
       const params = new URLSearchParams({
         "entry.378537756": "",
