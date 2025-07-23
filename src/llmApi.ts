@@ -65,6 +65,13 @@ async function loadAndCacheSettings(): Promise<UnriddleSettings> {
 function updateCachedSettings(newSettings: Partial<UnriddleSettings>): void {
   if (cachedSettings) {
     cachedSettings = { ...cachedSettings, ...newSettings };
+  } else {
+    // If cache is not set, initialize it with defaults and new settings
+    cachedSettings = {
+      geminiApiKey: newSettings.geminiApiKey || "",
+      additionalLLMInstructions: newSettings.additionalLLMInstructions || "",
+      selectedModel: newSettings.selectedModel || "gemini-2.5-flash"
+    };
   }
 }
 

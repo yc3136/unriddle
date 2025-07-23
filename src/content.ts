@@ -325,18 +325,27 @@ chrome.runtime.onMessage.addListener(async (msg: UnriddleMessage, _sender, _send
       let errorMessage = err.message || err;
       // logError(err, { phase: 'content.onMessage', selectedText }); // This line was removed as per the edit hint
       if (errorMessage.includes('Gemini API error: 400')) {
-        errorMessage = `Invalid API key. Please check your Gemini API key in <a href=\"#\" class=\"error-link\">Settings</a> and try again.`;
+        errorMessage = `<span class="unriddle-error-message">😭 Invalid API key. Please check your Gemini API key in <a href="#" class="error-link">Settings</a> and try again.</span>`;
       } else if (errorMessage.includes('Gemini API error: 429') || 
                  errorMessage.includes('quota') || 
                  errorMessage.includes('rate limit') ||
                  errorMessage.includes('RESOURCE_EXHAUSTED')) {
-        errorMessage = `API quota limit reached. The shared API key has been used up. Please set your own Gemini API key in <a href=\"#\" class=\"error-link\">Settings</a> to avoid exceeding API quota.`;
+        errorMessage = `<span class="unriddle-error-message">😭 API quota limit reached. The shared API key has been used up. Please set your own Gemini API key in <a href=\"#\" class=\"error-link\">Settings</a> to avoid exceeding API quota.</span>`;
       }
       const elapsed = ((Date.now() - startTime) / 1000).toFixed(2);
-      showUnriddlePopup(selectedText, false, `Error: ${errorMessage}\n\n⏱️ Time used: ${elapsed}s`, true, undefined, settings.language);
+      showUnriddlePopup(selectedText, false, `${errorMessage}\n\n⏱️ Time used: ${elapsed}s`, true, undefined, settings.language);
     }
   }
 }); 
+
+// Listen for cache refresh messages from settings page
+if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.onMessage) {
+  chrome.runtime.onMessage.addListener((msg, _sender, _sendResponse) => {
+    if (msg.action === 'UNRIDDLE_REFRESH_CACHE' && typeof window.updateUnriddleCache === 'function') {
+      window.updateUnriddleCache(msg.settings);
+    }
+  });
+}
 
 // Global error handlers
 if (typeof window !== 'undefined') {

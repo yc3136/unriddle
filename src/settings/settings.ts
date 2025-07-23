@@ -497,7 +497,23 @@ class SettingsManager {
           selectedModel: settings.selectedModel
         });
       }
-      
+      // Broadcast cache refresh to all tabs
+      if (chrome.tabs && chrome.tabs.query && chrome.tabs.sendMessage) {
+        chrome.tabs.query({}, function(tabs) {
+          for (const tab of tabs) {
+            if (tab.id) {
+              chrome.tabs.sendMessage(tab.id, {
+                action: 'UNRIDDLE_REFRESH_CACHE',
+                settings: {
+                  geminiApiKey: settings.geminiApiKey,
+                  additionalLLMInstructions: settings.additionalLLMInstructions,
+                  selectedModel: settings.selectedModel
+                }
+              });
+            }
+          }
+        });
+      }
       this.showToast('Settings saved successfully!', 'success');
     } catch (error: any) {
       await logError(error, { phase: 'settings.saveSettings' });

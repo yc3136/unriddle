@@ -186,9 +186,11 @@ async function prepareTemplateVariables(
     // Process result content
     let resultText = result;
     if (isHtml) {
-      resultContent = simpleMarkdownToHtml(resultText.replace(/\n?⏱️ Time used: [\d.]+s/, ""));
+      // If isHtml, assume resultText is already HTML (e.g., error message)
+      resultContent = resultText.replace(/\n?⏱️ Time used: [\d.]+s/, "");
     } else {
       resultContent = resultText.replace(/\n?⏱️ Time used: [\d.]+s/, "");
+      resultContent = simpleMarkdownToHtml(resultContent);
     }
 
     // Generate result ID
