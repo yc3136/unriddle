@@ -491,7 +491,7 @@ interface ErrorLogEntry {
   browserVersion?: string;
 }
 
-function sanitizeError(error: any): Partial<ErrorLogEntry> {
+export function sanitizeError(error: any): Partial<ErrorLogEntry> {
   if (!error) return { message: 'Unknown error' };
   if (typeof error === 'string') return { message: error };
   return {
@@ -501,7 +501,7 @@ function sanitizeError(error: any): Partial<ErrorLogEntry> {
   };
 }
 
-async function logError(error: any, context?: any) {
+export async function logError(error: any, context?: any) {
   const sanitized = sanitizeError(error);
   const entry: ErrorLogEntry = {
     message: sanitized.message || 'Unknown error',
@@ -521,12 +521,3 @@ async function logError(error: any, context?: any) {
     console.error('Failed to log error:', entry, e);
   }
 }
-
-async function getErrorLogs(): Promise<ErrorLogEntry[]> {
-  const { unriddleErrorLogs = [] } = await chrome.storage.local.get('unriddleErrorLogs');
-  return unriddleErrorLogs;
-}
-
-async function clearErrorLogs() {
-  await chrome.storage.local.remove('unriddleErrorLogs');
-} 
