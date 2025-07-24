@@ -36,9 +36,9 @@ export const MODEL_DISPLAY_NAMES: Record<SupportedModel, string> = {
 // Short descriptions for dropdown menu
 export const MODEL_DESCRIPTIONS: Record<SupportedModel, string> = {
   'gemini-1.5-flash': 'Fast, basic quality for simple explanations',
-  'gemini-2.0-flash': 'Best speed-to-quality ratio, recommended',
-  'gemini-2.5-flash': 'Good speed-to-quality ratio, but slower than 2.0 Flash',
-  'gemini-2.5-pro': 'Highest quality, best for complex topics, but slowest'
+  'gemini-2.0-flash': 'Good quality and super fast, perfect for simple terms and quick lookup',
+  'gemini-2.5-flash': 'Better quality, but slower than 2.0 Flash',
+  'gemini-2.5-pro': 'Best quality but slowest, good for advanced usage.'
 };
 
 // Model categories for organization
