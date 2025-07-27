@@ -123,7 +123,7 @@ export const LANGUAGE_DISPLAY_NAMES: Record<SupportedLanguage, string> = {
   'Bulgarian': 'Bulgarian (Български)',
   'Burmese': 'Burmese (မြန်မာ)',
   'Catalan': 'Catalan (Català)',
-  'Chinese (Simplified)': 'Chinese Simplified (中文)',
+  'Chinese (Simplified)': 'Chinese Simplified (简体中文)',
   'Chinese (Traditional)': 'Chinese Traditional (繁體中文)',
   'Croatian': 'Croatian (Hrvatski)',
   'Czech': 'Czech (Čeština)',
